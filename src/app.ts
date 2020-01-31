@@ -3,7 +3,6 @@ import * as logger from 'morgan';
 import * as bodyParser from 'body-parser';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import { Keyring } from '@polkadot/api';
-import keyring2 from '@polkadot/ui-keyring';
 import { KeyringPair } from '@polkadot/keyring/types';
 
 // Creates and configures an ExpressJS web server.
