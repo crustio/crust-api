@@ -3,7 +3,6 @@ import * as logger from 'morgan';
 import * as bodyParser from 'body-parser';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import { Keyring } from '@polkadot/api';
-import keyring2 from '@polkadot/ui-keyring';
 import { KeyringPair } from '@polkadot/keyring/types';
 
 // Creates and configures an ExpressJS web server.
@@ -30,8 +29,11 @@ class App {
                 },
                 WorkReport: {
                     "pub_key": "Vec<u8>",
+                    "block_height": "u64",
+                    "block_hash": "Vec<u8>",
                     "empty_root": "Vec<u8>",
-                    "workload": "u64",
+                    "empty_workload": "u64",
+                    "meaningful_workload": "u64",
                     "sig": "Vec<u8>"
                 }
             }
@@ -188,20 +190,25 @@ class App {
 
         router.post('/api/v1/tee/workreport', (req, res, next) => {
             //Get workreport
-            const workreport = req.body['workreport'];
-            if (typeof workreport !== "string") {
+            const workReport = req.body['workreport'];
+            if (typeof workReport !== "string") {
                 res.status(400).send('Please add workreport (type is string) to the request body.');
                 return;
             }
 
-            const workreportjson = JSON.parse(workreport.toString());
+            const workReportJson = JSON.parse(workReport.toString());
 
-            const workReport =  {
-                pub_key: workreportjson["pub_key"],
-                empty_root: workreportjson["empty_root"],
-                workload: workreportjson["workload"],
-                sig: workreportjson["sig"]
+            const workReportInstance =  {
+                pub_key: workReportJson["pub_key"],
+                block_height: workReportJson["block_height"],
+                block_hash: workReportJson["block_hash"],
+                empty_root: workReportJson["empty_root"],
+                empty_workload: workReportJson["empty_workload"],
+                meaningful_workload: workReportJson["meaningful_workload"],
+                sig: workReportJson["sig"]
             }
+
+            console.log(workReportInstance);
 
             //Get backup
             const backup = req.body["backup"];
@@ -227,7 +234,7 @@ class App {
             }
 
             // Use api to store tee work report
-            const params = [workReport];
+            const params = [workReportInstance];
             let isFillRes = false;
             this.api.then(async (api) => {
                 api.tx.tee.reportWorks(...params).signAndSend(user, ({ status }) => {
