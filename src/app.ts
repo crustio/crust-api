@@ -5,6 +5,8 @@ import { ApiPromise, WsProvider } from '@polkadot/api';
 import { Keyring } from '@polkadot/api';
 import { KeyringPair } from '@polkadot/keyring/types';
 
+
+
 // Creates and configures an ExpressJS web server.
 class App {
 
@@ -47,12 +49,24 @@ class App {
         this.express.use(bodyParser.urlencoded({ extended: false }));
     }
 
-    // Hex string to string
-    private hexstring2string(hex: string) {
-        var str = '';
-        for (var i = 0; (i < hex.length && hex.substr(i, 2) !== '00'); i += 2)
-            str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
-        return str;
+    // Hex string to bytes
+    private hexStr2Bytes(str: string) {
+        var pos = 0;
+        var len = str.length;
+        if (len % 2 != 0) {
+            return null;
+        }
+    
+        len /= 2;
+        var hexA = new Array();
+        for (var i = 0; i < len; i++) {
+            var s = str.substr(pos, 2);
+            var v = parseInt(s, 16);
+            hexA.push(v);
+            pos += 2;
+        }
+    
+        return hexA;
     }
 
     // Generate user from backup and password
@@ -132,11 +146,11 @@ class App {
             const identityjson = JSON.parse(identity.toString());
 
             const identityInstance = {
-                pub_key: identityjson["pub_key"],
+                pub_key: this.hexStr2Bytes(identityjson["pub_key"]),
                 account_id: identityjson["account_id"],
-                validator_pub_key: identityjson["validator_pub_key"],
+                validator_pub_key: this.hexStr2Bytes(identityjson["validator_pub_key"]),
                 validator_account_id: identityjson["validator_account_id"],
-                sig: identityjson["sig"]
+                sig: this.hexStr2Bytes(identityjson["sig"])
             }
 
             console.log(identityInstance);
@@ -198,14 +212,14 @@ class App {
 
             const workReportJson = JSON.parse(workReport.toString());
 
-            const workReportInstance =  {
-                pub_key: workReportJson["pub_key"],
+            const workReportInstance = {
+                pub_key: this.hexStr2Bytes(workReportJson["pub_key"]),
                 block_height: workReportJson["block_height"],
-                block_hash: workReportJson["block_hash"],
-                empty_root: workReportJson["empty_root"],
+                block_hash: this.hexStr2Bytes(workReportJson["block_hash"]),
+                empty_root: this.hexStr2Bytes(workReportJson["empty_root"]),
                 empty_workload: workReportJson["empty_workload"],
                 meaningful_workload: workReportJson["meaningful_workload"],
-                sig: workReportJson["sig"]
+                sig: this.hexStr2Bytes(workReportJson["sig"])
             }
 
             console.log(workReportInstance);
