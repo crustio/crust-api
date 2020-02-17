@@ -275,4 +275,4 @@ class App {
     }
 }
 
-export default new App(process.env.CRUST_CHAIN_ENDPOINT || 'ws://127.0.0.1:9944/').express;
+export default new App(process.argv[3] || 'ws://127.0.0.1:9944/').express;

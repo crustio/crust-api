@@ -10,9 +10,9 @@ The default startup will start with 56666 API port and connect to the local Crus
 ```shell
 yarn start
 ```
-Change the setting like this:
+Change the setting like this, if you want to connect to other chain:
 ```shell
-CRUST_API_PORT=12345 CRUST_CHAIN_ENDPOINT=ws://192.168.50.6:9944/ yarn start
+yarn start 56666 ws://192.168.50.6:9944/
 ```
 
 ## Usage
