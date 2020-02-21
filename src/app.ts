@@ -34,8 +34,8 @@ class App {
                     "block_height": "u64",
                     "block_hash": "Vec<u8>",
                     "empty_root": "Vec<u8>",
-                    "empty_workload": "u64",
-                    "meaningful_workload": "u64",
+                    "empty_workload": "u128",
+                    "meaningful_workload": "u128",
                     "sig": "Vec<u8>"
                 }
             }
