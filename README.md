@@ -17,7 +17,7 @@ yarn start 56666 ws://192.168.50.6:9944/
 
 ## Usage
 
-### Get header infomation
+### Get header information
 Request:
 ```shell
 curl GET 'http://localhost:56666/api/v1/block/header'
@@ -31,7 +31,7 @@ Response:
 }
 ```
 
-### Post tee identity
+### Post TEE identity
 Request:
 ```shell
 curl POST 'http://localhost:56666/api/v1/tee/identity' \
@@ -50,7 +50,7 @@ Response:
 }
 ```
 
-### Get tee identity
+### Get TEE identity
 Request:
 ```shell
 curl GET 'http://localhost:56666/api/v1/tee/identity?address=5HBPJZkoLeUBdPombuYe3tcUkXcTAKyRhRgXJvHpCs9mzxfL'
@@ -67,7 +67,7 @@ Response:
 }
 ```
 
-### Post tee workreport
+### Post TEE work report
 Request:
 ```shell
 curl POST 'http://localhost:56666/api/v1/tee/workreport' \
@@ -86,7 +86,7 @@ Response:
 }
 ```
 
-### Get tee workreport
+### Get TEE work report
 Request:
 ```shell
 curl GET 'http://localhost:56666/api/v1/tee/workreport?address=5HBPJZkoLeUBdPombuYe3tcUkXcTAKyRhRgXJvHpCs9mzxfL'
