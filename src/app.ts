@@ -143,6 +143,7 @@ class App {
                 return;
             }
 
+            console.log(identity.toString())
             const identityjson = JSON.parse(identity.toString());
 
             const identityInstance = {
@@ -208,6 +209,7 @@ class App {
                 return;
             }
 
+            console.log(workReport.toString())
             const workReportJson = JSON.parse(workReport.toString());
 
             const workReportInstance = {
