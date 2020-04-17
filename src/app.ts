@@ -143,6 +143,7 @@ class App {
                 return;
             }
 
+            console.log(identity.toString())
             const identityjson = JSON.parse(identity.toString());
 
             const identityInstance = {
@@ -152,8 +153,6 @@ class App {
                 validator_account_id: identityjson["validator_account_id"],
                 sig: this.hexStr2Bytes(identityjson["sig"])
             }
-
-            console.log(identityInstance);
 
             //Get backup
             const backup = req.body["backup"];
@@ -210,6 +209,7 @@ class App {
                 return;
             }
 
+            console.log(workReport.toString())
             const workReportJson = JSON.parse(workReport.toString());
 
             const workReportInstance = {
@@ -221,8 +221,6 @@ class App {
                 meaningful_workload: workReportJson["meaningful_workload"],
                 sig: this.hexStr2Bytes(workReportJson["sig"])
             }
-
-            console.log(workReportInstance);
 
             //Get backup
             const backup = req.body["backup"];
