@@ -153,8 +153,6 @@ class App {
                 sig: this.hexStr2Bytes(identityjson["sig"])
             }
 
-            console.log(identityInstance);
-
             //Get backup
             const backup = req.body["backup"];
             if (typeof backup !== "string") {
@@ -221,8 +219,6 @@ class App {
                 meaningful_workload: workReportJson["meaningful_workload"],
                 sig: this.hexStr2Bytes(workReportJson["sig"])
             }
-
-            console.log(workReportInstance);
 
             //Get backup
             const backup = req.body["backup"];
