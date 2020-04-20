@@ -37,7 +37,9 @@ class App {
                     "empty_workload": "u64",
                     "meaningful_workload": "u64",
                     "sig": "Vec<u8>"
-                }
+                },
+                Address: 'AccountId',
+                LookupSource: 'AccountId'
             }
         });
     }
