@@ -31,6 +31,17 @@ Response:
 }
 ```
 
+### Get block hash by block number
+Request:
+```shell
+curl GET 'http://localhost:56666/api/v1/block/hash?blockNumber=100'
+```
+
+Response:
+```json
+"0xeeadb2bd71c125c98ce0892d830931fb27c771ab0025c60735fca9419abae990"
+```
+
 ### Post TEE identity
 Request:
 ```shell
