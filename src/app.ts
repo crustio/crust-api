@@ -101,6 +101,24 @@ class App {
             });
         });
 
+        router.get('/api/v1/block/hash', (req, res, next) => {
+            // Get address
+            const blockNumber = req.query["blockNumber"];
+            if (typeof blockNumber !== "string") {
+                res.status(400).send('Please add block number (type is string) to the url query.');
+                return;
+            }
+
+            // Use api to get block hash by number
+            this.api.then(async (api) => {
+                const blockHash = await api.rpc.chain.getBlockHash(blockNumber);
+                res.send(blockHash);
+            }).catch(e => {
+                res.status(500).send(`${e}`);
+                return;
+            });
+        });
+
         router.get('/api/v1/tee/identity', (req, res, next) => {
             // Get address
             const address = req.query["address"];
