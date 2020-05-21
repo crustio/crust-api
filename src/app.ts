@@ -277,7 +277,7 @@ class App {
                 used: 0,
                 reserved: workReportJson["reserved"],
                 files: workReportJson["files"].map((file: any) => {
-                    const rst: [any, any] = [this.hexStr2Bytes(file.hash), file.size]
+                    const rst: [any, any] = ["0x" + file.hash, file.size]
                     return rst;
                 }),
                 sig: "0x" + workReportJson["sig"]
