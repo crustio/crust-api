@@ -5,8 +5,6 @@ import { ApiPromise, WsProvider } from '@polkadot/api';
 import { Keyring } from '@polkadot/api';
 import { KeyringPair } from '@polkadot/keyring/types';
 
-
-
 // Creates and configures an ExpressJS web server.
 class App {
 
@@ -22,6 +20,7 @@ class App {
         this.api = ApiPromise.create({
             provider: new WsProvider(crust_chain_endpoint),
             types: {
+                Address: "AccountId",
                 Identity: {
                     "pub_key": "Vec<u8>",
                     "account_id": "AccountId",
@@ -30,16 +29,53 @@ class App {
                     "sig": "Vec<u8>"
                 },
                 WorkReport: {
-                    "pub_key": "Vec<u8>",
-                    "block_height": "u64",
-                    "block_hash": "Vec<u8>",
-                    "empty_root": "Vec<u8>",
-                    "empty_workload": "u64",
-                    "meaningful_workload": "u64",
-                    "sig": "Vec<u8>"
+                    pub_key: "Vec<u8>",
+                    block_number: "u64",
+                    block_hash: "Vec<u8>",
+                    used: "u64",
+                    reserved: "u64",
+                    files: "Vec<(Vec<u8>, u64)>",
+                    sig: "Vec<u8>"
                 },
-                Address: 'AccountId',
-                LookupSource: 'AccountId'
+                StakingLedger: {
+                    stash: "AccountId",
+                    total: "Compact<Balance>",
+                    active: "Compact<Balance>",
+                    valid: "Compact<Balance>",
+                    unlocking: "Vec<UnlockChunk>",
+                },
+                Validations: {
+                    total: "Compact<Balance>",
+                    guarantee_fee: "Compact<Perbill>",
+                    guarantors: "Vec<AccountId>",
+                },
+                Nominations: {
+                    targets: "Vec<AccountId>",
+                    total: "Compact<Balance>",
+                    submitted_in: "u32",
+                    suppressed: "bool"
+                },
+                ReportSlot: "u64",
+                Weight: "u32",
+                LookupSource: "AccountId",
+                AddressInfo: "Vec<u8>",
+                MerkleRoot: "Vec<u8>",
+                Provision: {
+                    address: "Vec<u8>",
+                    file_map: "Vec<(Vec<u8>, Hash)>"
+                },
+                OrderStatus: {
+                    '_enum': ['Success', 'Failed', 'Pending']
+                },
+                StorageOrder: {
+                    file_identifier: "Vec<u8>",
+                    file_size: "u64",
+                    created_on: "BlockNumber",
+                    expired_on: "BlockNumber",
+                    provider: "AccountId",
+                    client: "AccountId",
+                    order_status: "OrderStatus"
+                }
             }
         });
     }
@@ -52,24 +88,24 @@ class App {
     }
 
     // Hex string to bytes
-    private hexStr2Bytes(str: string) {
-        var pos = 0;
-        var len = str.length;
-        if (len % 2 != 0) {
-            return null;
-        }
+    // private hexStr2Bytes(str: string) {
+    //     var pos = 0;
+    //     var len = str.length;
+    //     if (len % 2 != 0) {
+    //         return null;
+    //     }
     
-        len /= 2;
-        var hexA = new Array();
-        for (var i = 0; i < len; i++) {
-            var s = str.substr(pos, 2);
-            var v = parseInt(s, 16);
-            hexA.push(v);
-            pos += 2;
-        }
+    //     len /= 2;
+    //     var hexA = new Array();
+    //     for (var i = 0; i < len; i++) {
+    //         var s = str.substr(pos, 2);
+    //         var v = parseInt(s, 16);
+    //         hexA.push(v);
+    //         pos += 2;
+    //     }
     
-        return hexA;
-    }
+    //     return hexA;
+    // }
 
     // Generate user from backup and password
     private generateUser(backup: string, password: string) {
@@ -163,16 +199,17 @@ class App {
                 return;
             }
 
-            console.log(identity.toString())
             const identityjson = JSON.parse(identity.toString());
 
             const identityInstance = {
-                pub_key: this.hexStr2Bytes(identityjson["pub_key"]),
+                pub_key: "0x" + identityjson["pub_key"],
                 account_id: identityjson["account_id"],
-                validator_pub_key: this.hexStr2Bytes(identityjson["validator_pub_key"]),
+                validator_pub_key: "0x" + identityjson["validator_pub_key"],
                 validator_account_id: identityjson["validator_account_id"],
-                sig: this.hexStr2Bytes(identityjson["sig"])
+                sig: "0x" + identityjson["sig"]
             }
+
+            console.log(identityInstance)
 
             //Get backup
             const backup = req.body["backup"];
@@ -198,10 +235,9 @@ class App {
             }
 
             // Use api to store tee identity
-            const params = [identityInstance];
             let isFillRes = false;
             this.api.then(async (api) => {
-                api.tx.tee.registerIdentity(...params).signAndSend(user, ({ status }) => {
+                api.tx.tee.registerIdentity(identityInstance).signAndSend(user, ({ status }) => {
                     status.isFinalized
                         ? console.log(`Completed at block hash #${status.asFinalized.toString()}`)
                         : console.log(`Current transaction status: ${status.type}`);
@@ -228,18 +264,23 @@ class App {
                 res.status(400).send('Please add workreport (type is string) to the request body.');
                 return;
             }
-
-            console.log(workReport.toString())
+            
+            // Construct work report
             const workReportJson = JSON.parse(workReport.toString());
 
+            console.log(workReportJson);
+
             const workReportInstance = {
-                pub_key: this.hexStr2Bytes(workReportJson["pub_key"]),
-                block_height: workReportJson["block_height"],
-                block_hash: this.hexStr2Bytes(workReportJson["block_hash"]),
-                empty_root: this.hexStr2Bytes(workReportJson["empty_root"]),
-                empty_workload: workReportJson["empty_workload"],
-                meaningful_workload: workReportJson["meaningful_workload"],
-                sig: this.hexStr2Bytes(workReportJson["sig"])
+                pub_key: "0x" + workReportJson["pub_key"],
+                block_number: workReportJson["block_height"],
+                block_hash: "0x" + workReportJson["block_hash"],
+                used: 0,
+                reserved: workReportJson["reserved"],
+                files: workReportJson["files"].map((file: any) => {
+                    const rst: [any, any] = [this.hexStr2Bytes(file.hash), file.size]
+                    return rst;
+                }),
+                sig: "0x" + workReportJson["sig"]
             }
 
             //Get backup
@@ -266,10 +307,9 @@ class App {
             }
 
             // Use api to store tee work report
-            const params = [workReportInstance];
             let isFillRes = false;
             this.api.then(async (api) => {
-                api.tx.tee.reportWorks(...params).signAndSend(user, ({ status }) => {
+                api.tx.tee.reportWorks(workReportInstance).signAndSend(user, ({ status }) => {
                     status.isFinalized
                         ? console.log(`Completed at block hash #${status.asFinalized.toString()}`)
                         : console.log(`Current transaction status: ${status.type}`);
