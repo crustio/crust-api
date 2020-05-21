@@ -88,24 +88,38 @@ class App {
     }
 
     // Hex string to bytes
-    // private hexStr2Bytes(str: string) {
-    //     var pos = 0;
-    //     var len = str.length;
-    //     if (len % 2 != 0) {
-    //         return null;
-    //     }
+    private hexStr2Bytes(str: string) {
+        let pos = 0;
+        let len = str.length;
+        if (len % 2 != 0) {
+            return null;
+        }
     
-    //     len /= 2;
-    //     var hexA = new Array();
-    //     for (var i = 0; i < len; i++) {
-    //         var s = str.substr(pos, 2);
-    //         var v = parseInt(s, 16);
-    //         hexA.push(v);
-    //         pos += 2;
-    //     }
+        len /= 2;
+        let hexA = new Array();
+        for (let i = 0; i < len; i++) {
+            let s = str.substr(pos, 2);
+            let v = parseInt(s, 16);
+            hexA.push(v);
+            pos += 2;
+        }
     
-    //     return hexA;
-    // }
+        return hexA;
+    }
+
+    private bin2String(hexStr: string) {
+        if (hexStr.substring(0, 2) != "0x") {
+            return null
+        }
+        const realHexStr = hexStr.substring(2);
+        const bytes = this.hexStr2Bytes(realHexStr);
+
+        let result = "";
+        for (let i = 0; i < bytes.length; i++) {
+          result += String.fromCharCode(bytes[i]);
+        }
+        return result;
+      }
 
     // Generate user from backup and password
     private generateUser(backup: string, password: string) {
@@ -185,6 +199,44 @@ class App {
             this.api.then(async (api) => {
                 const workReport = await api.query.tee.workReports(address);
                 res.json(workReport);
+            }).catch(e => {
+                res.status(500).send(`${e}`);
+                return;
+            });
+        });
+
+        router.get('/api/v1/market/provider', (req, res, next) => {
+            // 1. Get address
+            const address = req.query["address"];
+            if (typeof address !== "string") {
+                res.status(400).send('Please add provider\'s address (type is string) to the url query.');
+                return;
+            }
+
+            // 2. Use api to get provider's info
+            this.api.then(async (api) => {
+                const provider = await api.query.market.providers(address);
+                let providerJson = JSON.parse(provider.toString());
+                providerJson['address'] = this.bin2String(providerJson['address']);
+                res.json(providerJson);
+            }).catch(e => {
+                res.status(500).send(`${e}`);
+                return;
+            });
+        });
+
+        router.get('/api/v1/market/sorder', (req, res, next) => {
+            // 1. Get order id
+            const orderId = req.query["orderId"];
+            if (typeof orderId !== "string") {
+                res.status(400).send('Please add storage order id (type is string) to the url query.');
+                return;
+            }
+
+            // 2. Use api to get storage order
+            this.api.then(async (api) => {
+                const order = await api.query.market.storageOrders(orderId);
+                res.json(order);
             }).catch(e => {
                 res.status(500).send(`${e}`);
                 return;
@@ -328,6 +380,144 @@ class App {
                 return;
             });
         });
+
+        router.post('/api/v1/market/register', (req, res, next) => {
+            // 1. Get and check address info
+            const addressInfo = req.body['addressInfo'];
+            if (typeof addressInfo !== "string") {
+                res.status(400).send('Please add addressInfo (type is string, like `ws://localhost:8080`) to the request body.');
+                return;
+            }
+
+            // 2. Get and check backup
+            const backup = req.body["backup"];
+            if (typeof backup !== "string") {
+                res.status(400).send('Please add backup (type is string) to the request body.');
+                return;
+            }
+
+            // 3. Get and check password
+            const password = req.headers["password"];
+            if (typeof password !== "string") {
+                res.status(400).send('Please add password (type is string) to the request header.');
+                return;
+            }
+
+            // 4. Pair backup and password, then generate user
+            let user: KeyringPair;
+            try {
+                user = this.generateUser(backup, password);
+            } catch (e) {
+                res.status(400).send(`Please add right backup and password. ${e}`);
+                return;
+            }
+
+            // 5. Use api to register user as provider
+            this.api.then(async (api) => {
+                api.tx.market.register(addressInfo).signAndSend(user, ({ status }) => {
+                    status.isFinalized
+                        ? console.log(`Completed at block hash #${status.asFinalized.toString()}`)
+                        : console.log(`Current transaction status: ${status.type}`);
+                    if (status.isFinalized) {
+                        // already finalized
+                        res.status(200).json({
+                            msg: "register success",
+                        });
+                    }
+                    if (status.isFinalityTimeout || 
+                        status.isInvalid || 
+                        status.isDropped) {
+                            res.status(400).send('Invalid extrinsic');
+                        }
+                }).catch(e => {
+                    res.status(500).send(`${e}`);
+                    return;
+                });
+            }).catch(e => {
+                res.status(500).send(`${e}`);
+                return;
+            });
+        })
+
+        router.post('/api/v1/market/sorder', (req, res, next) => {
+            // 1. Get and check storage order
+            let sorder = req.body['sorder'];
+            if (typeof sorder !== "string") {
+                res.status(400).send('Please add storage order (type is string) to the request body.');
+                return;
+            }
+
+            // 2. Construct storage order
+            sorder = JSON.parse(sorder.toString());
+
+            console.log(sorder);
+
+            const params = [sorder.provider, sorder.amount, sorder.fileIdentifier, sorder.fileSize, sorder.duration];
+
+            // 2. Get and check backup
+            const backup = req.body["backup"];
+            if (typeof backup !== "string") {
+                res.status(400).send('Please add backup (type is string) to the request body.');
+                return;
+            }
+
+            // 3. Get and check password
+            const password = req.headers["password"];
+            if (typeof password !== "string") {
+                res.status(400).send('Please add password (type is string) to the request header.');
+                return;
+            }
+
+            // 4. Pair backup and password, then generate user
+            let user: KeyringPair;
+            try {
+                user = this.generateUser(backup, password);
+            } catch (e) {
+                res.status(400).send(`Please add right backup and password. ${e}`);
+                return;
+            }
+
+            // 5. Use api to store tee work report
+            this.api.then(async (api) => {
+                api.tx.market.placeStorageOrder(...params).signAndSend(user, ({ status }) => {
+                    status.isFinalized
+                        ? console.log(`Completed at block hash #${status.asFinalized.toString()}`)
+                        : console.log(`Current transaction status: ${status.type}`);
+                    if (status.isFinalized) {
+                        // already finalized
+                        api.query.market.providers(sorder.provider).then(async (provider) => {
+                            const providerJson = JSON.parse(provider.toString());
+                            let orderId = "";
+                            for( const fm of providerJson.file_map) {
+                                console.log(fm);
+                                if (fm[0] == sorder.fileIdentifier) {
+                                    orderId = fm[1];
+                                    break;
+                                }
+                            }
+                            if (orderId !== "") {
+                                res.status(200).json({
+                                    orderId,
+                                })
+                            } else {
+                                res.status(500).send('Unknown error from chain');
+                            }
+                        });
+                    }
+                    if (status.isFinalityTimeout || 
+                        status.isInvalid || 
+                        status.isDropped) {
+                            res.status(400).send('Invalid extrinsic');
+                        }
+                }).catch(e => {
+                    res.status(500).send(`${e}`);
+                    return;
+                });
+            }).catch(e => {
+                res.status(500).send(`${e}`);
+                return;
+            });
+        })
 
         this.express.use('/', router);
     }
