@@ -1,9 +1,12 @@
 import * as express from 'express';
-import * as logger from 'morgan';
 import * as bodyParser from 'body-parser';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import { Keyring } from '@polkadot/api';
 import { KeyringPair } from '@polkadot/keyring/types';
+const moment = require('moment');
+const winston = require('winston');
+const logConfiguration = require('./logconfig');
+const logger = winston.createLogger(logConfiguration);
 
 // Creates and configures an ExpressJS web server.
 class App {
@@ -22,59 +25,59 @@ class App {
             types: {
                 Address: "AccountId",
                 Identity: {
-                    "pub_key": "Vec<u8>",
-                    "account_id": "AccountId",
-                    "validator_pub_key": "Vec<u8>",
-                    "validator_account_id": "AccountId",
-                    "sig": "Vec<u8>"
+                    pub_key: 'Vec<u8>',
+                    account_id: 'AccountId',
+                    validator_pub_key: 'Vec<u8>',
+                    validator_account_id: 'AccountId',
+                    sig: 'Vec<u8>'
                 },
                 WorkReport: {
-                    pub_key: "Vec<u8>",
-                    block_number: "u64",
-                    block_hash: "Vec<u8>",
-                    used: "u64",
-                    reserved: "u64",
-                    files: "Vec<(Vec<u8>, u64)>",
-                    sig: "Vec<u8>"
+                    pub_key: 'Vec<u8>',
+                    block_number: 'u64',
+                    block_hash: 'Vec<u8>',
+                    used: 'u64',
+                    reserved: 'u64',
+                    files: 'Vec<(Vec<u8>, u64)>',
+                    sig: 'Vec<u8>'
                 },
                 StakingLedger: {
-                    stash: "AccountId",
-                    total: "Compact<Balance>",
-                    active: "Compact<Balance>",
-                    valid: "Compact<Balance>",
-                    unlocking: "Vec<UnlockChunk>",
+                    stash: 'AccountId',
+                    active: 'Compact<Balance>',
+                    total: 'Compact<Balance>',
+                    valid: 'Compact<Balance>',
+                    unlocking: 'Vec<UnlockChunk>',
                 },
                 Validations: {
-                    total: "Compact<Balance>",
-                    guarantee_fee: "Compact<Perbill>",
-                    guarantors: "Vec<AccountId>",
+                    total: 'Compact<Balance>',
+                    guarantee_fee: 'Compact<Perbill>',
+                    guarantors: 'Vec<AccountId>',
                 },
                 Nominations: {
-                    targets: "Vec<AccountId>",
-                    total: "Compact<Balance>",
-                    submitted_in: "u32",
-                    suppressed: "bool"
+                    targets: 'Vec<AccountId>',
+                    total: 'Compact<Balance>',
+                    submitted_in: 'u32',
+                    suppressed: 'bool'
                 },
-                ReportSlot: "u64",
-                Weight: "u32",
-                LookupSource: "AccountId",
-                AddressInfo: "Vec<u8>",
-                MerkleRoot: "Vec<u8>",
+                ReportSlot: 'u64',
+                AddressInfo: 'Vec<u8>',
+                MerkleRoot: 'Vec<u8>',
                 Provision: {
-                    address: "Vec<u8>",
-                    file_map: "Vec<(Vec<u8>, Hash)>"
+                    address: 'Vec<u8>',
+                    file_map: 'Vec<(Vec<u8>, Vec<Hash>)>'
                 },
                 OrderStatus: {
-                    '_enum': ['Success', 'Failed', 'Pending']
+                    _enum: ['Success', 'Failed', 'Pending']
                 },
                 StorageOrder: {
-                    file_identifier: "Vec<u8>",
-                    file_size: "u64",
-                    created_on: "BlockNumber",
-                    expired_on: "BlockNumber",
-                    provider: "AccountId",
-                    client: "AccountId",
-                    order_status: "OrderStatus"
+                    file_identifier: 'Vec<u8>',
+                    file_size: 'u64',
+                    created_on: 'BlockNumber',
+                    completed_on: 'BlockNumber',
+                    expired_on: 'BlockNumber',
+                    provider: 'AccountId',
+                    client: 'AccountId',
+                    amount: 'Balance',
+                    order_status: 'OrderStatus'
                 }
             }
         });
@@ -82,7 +85,6 @@ class App {
 
     // Configure Express middleware.
     private middleware(): void {
-        this.express.use(logger('dev'));
         this.express.use(bodyParser.json());
         this.express.use(bodyParser.urlencoded({ extended: false }));
     }
@@ -94,7 +96,7 @@ class App {
         if (len % 2 != 0) {
             return null;
         }
-    
+
         len /= 2;
         let hexA = new Array();
         for (let i = 0; i < len; i++) {
@@ -103,7 +105,7 @@ class App {
             hexA.push(v);
             pos += 2;
         }
-    
+
         return hexA;
     }
 
@@ -116,10 +118,10 @@ class App {
 
         let result = "";
         for (let i = 0; i < bytes.length; i++) {
-          result += String.fromCharCode(bytes[i]);
+            result += String.fromCharCode(bytes[i]);
         }
         return result;
-      }
+    }
 
     // Generate user from backup and password
     private generateUser(backup: string, password: string) {
@@ -133,12 +135,14 @@ class App {
         let router = express.Router();
 
         router.get('/', (req, res, next) => {
+            logger.info('request path:' + '/' +', request time: ' + moment().format())
             res.json({
                 message: 'This is crust api.'
             });
         });
 
         router.get('/api/v1/block/header', (req, res, next) => {
+            logger.info('request path: ' + '/api/v1//block/header' +', request time: ' + moment().format())
             this.api.then(async (api) => {
                 const lastHeader = await api.rpc.chain.getHeader();
                 res.json({
@@ -152,6 +156,7 @@ class App {
         });
 
         router.get('/api/v1/block/hash', (req, res, next) => {
+            logger.info('request path: ' + '/api/v1/block/hash' +', request time: ' + moment().format())
             // Get address
             const blockNumber = req.query["blockNumber"];
             if (typeof blockNumber !== "string") {
@@ -170,6 +175,7 @@ class App {
         });
 
         router.get('/api/v1/tee/identity', (req, res, next) => {
+            logger.info('request path: ' + '/api/v1/tee/identity' +', request time: ' + moment().format())
             // Get address
             const address = req.query["address"];
             if (typeof address !== "string") {
@@ -188,6 +194,7 @@ class App {
         });
 
         router.get('/api/v1/tee/workreport', (req, res, next) => {
+            logger.info('request path: ' + '/api/v1/tee/workreport' +', request time: ' + moment().format())
             // Get address
             const address = req.query["address"];
             if (typeof address !== "string") {
@@ -206,6 +213,7 @@ class App {
         });
 
         router.get('/api/v1/market/provider', (req, res, next) => {
+            logger.info('request path: ' + '/api/v1/market/provider' +', request time: ' + moment().format())
             // 1. Get address
             const address = req.query["address"];
             if (typeof address !== "string") {
@@ -226,6 +234,7 @@ class App {
         });
 
         router.get('/api/v1/market/sorder', (req, res, next) => {
+            logger.info('request path: ' + '/api/v1/market/sorder' +', request time: ' + moment().format())
             // 1. Get order id
             const orderId = req.query["orderId"];
             if (typeof orderId !== "string") {
@@ -244,6 +253,7 @@ class App {
         });
 
         router.post('/api/v1/tee/identity', (req, res, next) => {
+            logger.info('request path: ' + '/api/v1/tee/identity' +', request time: ' + moment().format())
             //Get identity
             const identity = req.body['identity'];
             if (typeof identity !== "string") {
@@ -261,7 +271,7 @@ class App {
                 sig: "0x" + identityjson["sig"]
             }
 
-            console.log(identityInstance)
+            logger.info(`request param ${JSON.stringify(identityInstance)}, time: ${moment().format()}`)
 
             //Get backup
             const backup = req.body["backup"];
@@ -291,8 +301,8 @@ class App {
             this.api.then(async (api) => {
                 api.tx.tee.registerIdentity(identityInstance).signAndSend(user, ({ status }) => {
                     status.isFinalized
-                        ? console.log(`Completed at block hash #${status.asFinalized.toString()}`)
-                        : console.log(`Current transaction status: ${status.type}`);
+                        ? logger.info(`Completed at block hash #${status.asFinalized.toString()}`)
+                        : logger.info(`Current transaction status: ${status.type}`);
                     if (!isFillRes) {
                         res.json({
                             message: 'Try to save tee identity to crust chain.'
@@ -310,17 +320,18 @@ class App {
         });
 
         router.post('/api/v1/tee/workreport', (req, res, next) => {
+            logger.info('request path: ' + '/api/v1/tee/workreport' +', request time: ' + moment().format())
             //Get workreport
             const workReport = req.body['workreport'];
             if (typeof workReport !== "string") {
                 res.status(400).send('Please add workreport (type is string) to the request body.');
                 return;
             }
-            
+
             // Construct work report
             const workReportJson = JSON.parse(workReport.toString());
 
-            console.log(workReportJson);
+            logger.info(workReportJson);
 
             const workReportInstance = {
                 pub_key: "0x" + workReportJson["pub_key"],
@@ -363,8 +374,8 @@ class App {
             this.api.then(async (api) => {
                 api.tx.tee.reportWorks(workReportInstance).signAndSend(user, ({ status }) => {
                     status.isFinalized
-                        ? console.log(`Completed at block hash #${status.asFinalized.toString()}`)
-                        : console.log(`Current transaction status: ${status.type}`);
+                        ? logger.info(`Completed at block hash #${status.asFinalized.toString()}`)
+                        : logger.info(`Current transaction status: ${status.type}`);
                     if (!isFillRes) {
                         res.json({
                             message: 'Try to save tee work report to crust chain.'
@@ -382,6 +393,7 @@ class App {
         });
 
         router.post('/api/v1/market/register', (req, res, next) => {
+            logger.info('request path: ' + '/api/v1/market/register' +', request time: ' + moment().format())
             // 1. Get and check address info
             const addressInfo = req.body['addressInfo'];
             if (typeof addressInfo !== "string") {
@@ -416,19 +428,19 @@ class App {
             this.api.then(async (api) => {
                 api.tx.market.register(addressInfo).signAndSend(user, ({ status }) => {
                     status.isFinalized
-                        ? console.log(`Completed at block hash #${status.asFinalized.toString()}`)
-                        : console.log(`Current transaction status: ${status.type}`);
+                        ? logger.info(`Completed at block hash #${status.asFinalized.toString()}`)
+                        : logger.info(`Current transaction status: ${status.type}`);
                     if (status.isFinalized) {
                         // already finalized
                         res.status(200).json({
                             msg: "register success",
                         });
                     }
-                    if (status.isFinalityTimeout || 
-                        status.isInvalid || 
+                    if (status.isFinalityTimeout ||
+                        status.isInvalid ||
                         status.isDropped) {
-                            res.status(400).send('Invalid extrinsic');
-                        }
+                        res.status(400).send('Invalid extrinsic');
+                    }
                 }).catch(e => {
                     res.status(500).send(`${e}`);
                     return;
@@ -440,6 +452,7 @@ class App {
         })
 
         router.post('/api/v1/market/sorder', (req, res, next) => {
+            logger.info('request path: ' + '/api/v1/market/sorder' +', request time: ' + moment().format())
             // 1. Get and check storage order
             let sorder = req.body['sorder'];
             if (typeof sorder !== "string") {
@@ -450,7 +463,7 @@ class App {
             // 2. Construct storage order
             sorder = JSON.parse(sorder.toString());
 
-            console.log(sorder);
+            logger.info(sorder);
 
             const params = [sorder.provider, sorder.amount, sorder.fileIdentifier, sorder.fileSize, sorder.duration];
 
@@ -481,15 +494,15 @@ class App {
             this.api.then(async (api) => {
                 api.tx.market.placeStorageOrder(...params).signAndSend(user, ({ status }) => {
                     status.isFinalized
-                        ? console.log(`Completed at block hash #${status.asFinalized.toString()}`)
-                        : console.log(`Current transaction status: ${status.type}`);
+                        ? logger.info(`Completed at block hash #${status.asFinalized.toString()}`)
+                        : logger.info(`Current transaction status: ${status.type}`);
                     if (status.isFinalized) {
                         // already finalized
                         api.query.market.providers(sorder.provider).then(async (provider) => {
                             const providerJson = JSON.parse(provider.toString());
                             let orderId = "";
-                            for( const fm of providerJson.file_map) {
-                                console.log(fm);
+                            for (const fm of providerJson.file_map) {
+                                logger.info(fm);
                                 if (fm[0] == sorder.fileIdentifier) {
                                     orderId = fm[1];
                                     break;
@@ -504,11 +517,11 @@ class App {
                             }
                         });
                     }
-                    if (status.isFinalityTimeout || 
-                        status.isInvalid || 
+                    if (status.isFinalityTimeout ||
+                        status.isInvalid ||
                         status.isDropped) {
-                            res.status(400).send('Invalid extrinsic');
-                        }
+                        res.status(400).send('Invalid extrinsic');
+                    }
                 }).catch(e => {
                     res.status(500).send(`${e}`);
                     return;
