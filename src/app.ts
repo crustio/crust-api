@@ -1,5 +1,4 @@
 import * as express from 'express';
-import * as logger from 'morgan';
 import * as bodyParser from 'body-parser';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import { Keyring } from '@polkadot/api';
@@ -7,7 +6,7 @@ import { KeyringPair } from '@polkadot/keyring/types';
 const moment = require('moment');
 const winston = require('winston');
 const logConfiguration = require('./logconfig');
-const winston_logger = winston.createLogger(logConfiguration);
+const logger = winston.createLogger(logConfiguration);
 
 // Creates and configures an ExpressJS web server.
 class App {
@@ -86,7 +85,6 @@ class App {
 
     // Configure Express middleware.
     private middleware(): void {
-        this.express.use(logger('dev'));
         this.express.use(bodyParser.json());
         this.express.use(bodyParser.urlencoded({ extended: false }));
     }
@@ -137,14 +135,14 @@ class App {
         let router = express.Router();
 
         router.get('/', (req, res, next) => {
-            winston_logger.info('request path: ' + '/' +', request time: ' + moment().format())
+            logger.info('request path: ' + '/' +', request time: ' + moment().format())
             res.json({
                 message: 'This is crust api.'
             });
         });
 
         router.get('/api/v1/block/header', (req, res, next) => {
-            winston_logger.info('request path: ' + '/api/v1//block/header' +', request time: ' + moment().format())
+            logger.info('request path: ' + '/api/v1//block/header' +', request time: ' + moment().format())
             this.api.then(async (api) => {
                 const lastHeader = await api.rpc.chain.getHeader();
                 res.json({
@@ -158,7 +156,7 @@ class App {
         });
 
         router.get('/api/v1/block/hash', (req, res, next) => {
-            winston_logger.info('request path: ' + '/api/v1/block/hash' +', request time: ' + moment().format())
+            logger.info('request path: ' + '/api/v1/block/hash' +', request time: ' + moment().format())
             // Get address
             const blockNumber = req.query["blockNumber"];
             if (typeof blockNumber !== "string") {
@@ -177,7 +175,7 @@ class App {
         });
 
         router.get('/api/v1/tee/identity', (req, res, next) => {
-            winston_logger.info('request path: ' + '/api/v1/tee/identity' +', request time: ' + moment().format())
+            logger.info('request path: ' + '/api/v1/tee/identity' +', request time: ' + moment().format())
             // Get address
             const address = req.query["address"];
             if (typeof address !== "string") {
@@ -196,7 +194,7 @@ class App {
         });
 
         router.get('/api/v1/tee/workreport', (req, res, next) => {
-            winston_logger.info('request path: ' + '/api/v1/tee/workreport' +', request time: ' + moment().format())
+            logger.info('request path: ' + '/api/v1/tee/workreport' +', request time: ' + moment().format())
             // Get address
             const address = req.query["address"];
             if (typeof address !== "string") {
@@ -215,7 +213,7 @@ class App {
         });
 
         router.get('/api/v1/market/provider', (req, res, next) => {
-            winston_logger.info('request path: ' + '/api/v1/market/provider' +', request time: ' + moment().format())
+            logger.info('request path: ' + '/api/v1/market/provider' +', request time: ' + moment().format())
             // 1. Get address
             const address = req.query["address"];
             if (typeof address !== "string") {
@@ -236,7 +234,7 @@ class App {
         });
 
         router.get('/api/v1/market/sorder', (req, res, next) => {
-            winston_logger.info('request path: ' + '/api/v1/market/sorder' +', request time: ' + moment().format())
+            logger.info('request path: ' + '/api/v1/market/sorder' +', request time: ' + moment().format())
             // 1. Get order id
             const orderId = req.query["orderId"];
             if (typeof orderId !== "string") {
@@ -255,7 +253,7 @@ class App {
         });
 
         router.post('/api/v1/tee/identity', (req, res, next) => {
-            winston_logger.info('request path: ' + '/api/v1/tee/identity' +', request time: ' + moment().format())
+            logger.info('request path: ' + '/api/v1/tee/identity' +', request time: ' + moment().format())
             //Get identity
             const identity = req.body['identity'];
             if (typeof identity !== "string") {
@@ -322,7 +320,7 @@ class App {
         });
 
         router.post('/api/v1/tee/workreport', (req, res, next) => {
-            winston_logger.info('request path: ' + '/api/v1/tee/workreport' +', request time: ' + moment().format())
+            logger.info('request path: ' + '/api/v1/tee/workreport' +', request time: ' + moment().format())
             //Get workreport
             const workReport = req.body['workreport'];
             if (typeof workReport !== "string") {
@@ -395,7 +393,7 @@ class App {
         });
 
         router.post('/api/v1/market/register', (req, res, next) => {
-            winston_logger.info('request path: ' + '/api/v1/market/register' +', request time: ' + moment().format())
+            logger.info('request path: ' + '/api/v1/market/register' +', request time: ' + moment().format())
             // 1. Get and check address info
             const addressInfo = req.body['addressInfo'];
             if (typeof addressInfo !== "string") {
@@ -454,7 +452,7 @@ class App {
         })
 
         router.post('/api/v1/market/sorder', (req, res, next) => {
-            winston_logger.info('request path: ' + '/api/v1/market/sorder' +', request time: ' + moment().format())
+            logger.info('request path: ' + '/api/v1/market/sorder' +', request time: ' + moment().format())
             // 1. Get and check storage order
             let sorder = req.body['sorder'];
             if (typeof sorder !== "string") {
