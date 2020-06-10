@@ -3,9 +3,8 @@ const winston = require('winston');
 // Logger configuration
 const logConfiguration = {
     transports: [
-        new winston.transports.File({
-            level: 'info',
-            filename: './logs/info.log'
+        new winston.transports.Console({
+            level: 'info'
         }),
         new winston.transports.File({
             level: 'error',
