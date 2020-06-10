@@ -135,7 +135,7 @@ class App {
         let router = express.Router();
 
         router.get('/', (req, res, next) => {
-            logger.info('request path: ' + '/' +', request time: ' + moment().format())
+            logger.info('request path:' + '/' +', request time: ' + moment().format())
             res.json({
                 message: 'This is crust api.'
             });
@@ -271,7 +271,7 @@ class App {
                 sig: "0x" + identityjson["sig"]
             }
 
-            console.log('request param, time', identityInstance, moment().format())
+            logger.info(`request param ${JSON.stringify(identityInstance)}, time: ${moment().format()}`)
 
             //Get backup
             const backup = req.body["backup"];
@@ -301,8 +301,8 @@ class App {
             this.api.then(async (api) => {
                 api.tx.tee.registerIdentity(identityInstance).signAndSend(user, ({ status }) => {
                     status.isFinalized
-                        ? console.log(`Completed at block hash #${status.asFinalized.toString()}`)
-                        : console.log(`Current transaction status: ${status.type}`);
+                        ? logger.info(`Completed at block hash #${status.asFinalized.toString()}`)
+                        : logger.info(`Current transaction status: ${status.type}`);
                     if (!isFillRes) {
                         res.json({
                             message: 'Try to save tee identity to crust chain.'
@@ -331,7 +331,7 @@ class App {
             // Construct work report
             const workReportJson = JSON.parse(workReport.toString());
 
-            console.log(workReportJson);
+            logger.info(workReportJson);
 
             const workReportInstance = {
                 pub_key: "0x" + workReportJson["pub_key"],
@@ -374,8 +374,8 @@ class App {
             this.api.then(async (api) => {
                 api.tx.tee.reportWorks(workReportInstance).signAndSend(user, ({ status }) => {
                     status.isFinalized
-                        ? console.log(`Completed at block hash #${status.asFinalized.toString()}`)
-                        : console.log(`Current transaction status: ${status.type}`);
+                        ? logger.info(`Completed at block hash #${status.asFinalized.toString()}`)
+                        : logger.info(`Current transaction status: ${status.type}`);
                     if (!isFillRes) {
                         res.json({
                             message: 'Try to save tee work report to crust chain.'
@@ -428,8 +428,8 @@ class App {
             this.api.then(async (api) => {
                 api.tx.market.register(addressInfo).signAndSend(user, ({ status }) => {
                     status.isFinalized
-                        ? console.log(`Completed at block hash #${status.asFinalized.toString()}`)
-                        : console.log(`Current transaction status: ${status.type}`);
+                        ? logger.info(`Completed at block hash #${status.asFinalized.toString()}`)
+                        : logger.info(`Current transaction status: ${status.type}`);
                     if (status.isFinalized) {
                         // already finalized
                         res.status(200).json({
@@ -463,7 +463,7 @@ class App {
             // 2. Construct storage order
             sorder = JSON.parse(sorder.toString());
 
-            console.log(sorder);
+            logger.info(sorder);
 
             const params = [sorder.provider, sorder.amount, sorder.fileIdentifier, sorder.fileSize, sorder.duration];
 
@@ -494,15 +494,15 @@ class App {
             this.api.then(async (api) => {
                 api.tx.market.placeStorageOrder(...params).signAndSend(user, ({ status }) => {
                     status.isFinalized
-                        ? console.log(`Completed at block hash #${status.asFinalized.toString()}`)
-                        : console.log(`Current transaction status: ${status.type}`);
+                        ? logger.info(`Completed at block hash #${status.asFinalized.toString()}`)
+                        : logger.info(`Current transaction status: ${status.type}`);
                     if (status.isFinalized) {
                         // already finalized
                         api.query.market.providers(sorder.provider).then(async (provider) => {
                             const providerJson = JSON.parse(provider.toString());
                             let orderId = "";
                             for (const fm of providerJson.file_map) {
-                                console.log(fm);
+                                logger.info(fm);
                                 if (fm[0] == sorder.fileIdentifier) {
                                     orderId = fm[1];
                                     break;
