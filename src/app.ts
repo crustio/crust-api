@@ -85,8 +85,8 @@ class App {
                     unreserved: 'Compact<Balance>'
                 },
                 PledgeLedger: {
-                    total: 'Compact<Balance>',
-                    used: 'Compact<Balance>'
+                    total: 'Balance',
+                    used: 'Balance'
                 }
             }
         });
