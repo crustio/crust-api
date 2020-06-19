@@ -498,16 +498,24 @@ class App {
                         : logger.info(`Current transaction status: ${status.type}`);
                     if (status.isFinalized) {
                         // already finalized
-                        api.query.market.providers(sorder.provider).then(async (provider) => {
-                            const providerJson = JSON.parse(provider.toString());
+                        api.query.market
+                        .clients(user.address)
+                        .then(async (ordersStr) => {
+                            const orders = JSON.parse(JSON.stringify(ordersStr));
                             let orderId = "";
-                            for (const fm of providerJson.file_map) {
-                                logger.info(fm);
-                                if (fm[0] == sorder.fileIdentifier) {
-                                    orderId = fm[1];
+                            logger.info("sorder ids:" + orders);
+                            for (const id of orders.reverse()) {
+                                const orderStr = await api.query.market.storageOrders(id);
+                                const order = JSON.parse(JSON.stringify(orderStr));
+                                if (order.file_identifier == sorder.fileIdentifier &&
+                                    order.provider == sorder.provider &&
+                                    order.order_status == 'Pending') {
+                                    orderId = id;
+                                    logger.info("find matched sorder id:" + id);
                                     break;
                                 }
                             }
+
                             if (orderId !== "") {
                                 res.status(200).json({
                                     orderId,
