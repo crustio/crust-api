@@ -25,10 +25,11 @@ class App {
             types: {
                 Address: "AccountId",
                 Identity: {
-                    pub_key: 'Vec<u8>',
+                    ias_sig: 'Vec<u8>',
+                    ias_cert: 'Vec<u8>',
                     account_id: 'AccountId',
-                    validator_pub_key: 'Vec<u8>',
-                    validator_account_id: 'AccountId',
+                    isv_body: 'Vec<u8>',
+                    pub_key: 'Vec<u8>',
                     sig: 'Vec<u8>'
                 },
                 WorkReport: {
@@ -254,24 +255,17 @@ class App {
 
         router.post('/api/v1/tee/identity', (req, res, next) => {
             logger.info('request path: ' + '/api/v1/tee/identity' +', request time: ' + moment().format())
-            //Get identity
-            const identity = req.body['identity'];
-            if (typeof identity !== "string") {
-                res.status(400).send('Please add identity (type is string) to the request body.');
-                return;
+            
+            const identity = {
+                ias_sig: req.body["ias_sig"],
+                ias_cert: req.body["ias_cert"],
+                account_id: req.body["account_id"],
+                isv_body: req.body["isv_body"],
+                pub_key: "0x",
+                sig: "0x" + req.body["sig"]
             }
 
-            const identityjson = JSON.parse(identity.toString());
-
-            const identityInstance = {
-                pub_key: "0x" + identityjson["pub_key"],
-                account_id: identityjson["account_id"],
-                validator_pub_key: "0x" + identityjson["validator_pub_key"],
-                validator_account_id: identityjson["validator_account_id"],
-                sig: "0x" + identityjson["sig"]
-            }
-
-            logger.info(`request param ${JSON.stringify(identityInstance)}, time: ${moment().format()}`)
+            logger.info(`request param ${JSON.stringify(identity)}, time: ${moment().format()}`)
 
             //Get backup
             const backup = req.body["backup"];
@@ -299,7 +293,7 @@ class App {
             // Use api to store tee identity
             let isFillRes = false;
             this.api.then(async (api) => {
-                api.tx.tee.registerIdentity(identityInstance).signAndSend(user, ({ status }) => {
+                api.tx.tee.register(identity).signAndSend(user, ({ status }) => {
                     status.isFinalized
                         ? logger.info(`Completed at block hash #${status.asFinalized.toString()}`)
                         : logger.info(`Current transaction status: ${status.type}`);
@@ -321,30 +315,20 @@ class App {
 
         router.post('/api/v1/tee/workreport', (req, res, next) => {
             logger.info('request path: ' + '/api/v1/tee/workreport' +', request time: ' + moment().format())
-            //Get workreport
-            const workReport = req.body['workreport'];
-            if (typeof workReport !== "string") {
-                res.status(400).send('Please add workreport (type is string) to the request body.');
-                return;
-            }
-
-            // Construct work report
-            const workReportJson = JSON.parse(workReport.toString());
-
-            logger.info(workReportJson);
-
-            const workReportInstance = {
-                pub_key: "0x" + workReportJson["pub_key"],
-                block_number: workReportJson["block_height"],
-                block_hash: "0x" + workReportJson["block_hash"],
+            
+            const workReport = {
+                pub_key: "0x" + req.body["pub_key"],
+                block_number: req.body["block_height"],
+                block_hash: "0x" + req.body["block_hash"],
                 used: 0,
-                reserved: workReportJson["reserved"],
-                files: workReportJson["files"].map((file: any) => {
+                reserved: req.body["reserved"],
+                files: req.body["files"].map((file: any) => {
                     const rst: [any, any] = ["0x" + file.hash, file.size]
                     return rst;
                 }),
-                sig: "0x" + workReportJson["sig"]
+                sig: "0x" + req.body["sig"]
             }
+            logger.info(`request param ${JSON.stringify(workReport)}, time: ${moment().format()}`)
 
             //Get backup
             const backup = req.body["backup"];
@@ -372,7 +356,7 @@ class App {
             // Use api to store tee work report
             let isFillRes = false;
             this.api.then(async (api) => {
-                api.tx.tee.reportWorks(workReportInstance).signAndSend(user, ({ status }) => {
+                api.tx.tee.reportWorks(workReport).signAndSend(user, ({ status }) => {
                     status.isFinalized
                         ? logger.info(`Completed at block hash #${status.asFinalized.toString()}`)
                         : logger.info(`Current transaction status: ${status.type}`);
