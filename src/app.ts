@@ -25,10 +25,11 @@ class App {
             types: {
                 Address: "AccountId",
                 Identity: {
-                    pub_key: 'Vec<u8>',
+                    ias_sig: 'Vec<u8>',
+                    ias_cert: 'Vec<u8>',
                     account_id: 'AccountId',
-                    validator_pub_key: 'Vec<u8>',
-                    validator_account_id: 'AccountId',
+                    isv_body: 'Vec<u8>',
+                    pub_key: 'Vec<u8>',
                     sig: 'Vec<u8>'
                 },
                 WorkReport: {
@@ -264,10 +265,11 @@ class App {
             const identityjson = JSON.parse(identity.toString());
 
             const identityInstance = {
-                pub_key: "0x" + identityjson["pub_key"],
+                ias_sig: identityjson["ias_sig"],
+                ias_cert: identityjson["ias_cert"],
                 account_id: identityjson["account_id"],
-                validator_pub_key: "0x" + identityjson["validator_pub_key"],
-                validator_account_id: identityjson["validator_account_id"],
+                isv_body: identityjson["isv_body"],
+                pub_key: "0x" + identityjson["pub_key"],
                 sig: "0x" + identityjson["sig"]
             }
 
