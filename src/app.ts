@@ -269,7 +269,7 @@ class App {
                 ias_cert: identityjson["ias_cert"],
                 account_id: identityjson["account_id"],
                 isv_body: identityjson["isv_body"],
-                pub_key: "0x" + identityjson["pub_key"],
+                pub_key: "0x",
                 sig: "0x" + identityjson["sig"]
             }
 
