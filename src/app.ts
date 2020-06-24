@@ -301,7 +301,7 @@ class App {
             // Use api to store tee identity
             let isFillRes = false;
             this.api.then(async (api) => {
-                api.tx.tee.registerIdentity(identityInstance).signAndSend(user, ({ status }) => {
+                api.tx.tee.register(identityInstance).signAndSend(user, ({ status }) => {
                     status.isFinalized
                         ? logger.info(`Completed at block hash #${status.asFinalized.toString()}`)
                         : logger.info(`Current transaction status: ${status.type}`);
