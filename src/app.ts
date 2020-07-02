@@ -109,7 +109,7 @@ class App {
         });
 
         router.get('/api/v1/block/header', async (req, res, next) => {
-            logger.info('request path: ' + '/api/v1//block/header' +', request time: ' + moment().format())
+            logger.info('request path: ' + '/api/v1/block/header' +', request time: ' + moment().format())
             // try {
             //     res.send(await this.blockService.head());
             // } catch (error) {
