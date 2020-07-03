@@ -12,9 +12,9 @@ export default class MarketService extends BaseService {
         this.market = new Market(endpoint);
     }
 
-    register = async (backup: string, addressInfo: string, rootPass: string) => {
+    register = async (backup: string, addressInfo: string,storagePrice: number, rootPass: string) => {
         await this.keyringLoad(backup, rootPass);
-        return await this.market.register(addressInfo, JSON.parse(backup)?.address, rootPass)
+        return await this.market.register(addressInfo, storagePrice, JSON.parse(backup)?.address, rootPass)
     }
 
     sorder = async (backup: string, storageOrder: StorageOrder, rootPass: string) => {

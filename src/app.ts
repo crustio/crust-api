@@ -9,6 +9,7 @@ import MarketService from './service/MarketService';
 import AccountService from './service/AccountService';
 import { StorageOrder } from 'crust-sdk/api/Market';
 import { WsReConnectable } from './aop/WsReConnectable';
+import { convertToObj } from "crust-sdk/util/ConvertUtil";
 
 const moment = require('moment');
 const winston = require('winston');
@@ -98,8 +99,8 @@ class App {
     }
 
     @WsReConnectable
-    async register(backup: string, addressInfo: string, rootPass: string) {
-        return await this.marketService.register(backup, addressInfo, rootPass);
+    async register(backup: string, addressInfo: string, storagePrice: number, rootPass: string) {
+        return await this.marketService.register(backup, addressInfo, storagePrice, rootPass);
     }
 
     @WsReConnectable
@@ -342,7 +343,7 @@ class App {
                 return;
             }
 
-            res.send(await this.register(backup, addressInfo, password))
+            res.send(await this.register(backup, addressInfo, storagePrice, password))
             
         })
 
@@ -370,9 +371,19 @@ class App {
                 return;
             }
             let storageOrder: StorageOrder = JSON.parse(sorder)
-            
-            res.send(await this.sorder(backup, storageOrder , password))
-            
+
+            const sorderRes =  convertToObj(await this.sorder(backup, storageOrder , password));
+            const providerOrders = convertToObj(await this.providers(storageOrder?.provider));
+            let order_id = "";
+            for (const file_map of providerOrders?.file_map) {
+                if (file_map[0] == storageOrder?.fileIdentifier) {
+                    order_id = file_map[1][file_map[1].length - 1]
+                    console.log('order_id', order_id)
+                }
+            }
+            sorderRes.order_id = order_id;
+            res.send(sorderRes);
+
         });
 
         router.post('/api/v1/account/transfer', async (req, res, next) => {
