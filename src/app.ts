@@ -24,6 +24,7 @@ class App {
             provider: new WsProvider(crust_chain_endpoint),
             types: {
                 Address: "AccountId",
+                TeeCode: "Vec<u8>",
                 Identity: {
                     ias_sig: 'Vec<u8>',
                     ias_cert: 'Vec<u8>',
@@ -79,6 +80,16 @@ class App {
                     client: 'AccountId',
                     amount: 'Balance',
                     order_status: 'OrderStatus'
+                },
+                Pledge: {
+                    total: 'Balance',
+                    used: 'Balance',
+                },
+                // Payment ledger
+                Ledger: {
+                    total: 'Balance',
+                    paid: 'Balance',
+                    unreserved: 'Balance',
                 }
             }
         });
@@ -385,21 +396,28 @@ class App {
                 return;
             }
 
-            // 2. Get and check backup
+            // 2. Get and check storage price
+            const storagePrice = req.body['storagePrice'];
+            if (typeof storagePrice !== "number") {
+                res.status(400).send('Please add storage (type is number, like `40`) to the request body.');
+                return;
+            }
+
+            // 3. Get and check backup
             const backup = req.body["backup"];
             if (typeof backup !== "string") {
                 res.status(400).send('Please add backup (type is string) to the request body.');
                 return;
             }
 
-            // 3. Get and check password
+            // 4. Get and check password
             const password = req.headers["password"];
             if (typeof password !== "string") {
                 res.status(400).send('Please add password (type is string) to the request header.');
                 return;
             }
 
-            // 4. Pair backup and password, then generate user
+            // 5. Pair backup and password, then generate user
             let user: KeyringPair;
             try {
                 user = this.generateUser(backup, password);
@@ -410,7 +428,7 @@ class App {
 
             // 5. Use api to register user as provider
             this.api.then(async (api) => {
-                api.tx.market.register(addressInfo).signAndSend(user, ({ status }) => {
+                api.tx.market.register(addressInfo, storagePrice).signAndSend(user, ({ status }) => {
                     status.isFinalized
                         ? logger.info(`Completed at block hash #${status.asFinalized.toString()}`)
                         : logger.info(`Current transaction status: ${status.type}`);
@@ -449,7 +467,7 @@ class App {
 
             logger.info(sorder);
 
-            const params = [sorder.provider, sorder.amount, sorder.fileIdentifier, sorder.fileSize, sorder.duration];
+            const params = [sorder.provider, sorder.fileIdentifier, sorder.fileSize, sorder.duration];
 
             // 2. Get and check backup
             const backup = req.body["backup"];
@@ -487,16 +505,18 @@ class App {
                         .then(async (ordersStr) => {
                             const orders = JSON.parse(JSON.stringify(ordersStr));
                             let orderId = "";
-                            logger.info("sorder ids:" + orders);
-                            for (const id of orders.reverse()) {
-                                const orderStr = await api.query.market.storageOrders(id);
-                                const order = JSON.parse(JSON.stringify(orderStr));
-                                if (order.file_identifier == sorder.fileIdentifier &&
-                                    order.provider == sorder.provider &&
-                                    order.order_status == 'Pending') {
-                                    orderId = id;
-                                    logger.info("find matched sorder id:" + id);
-                                    break;
+                            logger.info("Storage order ids:" + orders);
+                            if (orders) {
+                                for (const id of orders.reverse()) {
+                                    const orderStr = await api.query.market.storageOrders(id);
+                                    const order = JSON.parse(JSON.stringify(orderStr));
+                                    if (order.file_identifier == sorder.fileIdentifier &&
+                                        order.provider == sorder.provider &&
+                                        order.order_status == 'Pending') {
+                                        orderId = id;
+                                        logger.info("find matched sorder id:" + id);
+                                        break;
+                                    }
                                 }
                             }
 
