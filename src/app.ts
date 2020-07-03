@@ -8,7 +8,7 @@ import TeeService from './service/TeeService';
 import MarketService from './service/MarketService';
 import AccountService from './service/AccountService';
 import { StorageOrder } from 'crust-sdk/api/Market';
-import { WsReConnectable } from './aop/WsReConnectable';
+import { RetryHandler } from './util/RetryHandler';
 import { convertToObj } from "crust-sdk/util/ConvertUtil";
 
 const moment = require('moment');
@@ -57,64 +57,57 @@ class App {
     }
 
     // get function 
-    @WsReConnectable
+    @RetryHandler
     async head() {
         return await this.blockService.head()
     }
 
-    @WsReConnectable
+    @RetryHandler
     async blockHash(blockNumber: number) {
         return await this.blockService.blockHash(blockNumber)
     }
 
-    @WsReConnectable
+    @RetryHandler
     async identity(address: string) {
         return await this.teeService.identity(address);
     }
 
-    @WsReConnectable
+    @RetryHandler
     async workReports(address: string) {
         return await this.teeService.workReports(address);
     }
 
-    @WsReConnectable
+    @RetryHandler
     async providers(address: string) {
         return await this.marketService.providers(address);
     }
 
-    @WsReConnectable
+    @RetryHandler
     async storageOrders(address: string) {
         return await this.marketService.storageOrders(address);
     }
 
     // post function 
-    @WsReConnectable
+    @RetryHandler
     async registerIdentity(backup: string, identity: any, rootPass: string) {
         return await this.teeService.registerIdentity(backup, identity, rootPass);
     }
 
-    @WsReConnectable
+    @RetryHandler
     async reportWorks(backup: string, workReport: any, rootPass: string) {
         return await this.teeService.reportWorks(backup, workReport, rootPass);
     }
 
-    @WsReConnectable
+    @RetryHandler
     async register(backup: string, addressInfo: string, storagePrice: number, rootPass: string) {
         return await this.marketService.register(backup, addressInfo, storagePrice, rootPass);
     }
 
-    @WsReConnectable
-    async sorder(backup: string, storageOrder: StorageOrder, rootPass: string) {
+    @RetryHandler
+    async placeSorder(backup: string, storageOrder: StorageOrder, rootPass: string) {
         return await await this.marketService.sorder(backup, storageOrder , rootPass);
     }
-
-    @WsReConnectable
-    async transfer(backup: string, dest: string, amount: number, rootPass: string) {
-        return await this.accountService.transfer(backup, dest, amount, rootPass);
-    }
-
     
-
     // Configure Express middleware.
     private middleware(): void {
         this.express.use(bodyParser.json());
@@ -356,7 +349,6 @@ class App {
                 return;
             }
             logger.info(sorder);
-            // const params = [sorder.provider, sorder.amount, sorder.fileIdentifier, sorder.fileSize, sorder.duration];
             // 2. Get and check backup
             const backup = req.body["backup"];
             if (typeof backup !== "string") {
@@ -372,7 +364,7 @@ class App {
             }
             let storageOrder: StorageOrder = JSON.parse(sorder)
 
-            const sorderRes =  convertToObj(await this.sorder(backup, storageOrder , password));
+            const sorderRes =  convertToObj(await this.placeSorder(backup, storageOrder , password));
             if (sorderRes.status == 'success') {
                 const providerOrders = convertToObj(await this.providers(storageOrder?.provider));
                 let order_id = "";
@@ -386,29 +378,6 @@ class App {
             }
             res.send(sorderRes);
 
-        });
-
-        router.post('/api/v1/account/transfer', async (req, res, next) => {
-            logger.info('request path: ' + '/api/v1/account/transfer' +', request time: ' + moment().format())
-            console.log('req.body', req.body)
-            const dest = req.body["dest"];
-            const amount = req.body["amount"];
-
-            //Get backup
-            const backup = req.body["backup"];
-            if (typeof backup !== "string") {
-                res.status(400).send('Please add backup (type is string) to the request body.');
-                return;
-            }
-            
-            //Get password
-            const password = req.headers["password"];
-            if (typeof password !== "string") {
-                res.status(400).send('Please add password (type is string) to the request header.');
-                return;
-            }
-
-            res.send(await this.transfer(backup, dest, amount, password));
         });
 
         this.express.use('/', router); 

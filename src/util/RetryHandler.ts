@@ -1,4 +1,4 @@
-export function WsReConnectable(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+export function RetryHandler(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     //make the method enumerable
     descriptor.enumerable = true;
     const origin = target[propertyKey];
