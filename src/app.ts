@@ -335,12 +335,8 @@ class App {
                 return;
             }
 
-            try {
-                res.send(await this.marketService.register(backup, addressInfo, password))
-            } catch (error) {
-                this.reconnectWS();
-                res.send(await this.marketService.register(backup, addressInfo, password));
-            }
+            res.send(await this.register(backup, addressInfo, password))
+            
         })
 
         router.post('/api/v1/market/sorder', async (req, res, next) => {
