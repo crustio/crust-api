@@ -37,6 +37,11 @@ class App {
         this.routes();
         // this.api = new Endpoint('ws://fzk2.crust.run:7080/').api;
         this.host = crust_chain_endpoint;
+        this.initService();
+    }
+
+    
+    private initService() {
         this.endpoint = new Endpoint(this.host);
         this.blockService = new BlockService(this.endpoint);
         this.teeService = new TeeService(this.endpoint);
@@ -44,14 +49,9 @@ class App {
         this.accountService = new AccountService(this.endpoint);
     }
 
-    
     reconnectWS() {
         logger.info('ws reconnect')
-        this.endpoint = new Endpoint(this.host);
-        this.blockService = new BlockService(this.endpoint);
-        this.teeService = new TeeService(this.endpoint);
-        this.marketService = new MarketService(this.endpoint);
-        this.accountService = new AccountService(this.endpoint);
+        this.initService();
         logger.info('ws reconnected at' + moment().format())
     }
 
