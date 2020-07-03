@@ -321,14 +321,21 @@ class App {
                 return;
             }
 
-            // 2. Get and check backup
+            // 2. Get and check storage price
+            const storagePrice = req.body['storagePrice'];
+            if (typeof storagePrice !== "number") {
+                res.status(400).send('Please add storage (type is number, like `40`) to the request body.');
+                return;
+            }
+
+            // 3. Get and check backup
             const backup = req.body["backup"];
             if (typeof backup !== "string") {
                 res.status(400).send('Please add backup (type is string) to the request body.');
                 return;
             }
 
-            // 3. Get and check password
+            // 4. Get and check password
             const password = req.headers["password"];
             if (typeof password !== "string") {
                 res.status(400).send('Please add password (type is string) to the request header.');
