@@ -129,7 +129,14 @@ Response:
 ### [Market] Register as provider
 Request:
 ```shell
-curl POST 'http://localhost:56666/api/v1/market/register'
+curl POST 'http://localhost:56666/api/v1/market/register' \
+--header 'Content-Type: application/json' \
+--header 'password: 123456' \
+--data-raw '{
+	"addressInfo": "ws://localhost:8080",
+	"storagePrice": 100,
+	"backup": "{\"address\":\"5FqazaU79hjpEMiWTWZx81VjsYFst15eBuSBKdQLgQibD7CX\",\"encoded\":\"0x992da087a5adf2b7ad2d2d72a65aa1fe1a59f599d24badebc37a2ede36f1b6ec647ee18c0956a635ad7070d1fea2e3bf75dd99579d1b92cbca27f5763b56720200d6c5cb6d4084a25c288bd6d99f0f976caf7cd895ebc7fe7d5c9a6d27e7d9e80dcaba5cdda1e0acddd835621c70bc6075debcbe9a0f1b062bd124eee73c3b588bad251a459ef6287fcacf6e2131fa9f0a8403d900efa94672e07f6ae5\",\"encoding\":{\"content\":[\"pkcs8\",\"sr25519\"],\"type\":\"xsalsa20-poly1305\",\"version\":\"2\"},\"meta\":{\"name\":\"Yang1\",\"tags\":[],\"whenCreated\":1580628430860}}"
+}'
 ```
 
 Response:
@@ -146,7 +153,7 @@ curl POST 'http://localhost:56666/api/v1/market/sorder' \
     --header 'Content-Type: application/json' \
     --header 'password: 123456' \
     --data-raw '{
-        "sorder":"{\"provider\":\"5HpyALyFUJTDMc6iRziEKwh1BkvMHFJGHss3mJjXefuzCap3\",\"amount\":0,\"fileIdentifier\":\"0xd9bf1512e28399ae0cccdebacf5fa337b1e1f4a6b08cd43405a11f74368d023f\",\"fileSize\":205452,\"duration\":320}",
+        "sorder":"{\"provider\":\"5HpyALyFUJTDMc6iRziEKwh1BkvMHFJGHss3mJjXefuzCap3\",\"fileIdentifier\":\"0xd9bf1512e28399ae0cccdebacf5fa337b1e1f4a6b08cd43405a11f74368d023f\",\"fileSize\":205452,\"duration\":320}",
         "backup": "{\"address\":\"5FjAZtpXuqNGGw4yoDo3z8ko3Edft4Q25awTr5EakW3bYarE\",\"encoded\":\"0xfbcdb94f892959b1b253145f0893bd2b1d315ced24b497b98b4eb10513a5f3ef46bafec71a538c3f25703843856c9449c02e9bc6bf33bfa7e4ce2716f225d69067888655d60a30b9da618ce4725cb1737bc9980651950edfb5da86ee82ffa5b10dbe0d26d226b15e3bb990424c543210a93bd457be856799872a5f8ef52822980bd266e2b1aea53802f4248e4213498aaf1945033cb8217250b69d00d6\",\"encoding\":{\"content\":[\"pkcs8\",\"sr25519\"],\"type\":\"xsalsa20-poly1305\",\"version\":\"2\"},\"meta\":{\"name\":\"Yang\",\"tags\":[],\"whenCreated\":1580452568110}}"
     }'
 ```
