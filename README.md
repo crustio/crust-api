@@ -167,19 +167,24 @@ curl GET 'http://127.0.0.1:56666/api/v1/market/provider?address=5HpyALyFUJTDMc6i
 Response:
 ```json
 {
-    "address": "ws://127.0.0.1:17000",
+    "address": "0x77733a2f2f6c6f63616c686f73743a38303830",
+    "storage_price": 1000,
     "file_map": [
         [
-            "0x",
-            "0xfd1f6dd1cb83a2a06744233157e5ee70acecdf07dd89b3ecacc81a8966e2723d"
+            "0x1dfb3736edc252eede379b6f9758d3fb58185dfc5916c765e1475594f859031f",
+            [
+                "0x4112e7add795518fb183ad8508f0b576b35eaaf2e96ca987bca9ccd3274a5122",
+                "0x5ccc6680dc3df9ba1b2cb515ba5eb7b8695059b46d3df0dcf0f6e9e9f1cac394",
+                "0xb2bfa32f45acf7e1e8973f5d3630808a28861db624a8ff9eee0a1cf9d9917fe2",
+                "0x067daa63f048ace9ab9e873d29fba2582903e6a4cd9a8eb7333b5eaea2fe78bc"
+            ]
         ],
         [
-            "0x1c0eb16d3d89f5856fc78353a7afa04ed1d232777a264d7f33507efab8186d87",
-            "0x985849656f044d0b49fa960ed8d2b3e1e78a6d6596c8e290d81049bb51c55ec7"
-        ],
-        [
-            "0x7a056e0f7a9fff404b36b0f0e69fb517890bc8daf544fdf053069634f3663da4",
-            "0xf12630b71dac4188dd465073784d769e8b50a1122466c7df487f43c77d16cb36"
+            "0xd9bf1512e28399ae0cccdebacf5fa337b1e1f4a6b08cd43405a11f74368d023f",
+            [
+                "0xbc325c6688cc280eb65f2939b68bbb9f09a0250b6508f938f489ba5875ace52d",
+                "0x07298e2989d58b389d5cd87870cd61327f3df9aab2e30c598d59a8cbd624694a"
+            ]
         ]
     ]
 }

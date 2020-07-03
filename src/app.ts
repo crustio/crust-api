@@ -373,15 +373,17 @@ class App {
             let storageOrder: StorageOrder = JSON.parse(sorder)
 
             const sorderRes =  convertToObj(await this.sorder(backup, storageOrder , password));
-            const providerOrders = convertToObj(await this.providers(storageOrder?.provider));
-            let order_id = "";
-            for (const file_map of providerOrders?.file_map) {
-                if (file_map[0] == storageOrder?.fileIdentifier) {
-                    order_id = file_map[1][file_map[1].length - 1]
-                    console.log('order_id', order_id)
+            if (sorderRes.status == 'success') {
+                const providerOrders = convertToObj(await this.providers(storageOrder?.provider));
+                let order_id = "";
+                for (const file_map of providerOrders?.file_map) {
+                    if (file_map[0] == storageOrder?.fileIdentifier) {
+                        order_id = file_map[1][file_map[1].length - 1]
+                        console.log('order_id', order_id)
+                    }
                 }
+                sorderRes.order_id = order_id;
             }
-            sorderRes.order_id = order_id;
             res.send(sorderRes);
 
         });
