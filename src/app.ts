@@ -6,13 +6,14 @@ import Endpoint from 'crust-sdk/api/common/Endpoint';
 import BlockService from './service/BlockService';
 import TeeService from './service/TeeService';
 import MarketService from './service/MarketService';
+import AccountService from './service/AccountService';
 import { StorageOrder } from 'crust-sdk/api/Market';
+import { WsReConnectable } from './aop/WsReConnectable';
 
 const moment = require('moment');
 const winston = require('winston');
 const logConfiguration = require('./logconfig');
 const logger = winston.createLogger(logConfiguration);
-
 
 // Creates and configures an ExpressJS web server.
 class App {
@@ -28,6 +29,7 @@ class App {
     blockService: BlockService;
     teeService: TeeService;
     marketService: MarketService;
+    accountService: AccountService;
     //Run configuration methods on the Express instance.
     constructor(crust_chain_endpoint: string) {
         this.express = express();
@@ -39,16 +41,78 @@ class App {
         this.blockService = new BlockService(this.endpoint);
         this.teeService = new TeeService(this.endpoint);
         this.marketService = new MarketService(this.endpoint);
+        this.accountService = new AccountService(this.endpoint);
     }
 
+    
     reconnectWS() {
         logger.info('ws reconnect')
         this.endpoint = new Endpoint(this.host);
         this.blockService = new BlockService(this.endpoint);
         this.teeService = new TeeService(this.endpoint);
         this.marketService = new MarketService(this.endpoint);
+        this.accountService = new AccountService(this.endpoint);
         logger.info('ws reconnected at' + moment().format())
     }
+
+    // get function 
+    @WsReConnectable
+    async head() {
+        return await this.blockService.head()
+    }
+
+    @WsReConnectable
+    async blockHash(blockNumber: number) {
+        return await this.blockService.blockHash(blockNumber)
+    }
+
+    @WsReConnectable
+    async identity(address: string) {
+        return await this.teeService.identity(address);
+    }
+
+    @WsReConnectable
+    async workReports(address: string) {
+        return await this.teeService.workReports(address);
+    }
+
+    @WsReConnectable
+    async providers(address: string) {
+        return await this.marketService.providers(address);
+    }
+
+    @WsReConnectable
+    async storageOrders(address: string) {
+        return await this.marketService.storageOrders(address);
+    }
+
+    // post function 
+    @WsReConnectable
+    async registerIdentity(backup: string, identity: any, rootPass: string) {
+        return await this.teeService.registerIdentity(backup, identity, rootPass);
+    }
+
+    @WsReConnectable
+    async reportWorks(backup: string, workReport: any, rootPass: string) {
+        return await this.teeService.reportWorks(backup, workReport, rootPass);
+    }
+
+    @WsReConnectable
+    async register(backup: string, addressInfo: string, rootPass: string) {
+        return await this.marketService.register(backup, addressInfo, rootPass);
+    }
+
+    @WsReConnectable
+    async sorder(backup: string, storageOrder: StorageOrder, rootPass: string) {
+        return await await this.marketService.sorder(backup, storageOrder , rootPass);
+    }
+
+    @WsReConnectable
+    async transfer(backup: string, dest: string, amount: number, rootPass: string) {
+        return await this.accountService.transfer(backup, dest, amount, rootPass);
+    }
+
+    
 
     // Configure Express middleware.
     private middleware(): void {
@@ -110,16 +174,7 @@ class App {
 
         router.get('/api/v1/block/header', async (req, res, next) => {
             logger.info('request path: ' + '/api/v1/block/header' +', request time: ' + moment().format())
-            // try {
-            //     res.send(await this.blockService.head());
-            // } catch (error) {
-            //     console.log('ws reconnect')
-            //     // this.reconnectWS();
-            //     res.send(await this.blockService.head());
-            // }
-
-            res.send(await this.blockService.head());
-            
+            res.send(await this.head());     
         });
 
         router.get('/api/v1/block/hash',async (req, res, next) => {
@@ -133,12 +188,8 @@ class App {
             }
 
             // Use api to get block hash by number
-            try {
-                res.send(this.blockService.blockHash(Number(blockNumber)));
-            } catch (error) {
-                this.reconnectWS();
-                res.send(await this.blockService.blockHash(Number(blockNumber)));
-            }
+            res.send(await this.blockHash(Number(blockNumber)));
+            
         });
 
         router.get('/api/v1/tee/identity', async (req, res, next) => {
@@ -150,12 +201,8 @@ class App {
                 return;
             }
             // Use api to get tee identities
-            try {
-                res.send(await this.teeService.identity(address))
-            } catch (error) {
-                this.reconnectWS();
-                res.send(await this.teeService.identity(address));
-            }
+            res.send(await this.identity(address))
+            
         });
 
         router.get('/api/v1/tee/workreport', async (req, res, next) => {
@@ -166,14 +213,9 @@ class App {
                 res.status(400).send('Please add address (type is string) to the url query.');
                 return;
             }
-
             // Use api to get work report
-            try {
-                res.send(await this.teeService.workReports(address))
-            } catch (error) {
-                this.reconnectWS();
-                res.send(await this.teeService.workReports(address));
-            }
+            res.send(await this.workReports(address))
+            
         });
 
         router.get('/api/v1/market/provider', async (req, res, next) => {
@@ -186,12 +228,8 @@ class App {
             }
 
             // 2. Use api to get provider's info
-            try {
-                res.send(await this.marketService.providers(address))
-            } catch (error) {
-                this.reconnectWS();
-                res.send(await this.marketService.providers(address));
-            }
+            res.send(await this.providers(address))
+            
         });
 
         router.get('/api/v1/market/sorder', async (req, res, next) => {
@@ -204,12 +242,8 @@ class App {
             }
 
             // 2. Use api to get storage order
-            try {
-                res.send(await this.marketService.storageOrders(orderId))
-            } catch (error) {
-                this.reconnectWS();
-                res.send(await this.marketService.storageOrders(orderId));
-            }
+            res.send(await this.storageOrders(orderId))
+            
         });
 
         router.post('/api/v1/tee/identity', async (req, res, next) => {
@@ -240,12 +274,7 @@ class App {
                 return;
             }
 
-            try {
-                res.send(await this.teeService.registerIdentity(backup, identity, password))
-            } catch (error) {
-                this.reconnectWS();
-                res.send(await this.teeService.registerIdentity(backup, identity, password));
-            }
+            res.send(await this.registerIdentity(backup, identity, password))
         });
 
         router.post('/api/v1/tee/workreport', async (req, res, next) => {
@@ -278,12 +307,9 @@ class App {
                 res.status(400).send('Please add password (type is string) to the request header.');
                 return;
             }
-            try {
-                res.send(await this.teeService.reportWorks(backup, workReport, password))
-            } catch (error) {
-                this.reconnectWS();
-                res.send(await this.teeService.reportWorks(backup, workReport, password));
-            }
+            
+            res.send(await this.reportWorks(backup, workReport, password))
+            
         });
 
         router.post('/api/v1/market/register', async (req, res, next) => {
@@ -341,13 +367,33 @@ class App {
                 return;
             }
             let storageOrder: StorageOrder = JSON.parse(sorder)
-            try {
-                res.send(await this.marketService.sorder(backup, storageOrder , password))
-            } catch (error) {
-                this.reconnectWS();
-                res.send(await this.marketService.sorder(backup, storageOrder, password));
+            
+            res.send(await this.sorder(backup, storageOrder , password))
+            
+        });
+
+        router.post('/api/v1/account/transfer', async (req, res, next) => {
+            logger.info('request path: ' + '/api/v1/account/transfer' +', request time: ' + moment().format())
+            console.log('req.body', req.body)
+            const dest = req.body["dest"];
+            const amount = req.body["amount"];
+
+            //Get backup
+            const backup = req.body["backup"];
+            if (typeof backup !== "string") {
+                res.status(400).send('Please add backup (type is string) to the request body.');
+                return;
             }
-        })
+            
+            //Get password
+            const password = req.headers["password"];
+            if (typeof password !== "string") {
+                res.status(400).send('Please add password (type is string) to the request header.');
+                return;
+            }
+
+            res.send(await this.transfer(backup, dest, amount, password));
+        });
 
         this.express.use('/', router); 
 
