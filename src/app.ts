@@ -1,4 +1,4 @@
-import express from 'express';
+import  express from 'express';
 import * as bodyParser from 'body-parser';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import { Keyring } from '@polkadot/api';
@@ -222,7 +222,11 @@ class App {
             }
 
             // 2. Use api to get provider's info
-            res.send(await this.providers(address))
+            const provider = convertToObj(await this.providers(address));
+            if (provider) {
+                provider.address = provider?.address && this.bin2String(provider?.address)
+            }
+            res.send(provider);
             
         });
 
