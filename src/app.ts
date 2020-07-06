@@ -1,4 +1,4 @@
-import * as express from 'express';
+import express from 'express';
 import * as bodyParser from 'body-parser';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import { Keyring } from '@polkadot/api';
@@ -10,6 +10,7 @@ import AccountService from './service/AccountService';
 import { StorageOrder } from 'crust-sdk/api/Market';
 import { RetryHandler } from './util/RetryHandler';
 import { convertToObj } from "crust-sdk/util/ConvertUtil";
+
 
 const moment = require('moment');
 const winston = require('winston');
@@ -222,7 +223,11 @@ class App {
             }
 
             // 2. Use api to get provider's info
-            res.send(await this.providers(address))
+            const provider = convertToObj(await this.providers(address));
+            if (provider) {
+                provider.address = provider.address && this.bin2String(provider?.address)
+            }
+            res.send(provider);
             
         });
 
