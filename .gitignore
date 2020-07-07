@@ -106,5 +106,6 @@ dist
 # User
 .vscode/
 yarn.lock
+build/
+crust-api.tar
 package-lock.json
-build

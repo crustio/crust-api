@@ -5,7 +5,8 @@
   "license": "MIT",
   "scripts": {
     "start": "ts-node src/index.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "package": "yarn && yarn build && mkdir crust-api && cp -r node_modules crust-api && cp -r build crust-api && cp -r VERSION crust-api && tar -cvf crust-api.tar crust-api && rm -rf crust-api"
   },
   "dependencies": {
     "@types/debug": "^4.1.5",
