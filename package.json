@@ -5,7 +5,8 @@
   "license": "MIT",
   "scripts": {
     "start": "ts-node src/index.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "package": "yarn && yarn build && mkdir crust-api && cp -r node_modules crust-api && cp -r build crust-api && cp -r VERSION crust-api && tar -cvf crust-api.tar crust-api && rm -rf crust-api"
   },
   "dependencies": {
     "@types/debug": "^4.1.5",
@@ -13,7 +14,7 @@
     "@types/morgan": "^1.7.37",
     "@types/node": "^13.1.8",
     "body-parser": "^1.19.0",
-    "crust-sdk": "^1.0.51",
+    "crust-sdk": "^1.0.53",
     "express": "^4.17.1",
     "moment": "^2.26.0",
     "morgan": "^1.9.1",
