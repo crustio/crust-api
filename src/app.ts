@@ -1,4 +1,5 @@
 import express from 'express';
+require('express-async-errors');
 import * as bodyParser from 'body-parser';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import { Keyring } from '@polkadot/api';
@@ -41,7 +42,6 @@ class App {
         this.host = crust_chain_endpoint;
         this.initService();
     }
-
     
     private initService() {
         this.endpoint = new Endpoint(this.host);
@@ -386,6 +386,22 @@ class App {
         });
 
         this.express.use('/', router); 
+
+        // error handler
+        this.express.use((err: { message: any; }, req: { xhr: any; }, res: { send: (arg0: { message: string; code: number; msg: any; }) => any; }, next: (arg0: any) => void) => {
+            if (req.xhr) {
+                return res.send({
+                    message: "failed",
+                    code: 0,
+                    msg: err.message
+                });
+            }
+            next(res.send({
+                message: "failed",
+                code: 0,
+                msg: err.message
+            }));
+        });
 
     }
 
