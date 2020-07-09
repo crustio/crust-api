@@ -423,7 +423,7 @@ class App {
 
         this.express.use('/', router); 
 
-        // error handler
+        // global error handler
         this.express.use((err: any, req: any, res: any, next: any) => {
             if (err) {
                 res.status(400).send({
