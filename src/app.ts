@@ -1,7 +1,6 @@
 import express from 'express';
-require('express-async-errors');
 import * as bodyParser from 'body-parser';
-import { ApiPromise, WsProvider } from '@polkadot/api';
+import { ApiPromise } from '@polkadot/api';
 import { Keyring } from '@polkadot/api';
 import Endpoint from 'crust-sdk/api/common/Endpoint';
 import BlockService from './service/BlockService';
@@ -12,7 +11,7 @@ import { StorageOrder } from 'crust-sdk/api/Market';
 import { RetryHandler } from './util/RetryHandler';
 import { convertToObj } from "crust-sdk/util/ConvertUtil";
 
-
+const _ = require('express-async-errors');
 const moment = require('moment');
 const winston = require('winston');
 const logConfiguration = require('./logconfig');
