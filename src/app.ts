@@ -162,7 +162,7 @@ class App {
 
         router.get('/', (req, res, next) => {
             logger.info('request path:' + '/' +', request time: ' + moment().format())
-            res.json({
+            res.status(200).json({
                 message: 'This is crust api.'
             });
         });
@@ -273,7 +273,14 @@ class App {
                 return;
             }
 
-            res.send(await this.registerIdentity(backup, identity, password))
+            const registerIdentityRes = convertToObj(await this.registerIdentity(backup, identity, password));
+            if ('success' == registerIdentityRes.status) {
+                res.send(registerIdentityRes);
+            } else {
+                res.status(500).send(registerIdentityRes);
+            }
+ 
+            
         });
 
         router.post('/api/v1/tee/workreport', async (req, res, next) => {
@@ -306,8 +313,13 @@ class App {
                 res.status(400).send('Please add password (type is string) to the request header.');
                 return;
             }
-            
-            res.send(await this.reportWorks(backup, workReport, password))
+
+            const reportWorksRes = convertToObj(await this.reportWorks(backup, workReport, password));
+            if ('success' == reportWorksRes.status) {
+                res.send(reportWorksRes);
+            } else {
+                res.status(500).send(reportWorksRes)
+            }
             
         });
 
@@ -341,7 +353,12 @@ class App {
                 return;
             }
 
-            res.send(await this.register(backup, addressInfo, storagePrice, password))
+            const registerRes = convertToObj(await this.register(backup, addressInfo, storagePrice, password));
+            if ('success' == registerRes.status) {
+                res.send(registerRes);
+            } else {
+                res.status(500).send(registerRes)
+            }
             
         })
 
@@ -370,7 +387,7 @@ class App {
             let storageOrder: StorageOrder = JSON.parse(sorder)
 
             const sorderRes =  convertToObj(await this.placeSorder(backup, storageOrder , password));
-            if (sorderRes.status == 'success') {
+            if ('success' == sorderRes.status) {
                 const providerOrders = convertToObj(await this.providers(storageOrder?.provider));
                 let order_id = "";
                 for (const file_map of providerOrders?.file_map) {
@@ -380,26 +397,26 @@ class App {
                     }
                 }
                 sorderRes.order_id = order_id;
+                res.send(sorderRes);
+            } else {
+                res.status(500).send(sorderRes)
             }
-            res.send(sorderRes);
 
         });
 
         this.express.use('/', router); 
 
         // error handler
-        this.express.use((err: { message: any; }, req: { xhr: any; }, res: { send: (arg0: { message: string; code: number; msg: any; }) => any; }, next: (arg0: any) => void) => {
+        this.express.use((err: any, req: any, res: any, next: any) => {
             if (req.xhr) {
-                return res.send({
+                return res.status(400).send({
                     message: "failed",
-                    code: 0,
-                    msg: err.message
+                    detail: err.message
                 });
-            }
-            next(res.send({
+            };
+            next(res.status(400).send({
                 message: "failed",
-                code: 0,
-                msg: err.message
+                detail: err.message
             }));
         });
 
