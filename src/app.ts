@@ -168,7 +168,7 @@ class App {
 
         router.get('/api/v1/block/header', async (req, res, next) => {
             logger.info('request path: ' + '/api/v1/block/header' +', request time: ' + moment().format())
-            const head = await this.head();
+            const head = convertToObj(await this.head());
             if (head) {
                 res.send(head);
             } else {
@@ -187,7 +187,7 @@ class App {
             }
 
             // Use api to get block hash by number
-            const hash = await this.blockHash(Number(blockNumber));
+            const hash = convertToObj(await this.blockHash(Number(blockNumber)));
             if (hash) {
                 res.send(hash);
             } else {
@@ -221,7 +221,7 @@ class App {
                 return;
             }
             // Use api to get work report
-            const workReport = await this.workReports(address);
+            const workReport = convertToObj(await this.workReports(address));
             if (workReport) {
                 res.send(workReport);
             } else {
@@ -258,7 +258,7 @@ class App {
             }
 
             // 2. Use api to get storage order
-            const storageOrders = await this.storageOrders(orderId);
+            const storageOrders = convertToObj(await this.storageOrders(orderId));
             if (storageOrders) {
                 res.send(storageOrders);
             } else {
