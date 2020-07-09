@@ -169,10 +169,12 @@ class App {
 
         router.get('/api/v1/block/header', async (req, res, next) => {
             logger.info('request path: ' + '/api/v1/block/header' +', request time: ' + moment().format())
-            res.send({
-                status: 'success',
-                data: await this.head()
-            })   
+            const head = await this.head();
+            if (head) {
+                res.send(head);
+            } else {
+                res.status(404).send(head);
+            }
         });
 
         router.get('/api/v1/block/hash',async (req, res, next) => {
@@ -186,10 +188,12 @@ class App {
             }
 
             // Use api to get block hash by number
-            res.send({
-                status: 'success',
-                data: await this.blockHash(Number(blockNumber))
-            })
+            const hash = await this.blockHash(Number(blockNumber));
+            if (hash) {
+                res.send(hash);
+            } else {
+                res.status(404).send(hash);
+            }
         });
 
         router.get('/api/v1/tee/identity', async (req, res, next) => {
@@ -201,11 +205,12 @@ class App {
                 return;
             }
             // Use api to get tee identities
-            res.send({
-                status: 'success',
-                data: await this.identity(address)
-            })
-            
+            const identity = convertToObj(await this.identity(address));
+            if (identity) {
+                res.send(identity);
+            } else {
+                res.status(404).send(identity);
+            }
         });
 
         router.get('/api/v1/tee/workreport', async (req, res, next) => {
@@ -217,11 +222,12 @@ class App {
                 return;
             }
             // Use api to get work report
-            res.send({
-                status: 'success',
-                data: await this.workReports(address)
-            })
-            
+            const workReport = await this.workReports(address);
+            if (workReport) {
+                res.send(workReport);
+            } else {
+                res.status(404).send(workReport);
+            }
         });
 
         router.get('/api/v1/market/provider', async (req, res, next) => {
@@ -236,13 +242,11 @@ class App {
             // 2. Use api to get provider's info
             const provider = convertToObj(await this.providers(address));
             if (provider) {
-                provider.address = provider.address && this.bin2String(provider?.address)
+                provider.address = provider.address && this.bin2String(provider?.address);
+                res.send(provider);
+            } else {
+                res.status(404).send(provider);
             }
-            res.send({
-                status: 'success',
-                data: provider
-            })
-            
         });
 
         router.get('/api/v1/market/sorder', async (req, res, next) => {
@@ -255,11 +259,12 @@ class App {
             }
 
             // 2. Use api to get storage order
-            res.send({
-                status: 'success',
-                data: await this.storageOrders(orderId)
-            })
-            
+            const storageOrders = await this.storageOrders(orderId);
+            if (storageOrders) {
+                res.send(storageOrders);
+            } else {
+                res.status(404).send(storageOrders);
+            }
         });
 
         router.post('/api/v1/tee/identity', async (req, res, next) => {
