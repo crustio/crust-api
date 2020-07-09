@@ -177,7 +177,6 @@ class App {
         });
 
         router.get('/api/v1/block/hash',async (req, res, next) => {
-            console.log('this.api', this.api)
             logger.info('request path: ' + '/api/v1/block/hash' +', request time: ' + moment().format())
             // Get address
             const blockNumber = req.query["blockNumber"];
@@ -187,12 +186,7 @@ class App {
             }
 
             // Use api to get block hash by number
-            const hash = convertToObj(await this.blockHash(Number(blockNumber)));
-            if (hash) {
-                res.send(hash);
-            } else {
-                res.status(404).send(hash);
-            }
+            res.send(await this.blockHash(Number(blockNumber)));
         });
 
         router.get('/api/v1/tee/identity', async (req, res, next) => {
