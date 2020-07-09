@@ -162,14 +162,17 @@ class App {
 
         router.get('/', (req, res, next) => {
             logger.info('request path:' + '/' +', request time: ' + moment().format())
-            res.status(200).json({
+            res.status(200).send({
                 message: 'This is crust api.'
             });
         });
 
         router.get('/api/v1/block/header', async (req, res, next) => {
             logger.info('request path: ' + '/api/v1/block/header' +', request time: ' + moment().format())
-            res.send(await this.head());     
+            res.send({
+                status: 'success',
+                data: await this.head()
+            })   
         });
 
         router.get('/api/v1/block/hash',async (req, res, next) => {
@@ -183,8 +186,10 @@ class App {
             }
 
             // Use api to get block hash by number
-            res.send(await this.blockHash(Number(blockNumber)));
-            
+            res.send({
+                status: 'success',
+                data: await this.blockHash(Number(blockNumber))
+            })
         });
 
         router.get('/api/v1/tee/identity', async (req, res, next) => {
@@ -196,7 +201,10 @@ class App {
                 return;
             }
             // Use api to get tee identities
-            res.send(await this.identity(address))
+            res.send({
+                status: 'success',
+                data: await this.identity(address)
+            })
             
         });
 
@@ -209,7 +217,10 @@ class App {
                 return;
             }
             // Use api to get work report
-            res.send(await this.workReports(address))
+            res.send({
+                status: 'success',
+                data: await this.workReports(address)
+            })
             
         });
 
@@ -227,7 +238,10 @@ class App {
             if (provider) {
                 provider.address = provider.address && this.bin2String(provider?.address)
             }
-            res.send(provider);
+            res.send({
+                status: 'success',
+                data: provider
+            })
             
         });
 
@@ -241,7 +255,10 @@ class App {
             }
 
             // 2. Use api to get storage order
-            res.send(await this.storageOrders(orderId))
+            res.send({
+                status: 'success',
+                data: await this.storageOrders(orderId)
+            })
             
         });
 
@@ -254,6 +271,7 @@ class App {
                 account_id: req.body["account_id"],
                 isv_body: req.body["isv_body"],
                 pub_key: "0x",
+                code: "0x",
                 sig: "0x" + req.body["sig"]
             }
 
@@ -277,9 +295,8 @@ class App {
             if ('success' == registerIdentityRes.status) {
                 res.send(registerIdentityRes);
             } else {
-                res.status(500).send(registerIdentityRes);
-            }
- 
+                res.status(400).send(registerIdentityRes);
+            }            
             
         });
 
@@ -313,12 +330,12 @@ class App {
                 res.status(400).send('Please add password (type is string) to the request header.');
                 return;
             }
-
+            
             const reportWorksRes = convertToObj(await this.reportWorks(backup, workReport, password));
             if ('success' == reportWorksRes.status) {
                 res.send(reportWorksRes);
             } else {
-                res.status(500).send(reportWorksRes)
+                res.status(400).send(reportWorksRes)
             }
             
         });
@@ -357,7 +374,7 @@ class App {
             if ('success' == registerRes.status) {
                 res.send(registerRes);
             } else {
-                res.status(500).send(registerRes)
+                res.status(400).send(registerRes)
             }
             
         })
@@ -399,7 +416,7 @@ class App {
                 sorderRes.order_id = order_id;
                 res.send(sorderRes);
             } else {
-                res.status(500).send(sorderRes)
+                res.status(400).send(sorderRes)
             }
 
         });
@@ -408,16 +425,13 @@ class App {
 
         // error handler
         this.express.use((err: any, req: any, res: any, next: any) => {
-            if (req.xhr) {
-                return res.status(400).send({
-                    message: "failed",
-                    detail: err.message
-                });
-            };
-            next(res.status(400).send({
-                message: "failed",
-                detail: err.message
-            }));
+            if (err) {
+                res.status(400).send({
+                    status: 'failed',
+                    message: err.message
+                })
+            }
+            next(err);
         });
 
     }
