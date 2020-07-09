@@ -1,7 +1,6 @@
-import { Tee, Account } from 'crust-sdk';
+import { Tee } from 'crust-sdk';
 import Endpoint from 'crust-sdk/api/common/Endpoint';
 import BaseService from './BaseService';
-
 export default class TeeService extends BaseService {
 
     tee: Tee;

@@ -1,6 +1,6 @@
 import express from 'express';
 import * as bodyParser from 'body-parser';
-import { ApiPromise, WsProvider } from '@polkadot/api';
+import { ApiPromise } from '@polkadot/api';
 import { Keyring } from '@polkadot/api';
 import Endpoint from 'crust-sdk/api/common/Endpoint';
 import BlockService from './service/BlockService';
@@ -11,7 +11,7 @@ import { StorageOrder } from 'crust-sdk/api/Market';
 import { RetryHandler } from './util/RetryHandler';
 import { convertToObj } from "crust-sdk/util/ConvertUtil";
 
-
+const _ = require('express-async-errors');
 const moment = require('moment');
 const winston = require('winston');
 const logConfiguration = require('./logconfig');
@@ -41,7 +41,6 @@ class App {
         this.host = crust_chain_endpoint;
         this.initService();
     }
-
     
     private initService() {
         this.endpoint = new Endpoint(this.host);
@@ -162,14 +161,19 @@ class App {
 
         router.get('/', (req, res, next) => {
             logger.info('request path:' + '/' +', request time: ' + moment().format())
-            res.json({
+            res.status(200).send({
                 message: 'This is crust api.'
             });
         });
 
         router.get('/api/v1/block/header', async (req, res, next) => {
             logger.info('request path: ' + '/api/v1/block/header' +', request time: ' + moment().format())
-            res.send(await this.head());     
+            const head = convertToObj(await this.head());
+            if (head) {
+                res.send(head);
+            } else {
+                res.status(404).send(head);
+            }
         });
 
         router.get('/api/v1/block/hash',async (req, res, next) => {
@@ -183,8 +187,12 @@ class App {
             }
 
             // Use api to get block hash by number
-            res.send(await this.blockHash(Number(blockNumber)));
-            
+            const hash = convertToObj(await this.blockHash(Number(blockNumber)));
+            if (hash) {
+                res.send(hash);
+            } else {
+                res.status(404).send(hash);
+            }
         });
 
         router.get('/api/v1/tee/identity', async (req, res, next) => {
@@ -196,8 +204,12 @@ class App {
                 return;
             }
             // Use api to get tee identities
-            res.send(await this.identity(address))
-            
+            const identity = convertToObj(await this.identity(address));
+            if (identity) {
+                res.send(identity);
+            } else {
+                res.status(404).send(identity);
+            }
         });
 
         router.get('/api/v1/tee/workreport', async (req, res, next) => {
@@ -209,8 +221,12 @@ class App {
                 return;
             }
             // Use api to get work report
-            res.send(await this.workReports(address))
-            
+            const workReport = convertToObj(await this.workReports(address));
+            if (workReport) {
+                res.send(workReport);
+            } else {
+                res.status(404).send(workReport);
+            }
         });
 
         router.get('/api/v1/market/provider', async (req, res, next) => {
@@ -225,10 +241,11 @@ class App {
             // 2. Use api to get provider's info
             const provider = convertToObj(await this.providers(address));
             if (provider) {
-                provider.address = provider.address && this.bin2String(provider?.address)
+                provider.address = provider.address && this.bin2String(provider?.address);
+                res.send(provider);
+            } else {
+                res.status(404).send(provider);
             }
-            res.send(provider);
-            
         });
 
         router.get('/api/v1/market/sorder', async (req, res, next) => {
@@ -241,8 +258,12 @@ class App {
             }
 
             // 2. Use api to get storage order
-            res.send(await this.storageOrders(orderId))
-            
+            const storageOrders = convertToObj(await this.storageOrders(orderId));
+            if (storageOrders) {
+                res.send(storageOrders);
+            } else {
+                res.status(404).send(storageOrders);
+            }
         });
 
         router.post('/api/v1/tee/identity', async (req, res, next) => {
@@ -254,6 +275,7 @@ class App {
                 account_id: req.body["account_id"],
                 isv_body: req.body["isv_body"],
                 pub_key: "0x",
+                code: "0x",
                 sig: "0x" + req.body["sig"]
             }
 
@@ -273,7 +295,13 @@ class App {
                 return;
             }
 
-            res.send(await this.registerIdentity(backup, identity, password))
+            const registerIdentityRes = convertToObj(await this.registerIdentity(backup, identity, password));
+            if ('success' == registerIdentityRes.status) {
+                res.send(registerIdentityRes);
+            } else {
+                res.status(400).send(registerIdentityRes);
+            }            
+            
         });
 
         router.post('/api/v1/tee/workreport', async (req, res, next) => {
@@ -307,7 +335,12 @@ class App {
                 return;
             }
             
-            res.send(await this.reportWorks(backup, workReport, password))
+            const reportWorksRes = convertToObj(await this.reportWorks(backup, workReport, password));
+            if ('success' == reportWorksRes.status) {
+                res.send(reportWorksRes);
+            } else {
+                res.status(400).send(reportWorksRes)
+            }
             
         });
 
@@ -341,7 +374,12 @@ class App {
                 return;
             }
 
-            res.send(await this.register(backup, addressInfo, storagePrice, password))
+            const registerRes = convertToObj(await this.register(backup, addressInfo, storagePrice, password));
+            if ('success' == registerRes.status) {
+                res.send(registerRes);
+            } else {
+                res.status(400).send(registerRes)
+            }
             
         })
 
@@ -370,7 +408,7 @@ class App {
             let storageOrder: StorageOrder = JSON.parse(sorder)
 
             const sorderRes =  convertToObj(await this.placeSorder(backup, storageOrder , password));
-            if (sorderRes.status == 'success') {
+            if ('success' == sorderRes.status) {
                 const providerOrders = convertToObj(await this.providers(storageOrder?.provider));
                 let order_id = "";
                 for (const file_map of providerOrders?.file_map) {
@@ -380,12 +418,25 @@ class App {
                     }
                 }
                 sorderRes.order_id = order_id;
+                res.send(sorderRes);
+            } else {
+                res.status(400).send(sorderRes)
             }
-            res.send(sorderRes);
 
         });
 
         this.express.use('/', router); 
+
+        // global error handler
+        this.express.use((err: any, req: any, res: any, next: any) => {
+            if (err) {
+                res.status(400).send({
+                    status: 'failed',
+                    message: err.message
+                })
+            }
+            next(err);
+        });
 
     }
 
