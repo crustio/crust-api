@@ -1,6 +1,6 @@
 # Crust Restful API
 
-## Start
+## Normal launch
 ### build
 ```shell
 yarn
@@ -13,6 +13,21 @@ yarn start
 Change the setting like this, if you want to connect to other chain:
 ```shell
 yarn start 56666 ws://192.168.50.6:9944/
+```
+
+## Docker launch
+
+### Build docker image
+```shell
+sudo docker build -t crust-api:test .
+```
+### Run docker
+```shell
+sudo docker run -d --name crust-api-test-container --network host crust-api:test 56667 ws://192.168.50.6:9944/
+```
+### Check logs
+```shell
+sudo docker logs <container-id>
 ```
 
 ## Usage
