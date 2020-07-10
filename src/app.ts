@@ -290,6 +290,7 @@ class App {
             }
 
             const registerIdentityRes = convertToObj(await this.registerIdentity(backup, identity, password));
+            logger.info('registerIdentityRes::::::', registerIdentityRes)
             if ('success' == registerIdentityRes.status) {
                 res.send(registerIdentityRes);
             } else {
@@ -330,6 +331,7 @@ class App {
             }
             
             const reportWorksRes = convertToObj(await this.reportWorks(backup, workReport, password));
+            logger.info('reportWorksRes:::::', reportWorksRes);
             if ('success' == reportWorksRes.status) {
                 res.send(reportWorksRes);
             } else {
@@ -369,6 +371,7 @@ class App {
             }
 
             const registerRes = convertToObj(await this.register(backup, addressInfo, storagePrice, password));
+            logger.info('registerRes:::::', registerRes);
             if ('success' == registerRes.status) {
                 res.send(registerRes);
             } else {
@@ -402,6 +405,7 @@ class App {
             let storageOrder: StorageOrder = JSON.parse(sorder)
 
             const sorderRes =  convertToObj(await this.placeSorder(backup, storageOrder , password));
+            logger.info('sorderRes:::::', sorderRes);
             if ('success' == sorderRes.status) {
                 const providerOrders = convertToObj(await this.providers(storageOrder?.provider));
                 let order_id = "";
