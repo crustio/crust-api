@@ -23,7 +23,7 @@ sudo ./build_docker.sh
 ```
 ### Run docker
 ```shell
-sudo docker run -it --name test-container --network host crustio/crust-api:0.5.0 56666 ws://127.0.0.1:9944/
+sudo docker run -it --name test-container -e ARGS="56666 ws://127.0.0.1:9944/" --network host crustio/crust-api:0.5.0
 ```
 ### Check logs
 ```shell

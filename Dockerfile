@@ -18,4 +18,4 @@ COPY . .
 RUN yarn
 
 # Run
-ENTRYPOINT yarn start $0 $@
+ENTRYPOINT yarn start $ARGS
