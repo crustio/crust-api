@@ -268,8 +268,6 @@ class App {
                 ias_cert: req.body["ias_cert"],
                 account_id: req.body["account_id"],
                 isv_body: req.body["isv_body"],
-                pub_key: "0x",
-                code: "0x",
                 sig: "0x" + req.body["sig"]
             }
 
@@ -305,7 +303,6 @@ class App {
                 pub_key: "0x" + req.body["pub_key"],
                 block_number: req.body["block_height"],
                 block_hash: "0x" + req.body["block_hash"],
-                used: 0,
                 reserved: req.body["reserved"],
                 files: req.body["files"].map((file: any) => {
                     const rst: [any, any] = ["0x" + file.hash, file.size]
