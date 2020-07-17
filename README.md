@@ -21,10 +21,12 @@ yarn start 56666 ws://192.168.50.6:9944/
 ```shell
 sudo ./build_docker.sh
 ```
+
 ### Run docker
 ```shell
-sudo docker run -it --name test-container --network host crustio/crust-api:0.5.0 56666 ws://127.0.0.1:9944/
+sudo docker run -it -e ARGS="56666 ws://127.0.0.1:9944/" --name test-container --network host crustio/crust-api:0.5.0
 ```
+
 ### Check logs
 ```shell
 sudo docker logs <container-id>
