@@ -19,11 +19,11 @@ yarn start 56666 ws://192.168.50.6:9944/
 
 ### Build docker image
 ```shell
-sudo docker build -t crust-api:test .
+sudo ./build_docker.sh
 ```
 ### Run docker
 ```shell
-sudo docker run -d --name crust-api-test-container --network host crust-api:test 56667 ws://192.168.50.6:9944/
+sudo docker run -d --name test-container --network host crustio/crust-api:0.5.0 56666 ws://127.0.0.1:9944/
 ```
 ### Check logs
 ```shell
