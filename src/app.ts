@@ -169,7 +169,7 @@ class App {
         router.get('/api/v1/block/header', async (req, res, next) => {
             logger.info('request path: ' + '/api/v1/block/header' +', request time: ' + moment().format())
             const head = convertToObj(await this.head());
-            logger.info(`block hash res: ${JSON.stringify(head)}`);
+            logger.info(`block header res: ${JSON.stringify(head)}`);
             if (head) {
                 res.send(head);
             } else {
