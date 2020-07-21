@@ -169,6 +169,7 @@ class App {
         router.get('/api/v1/block/header', async (req, res, next) => {
             logger.info('request path: ' + '/api/v1/block/header' +', request time: ' + moment().format())
             const head = convertToObj(await this.head());
+            logger.info(`block header res: ${JSON.stringify(head)}`);
             if (head) {
                 res.send(head);
             } else {
@@ -185,8 +186,10 @@ class App {
                 return;
             }
 
+            const result = await this.blockHash(Number(blockNumber));
             // Use api to get block hash by number
-            res.send(await this.blockHash(Number(blockNumber)));
+            logger.info(`block hash res: ${result.toJSON()}`);
+            res.send(result);
         });
 
         router.get('/api/v1/tee/identity', async (req, res, next) => {
