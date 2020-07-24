@@ -24,9 +24,9 @@ class App {
     public express: express.Application;
     api: Promise<ApiPromise>;
 
-    host: string;
+    static host: string;
 
-    endpoint: Endpoint;
+    static endpoint: Endpoint;
 
     blockService: BlockService;
     teeService: TeeService;
@@ -38,16 +38,16 @@ class App {
         this.middleware();
         this.routes();
         // this.api = new Endpoint('ws://fzk2.crust.run:7080/').api;
-        this.host = crust_chain_endpoint;
+        App.host = crust_chain_endpoint;
         this.initService();
     }
     
     private initService() {
-        this.endpoint = new Endpoint(this.host);
-        this.blockService = new BlockService(this.endpoint);
-        this.teeService = new TeeService(this.endpoint);
-        this.marketService = new MarketService(this.endpoint);
-        this.accountService = new AccountService(this.endpoint);
+        App.endpoint = new Endpoint(App.host);
+        this.blockService = new BlockService(App.endpoint);
+        this.teeService = new TeeService(App.endpoint);
+        this.marketService = new MarketService(App.endpoint);
+        this.accountService = new AccountService(App.endpoint);
     }
 
     reconnectWS() {

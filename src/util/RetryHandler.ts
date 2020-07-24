@@ -1,18 +1,21 @@
+const winston = require('winston');
+const logConfiguration = require('../logconfig');
+const logger = winston.createLogger(logConfiguration);
+
 export function RetryHandler(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     //make the method enumerable
     descriptor.enumerable = true;
     const origin = target[propertyKey];
     // aop
-    target[propertyKey] = function(...args: any[]) {
-        try {
-            let result = origin.apply(this, args)
-            return result;
-        } catch (error) {
-            console.log(error)
+    target[propertyKey] = async function(...args: any[]) {
+        let res = await origin.apply(this, args);
+        logger.info(`retry handler res ${JSON.stringify(res)}`)
+        if ('error' === res.status) {
+            logger.error(`reconnected  error: ${JSON.stringify(res.message)}`)
             target['reconnectWS']();
-            let result = origin.apply(this, args)
-            return result;
-        }
+            res = origin.apply(this, args)
+        } 
+        return res;
     }
     return target[propertyKey]; 
       
