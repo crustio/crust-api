@@ -424,6 +424,8 @@ class App {
         // global error handler
         this.express.use((err: any, req: any, res: any, next: any) => {
             if (err) {
+                logger.info('api try to reconnect chain ...')
+                this.reconnectWS();
                 res.status(400).send({
                     status: 'failed',
                     message: err.message
