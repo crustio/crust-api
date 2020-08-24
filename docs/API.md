@@ -52,7 +52,6 @@ Response:
 "0x8801f22c6958a8096dbc959227a481e53e862f58b9dd3113e9cf3ff94413d265"
 ```
 
-
 ### [MPoW] Register as TEE trusted node
 Request:
 ```shell
