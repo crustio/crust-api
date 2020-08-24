@@ -83,6 +83,11 @@ class App {
     }
 
     @RetryHandler
+    async systemHealth() {
+        return await this.blockService.systemHealth();
+    }
+
+    @RetryHandler
     async providers(address: string) {
         return await this.marketService.providers(address);
     }
@@ -233,6 +238,15 @@ class App {
                 res.send(workReport);
             } else {
                 res.status(404).send(workReport);
+            }
+        });
+
+        router.get('/api/v1/system/health', async (req, res, next) => {
+            const systemHealth = convertToObj(await this.systemHealth())
+            if (systemHealth) {
+                res.send(systemHealth);
+            } else {
+                res.status(404).send(systemHealth);
             }
         });
 
