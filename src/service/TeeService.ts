@@ -14,6 +14,10 @@ export default class TeeService extends BaseService {
         return await this.tee.identity(address);
     }
 
+    code = async () => {
+        return await this.tee.code();
+    }
+
     registerIdentity = async (backup: string, identity: any, rootPass: string) => {
         await this.keyringLoad(backup, rootPass);
         return await this.tee.registerIdentity(JSON.parse(backup)?.address, identity, rootPass)
