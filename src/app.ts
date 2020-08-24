@@ -73,6 +73,11 @@ class App {
     }
 
     @RetryHandler
+    async code() {
+        return await this.teeService.code()
+    }
+
+    @RetryHandler
     async workReports(address: string) {
         return await this.teeService.workReports(address);
     }
@@ -207,6 +212,11 @@ class App {
             } else {
                 res.status(404).send(identity);
             }
+        });
+
+        router.get('/api/v1/tee/code', async (req, res, next) => {
+            const code = await this.code();
+            res.send(code);
         });
 
         router.get('/api/v1/tee/workreport', async (req, res, next) => {
