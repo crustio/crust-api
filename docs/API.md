@@ -26,6 +26,33 @@ Response:
 "0xeeadb2bd71c125c98ce0892d830931fb27c771ab0025c60735fca9419abae990"
 ```
 
+### [MPoW] Get system health
+Request:
+```shell
+curl GET 'http://localhost:56666/api/v1/system/health
+```
+
+Response:
+```json
+{
+    "peers": 19,
+    "isSyncing": false,
+    "shouldHavePeers": true
+}
+```
+
+### [MPoW] Get sworker code
+Request:
+```shell
+curl GET 'http://localhost:56666/api/v1/tee/code
+```
+
+Response:
+```json
+"0x8801f22c6958a8096dbc959227a481e53e862f58b9dd3113e9cf3ff94413d265"
+```
+
+
 ### [MPoW] Register as TEE trusted node
 Request:
 ```shell
