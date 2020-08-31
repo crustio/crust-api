@@ -13,7 +13,11 @@
     "@types/express": "^4.17.2",
     "@types/morgan": "^1.7.37",
     "@types/node": "^13.1.8",
+<<<<<<< HEAD
     "crust-sdk": "^1.1.27",
+=======
+    "crust-sdk": "^1.1.21",
+>>>>>>> master
     "express": "^4.17.1",
     "express-async-errors": "^3.1.1",
     "moment": "^2.26.0",

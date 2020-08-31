@@ -73,8 +73,18 @@ class App {
     }
 
     @RetryHandler
+    async code() {
+        return await this.teeService.code()
+    }
+
+    @RetryHandler
     async workReports(address: string) {
         return await this.teeService.workReports(address);
+    }
+
+    @RetryHandler
+    async systemHealth() {
+        return await this.blockService.systemHealth();
     }
 
     @RetryHandler
@@ -209,6 +219,11 @@ class App {
             }
         });
 
+        router.get('/api/v1/tee/code', async (req, res, next) => {
+            const code = await this.code();
+            res.send(code);
+        });
+
         router.get('/api/v1/tee/workreport', async (req, res, next) => {
             logger.info('request path: ' + '/api/v1/tee/workreport' +', request time: ' + moment().format())
             // Get address
@@ -223,6 +238,15 @@ class App {
                 res.send(workReport);
             } else {
                 res.status(404).send(workReport);
+            }
+        });
+
+        router.get('/api/v1/system/health', async (req, res, next) => {
+            const systemHealth = convertToObj(await this.systemHealth())
+            if (systemHealth) {
+                res.send(systemHealth);
+            } else {
+                res.status(404).send(systemHealth);
             }
         });
 

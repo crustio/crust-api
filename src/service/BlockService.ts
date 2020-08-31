@@ -16,5 +16,9 @@ export default class BlockService {
     blockHash = async (blockNumber: number) => {
         return await this.block.blockHash(blockNumber)
     }
+
+    systemHealth = async () => {
+        return await this.block.health()
+    }
     
 }
