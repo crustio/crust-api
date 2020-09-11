@@ -14,7 +14,6 @@ export default class BaseService {
             await this.account.keyringLoadAll();
             await this.account.restoreAccount(JSON.parse(backup), rootPass);
         } catch (error) {
-            console.log('keyring has being loaded ...');
             await this.account.restoreAccount(JSON.parse(backup), rootPass);
         }
     }

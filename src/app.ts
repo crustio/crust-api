@@ -448,10 +448,18 @@ class App {
         // global error handler
         this.express.use((err: any, req: any, res: any, next: any) => {
             if (err) {
-                res.status(400).send({
-                    status: 'failed',
-                    message: err.message
-                })
+                if (!err.isTrusted) {
+                    this.reconnectWS();
+                    res.status(500).send({
+                        status: 'error',
+                        message: 'wait for chain start'
+                    })
+                } else {
+                    res.status(400).send({
+                        status: 'failed',
+                        message: err
+                    })
+                }
             }
             next(err);
         });
