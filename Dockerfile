@@ -1,4 +1,4 @@
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 
 # Install any needed packages
 RUN apt-get update && apt-get install -y curl git gnupg libusb-1.0-0-dev
