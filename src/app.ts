@@ -262,6 +262,14 @@ class App {
             // 2. Use api to get provider's info
             const provider = convertToObj(await this.providers(address));
             if (provider) {
+                let file_map_temp = provider.file_map
+                provider.file_map = new Map()
+                if (file_map_temp) {
+                    for (let fi of file_map_temp) {
+                        provider.file_map[fi[0]] = fi[1]
+                    }
+                }
+
                 provider.address = provider.address && this.bin2String(provider?.address);
                 res.send(provider);
             } else {
