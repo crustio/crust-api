@@ -26,8 +26,8 @@ export default class MarketService extends BaseService {
         return await this.market.storageOrders(orderId);
     }
 
-    providers = async (accountId: string) => {
-        return await this.market.providers(accountId);
+    merchants = async (accountId: string) => {
+        return await this.market.merchants(accountId);
     }
 
 }

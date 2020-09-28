@@ -142,7 +142,7 @@ Response:
 
 ```
 
-### [Market] Register as provider
+### [Market] Register as merchant
 Request:
 ```shell
 curl POST 'http://localhost:56666/api/v1/market/register' \
@@ -158,7 +158,7 @@ curl POST 'http://localhost:56666/api/v1/market/register' \
 Response:
 ```json
 {
-    "action": "provider_register",
+    "action": "merchant_register",
     "status": "success",
 }
 ```
@@ -170,7 +170,7 @@ curl POST 'http://localhost:56666/api/v1/market/sorder' \
     --header 'Content-Type: application/json' \
     --header 'password: 123456' \
     --data-raw '{
-        "sorder":"{\"provider\":\"5HpyALyFUJTDMc6iRziEKwh1BkvMHFJGHss3mJjXefuzCap3\",\"fileIdentifier\":\"0xd9bf1512e28399ae0cccdebacf5fa337b1e1f4a6b08cd43405a11f74368d023f\",\"fileSize\":205452,\"duration\":320}",
+        "sorder":"{\"merchant\":\"5HpyALyFUJTDMc6iRziEKwh1BkvMHFJGHss3mJjXefuzCap3\",\"fileIdentifier\":\"0xd9bf1512e28399ae0cccdebacf5fa337b1e1f4a6b08cd43405a11f74368d023f\",\"fileSize\":205452,\"duration\":320}",
         "backup": "{\"address\":\"5FjAZtpXuqNGGw4yoDo3z8ko3Edft4Q25awTr5EakW3bYarE\",\"encoded\":\"0xfbcdb94f892959b1b253145f0893bd2b1d315ced24b497b98b4eb10513a5f3ef46bafec71a538c3f25703843856c9449c02e9bc6bf33bfa7e4ce2716f225d69067888655d60a30b9da618ce4725cb1737bc9980651950edfb5da86ee82ffa5b10dbe0d26d226b15e3bb990424c543210a93bd457be856799872a5f8ef52822980bd266e2b1aea53802f4248e4213498aaf1945033cb8217250b69d00d6\",\"encoding\":{\"content\":[\"pkcs8\",\"sr25519\"],\"type\":\"xsalsa20-poly1305\",\"version\":\"2\"},\"meta\":{\"name\":\"Yang\",\"tags\":[],\"whenCreated\":1580452568110}}"
     }'
 ```
@@ -184,10 +184,10 @@ Response:
 }
 ```
 
-### [Market] Get provider info
+### [Market] Get merchant info
 Request:
 ```shell
-curl GET 'http://127.0.0.1:56666/api/v1/market/provider?address=5HpyALyFUJTDMc6iRziEKwh1BkvMHFJGHss3mJjXefuzCap3'
+curl GET 'http://127.0.0.1:56666/api/v1/market/merchant?address=5HpyALyFUJTDMc6iRziEKwh1BkvMHFJGHss3mJjXefuzCap3'
 ```
 
 Response:
@@ -229,7 +229,7 @@ Response:
     "created_on": 2022,
     "completed_on": 2022,
     "expired_on": 3022,
-    "provider": "5FbxxwasgLPHJ3cEMcqJuohgrJ72E9dBwgw1Yw3VXbvEwK9u",
+    "merchant": "5FbxxwasgLPHJ3cEMcqJuohgrJ72E9dBwgw1Yw3VXbvEwK9u",
     "client": "5DSgSSAXG8Ti2Qwsr8zcLrAsQsEEji6pEv2rUWmLXQicAiK4",
     "amount": 20000000000000,
     "order_status": "Pending"

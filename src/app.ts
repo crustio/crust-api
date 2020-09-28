@@ -88,8 +88,8 @@ class App {
     }
 
     @RetryHandler
-    async providers(address: string) {
-        return await this.marketService.providers(address);
+    async merchants(address: string) {
+        return await this.marketService.merchants(address);
     }
 
     @RetryHandler
@@ -250,30 +250,30 @@ class App {
             }
         });
 
-        router.get('/api/v1/market/provider', async (req, res, next) => {
-            logger.info('request path: ' + '/api/v1/market/provider' +', request time: ' + moment().format())
+        router.get('/api/v1/market/merchant', async (req, res, next) => {
+            logger.info('request path: ' + '/api/v1/market/merchant' +', request time: ' + moment().format())
             // 1. Get address
             const address = req.query["address"];
             if (typeof address !== "string") {
-                res.status(400).send('Please add provider\'s address (type is string) to the url query.');
+                res.status(400).send('Please add merchant\'s address (type is string) to the url query.');
                 return;
             }
 
-            // 2. Use api to get provider's info
-            const provider = convertToObj(await this.providers(address));
-            if (provider) {
-                let file_map_temp = provider.file_map
-                provider.file_map = new Map()
+            // 2. Use api to get merchant's info
+            const merchant = convertToObj(await this.merchants(address));
+            if (merchant) {
+                let file_map_temp = merchant.file_map
+                merchant.file_map = new Map()
                 if (file_map_temp) {
                     for (let fi of file_map_temp) {
-                        provider.file_map[fi[0]] = fi[1]
+                        merchant.file_map[fi[0]] = fi[1]
                     }
                 }
 
-                provider.address = provider.address && this.bin2String(provider?.address);
-                res.send(provider);
+                merchant.address = merchant.address && this.bin2String(merchant?.address);
+                res.send(merchant);
             } else {
-                res.status(404).send(provider);
+                res.status(404).send(merchant);
             }
         });
 
@@ -435,9 +435,9 @@ class App {
 
             const sorderRes =  convertToObj(await this.placeSorder(backup, storageOrder , password));
             if ('success' == sorderRes.status) {
-                const providerOrders = convertToObj(await this.providers(storageOrder?.provider));
+                const merchantOrders = convertToObj(await this.merchants(storageOrder?.merchant));
                 let order_id = "";
-                for (const file_map of providerOrders?.file_map) {
+                for (const file_map of merchantOrders?.file_map) {
                     if (file_map[0] == storageOrder?.fileIdentifier) {
                         order_id = file_map[1][file_map[1].length - 1]
                         console.log('order_id', order_id)
