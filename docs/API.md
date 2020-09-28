@@ -41,10 +41,10 @@ Response:
 }
 ```
 
-### [MPoW] Get sworker code
+### [MPoW] Get sWorker code
 Request:
 ```shell
-curl GET 'http://localhost:56666/api/v1/tee/code
+curl GET 'http://localhost:56666/api/v1/swork/code
 ```
 
 Response:
@@ -52,10 +52,10 @@ Response:
 "0x8801f22c6958a8096dbc959227a481e53e862f58b9dd3113e9cf3ff94413d265"
 ```
 
-### [MPoW] Register as TEE trusted node
+### [MPoW] Register as sWorker trusted node
 Request:
 ```shell
-curl POST 'http://localhost:56666/api/v1/tee/identity' \
+curl POST 'http://localhost:56666/api/v1/swork/identity' \
 --header 'Content-Type: application/json' \
 --header 'password: 123456' \
 --data-raw '{
@@ -76,10 +76,10 @@ Response:
 }
 ```
 
-### [MPoW] Get TEE identity
+### [MPoW] Get sWorker identity
 Request:
 ```shell
-curl GET 'http://localhost:56666/api/v1/tee/identity?address=5HBPJZkoLeUBdPombuYe3tcUkXcTAKyRhRgXJvHpCs9mzxfL'
+curl GET 'http://localhost:56666/api/v1/swork/identity?address=5HBPJZkoLeUBdPombuYe3tcUkXcTAKyRhRgXJvHpCs9mzxfL'
 ```
 
 Response:
@@ -96,10 +96,10 @@ Response:
 
 ```
 
-### [MPoW] Post TEE work report
+### [MPoW] Post sWorker work report
 Request:
 ```shell
-curl POST 'http://localhost:56666/api/v1/tee/workreport' \
+curl POST 'http://localhost:56666/api/v1/swork/workreport' \
 --header 'Content-Type: application/json' \
 --header 'password: 123456' \
 --data-raw '{
@@ -121,10 +121,10 @@ Response:
 }
 ```
 
-### [MPoW] Get TEE work report
+### [MPoW] Get sWorker work report
 Request:
 ```shell
-curl GET 'http://localhost:56666/api/v1/tee/workreport?address=5HBPJZkoLeUBdPombuYe3tcUkXcTAKyRhRgXJvHpCs9mzxfL'
+curl GET 'http://localhost:56666/api/v1/swork/workreport?address=5HBPJZkoLeUBdPombuYe3tcUkXcTAKyRhRgXJvHpCs9mzxfL'
 ```
 
 Response:

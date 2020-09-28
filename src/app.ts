@@ -4,7 +4,7 @@ import { ApiPromise } from '@polkadot/api';
 import { Keyring } from '@polkadot/api';
 import Endpoint from 'crust-sdk/api/common/Endpoint';
 import BlockService from './service/BlockService';
-import TeeService from './service/TeeService';
+import SworkService from './service/SworkService';
 import MarketService from './service/MarketService';
 import AccountService from './service/AccountService';
 import { StorageOrder } from 'crust-sdk/api/Market';
@@ -29,7 +29,7 @@ class App {
     static endpoint: Endpoint;
 
     blockService: BlockService;
-    teeService: TeeService;
+    sworkService: SworkService;
     marketService: MarketService;
     accountService: AccountService;
     //Run configuration methods on the Express instance.
@@ -45,7 +45,7 @@ class App {
     private initService() {
         App.endpoint = new Endpoint(App.host);
         this.blockService = new BlockService(App.endpoint);
-        this.teeService = new TeeService(App.endpoint);
+        this.sworkService = new SworkService(App.endpoint);
         this.marketService = new MarketService(App.endpoint);
         this.accountService = new AccountService(App.endpoint);
     }
@@ -69,17 +69,17 @@ class App {
 
     @RetryHandler
     async identity(address: string) {
-        return await this.teeService.identity(address);
+        return await this.sworkService.identity(address);
     }
 
     @RetryHandler
     async code() {
-        return await this.teeService.code()
+        return await this.sworkService.code()
     }
 
     @RetryHandler
     async workReports(address: string) {
-        return await this.teeService.workReports(address);
+        return await this.sworkService.workReports(address);
     }
 
     @RetryHandler
@@ -100,12 +100,12 @@ class App {
     // post function 
     @RetryHandler
     async registerIdentity(backup: string, identity: any, rootPass: string) {
-        return await this.teeService.registerIdentity(backup, identity, rootPass);
+        return await this.sworkService.registerIdentity(backup, identity, rootPass);
     }
 
     @RetryHandler
     async reportWorks(backup: string, workReport: any, rootPass: string) {
-        return await this.teeService.reportWorks(backup, workReport, rootPass);
+        return await this.sworkService.reportWorks(backup, workReport, rootPass);
     }
 
     @RetryHandler
@@ -202,15 +202,15 @@ class App {
             res.send(result);
         });
 
-        router.get('/api/v1/tee/identity', async (req, res, next) => {
-            logger.info('request path: ' + '/api/v1/tee/identity' +', request time: ' + moment().format())
+        router.get('/api/v1/swork/identity', async (req, res, next) => {
+            logger.info('request path: ' + '/api/v1/swork/identity' +', request time: ' + moment().format())
             // Get address
             const address = req.query["address"];
             if (typeof address !== "string") {
                 res.status(400).send('Please add address (type is string) to the url query.');
                 return;
             }
-            // Use api to get tee identities
+            // Use api to get swork identities
             const identity = convertToObj(await this.identity(address));
             if (identity) {
                 res.send(identity);
@@ -219,13 +219,13 @@ class App {
             }
         });
 
-        router.get('/api/v1/tee/code', async (req, res, next) => {
+        router.get('/api/v1/swork/code', async (req, res, next) => {
             const code = await this.code();
             res.send(code);
         });
 
-        router.get('/api/v1/tee/workreport', async (req, res, next) => {
-            logger.info('request path: ' + '/api/v1/tee/workreport' +', request time: ' + moment().format())
+        router.get('/api/v1/swork/workreport', async (req, res, next) => {
+            logger.info('request path: ' + '/api/v1/swork/workreport' +', request time: ' + moment().format())
             // Get address
             const address = req.query["address"];
             if (typeof address !== "string") {
@@ -295,8 +295,8 @@ class App {
             }
         });
 
-        router.post('/api/v1/tee/identity', async (req, res, next) => {
-            logger.info('request path: ' + '/api/v1/tee/identity' +', request time: ' + moment().format())
+        router.post('/api/v1/swork/identity', async (req, res, next) => {
+            logger.info('request path: ' + '/api/v1/swork/identity' +', request time: ' + moment().format())
             console.log('req.body', req.body)
             const identity = {
                 ias_sig: req.body["ias_sig"],
@@ -331,8 +331,8 @@ class App {
             
         });
 
-        router.post('/api/v1/tee/workreport', async (req, res, next) => {
-            logger.info('request path: ' + '/api/v1/tee/workreport' +', request time: ' + moment().format())
+        router.post('/api/v1/swork/workreport', async (req, res, next) => {
+            logger.info('request path: ' + '/api/v1/swork/workreport' +', request time: ' + moment().format())
             console.log('req.body', req.body)
             const workReport = {
                 pub_key: "0x" + req.body["pub_key"],
