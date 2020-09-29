@@ -1,35 +1,35 @@
-import { Tee } from 'crust-sdk';
+import { Swork } from 'crust-sdk';
 import Endpoint from 'crust-sdk/api/common/Endpoint';
 import BaseService from './BaseService';
-export default class TeeService extends BaseService {
+export default class sworkService extends BaseService {
 
-    tee: Tee;
+    swork: Swork;
 
     constructor(endpoint: Endpoint) {
         super(endpoint);
-        this.tee = new Tee(endpoint);
+        this.swork = new Swork(endpoint);
     }
 
     identity = async (address: string) => {
-        return await this.tee.identity(address);
+        return await this.swork.identity(address);
     }
 
     code = async () => {
-        return await this.tee.code();
+        return await this.swork.code();
     }
 
     registerIdentity = async (backup: string, identity: any, rootPass: string) => {
         await this.keyringLoad(backup, rootPass);
-        return await this.tee.registerIdentity(JSON.parse(backup)?.address, identity, rootPass)
+        return await this.swork.registerIdentity(JSON.parse(backup)?.address, identity, rootPass)
     }
 
     reportWorks = async (backup: string, workReport: any, rootPass: string) => {
         await this.keyringLoad(backup, rootPass);
-        return await this.tee.reportWorks(JSON.parse(backup)?.address, workReport, rootPass)
+        return await this.swork.reportWorks(JSON.parse(backup)?.address, workReport, rootPass)
     }
 
     workReports = async (accountId: string) => {
-        return await this.tee.workReports(accountId);
+        return await this.swork.workReports(accountId);
     }
 
 }
