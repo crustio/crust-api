@@ -1,5 +1,6 @@
 import { Swork } from 'crust-sdk';
 import Endpoint from 'crust-sdk/api/common/Endpoint';
+import { WorkReport } from 'crust-sdk/api/Swork';
 import BaseService from './BaseService';
 export default class sworkService extends BaseService {
 
@@ -23,7 +24,7 @@ export default class sworkService extends BaseService {
         return await this.swork.registerIdentity(JSON.parse(backup)?.address, identity, rootPass)
     }
 
-    reportWorks = async (backup: string, workReport: any, rootPass: string) => {
+    reportWorks = async (backup: string, workReport: WorkReport, rootPass: string) => {
         await this.keyringLoad(backup, rootPass);
         return await this.swork.reportWorks(JSON.parse(backup)?.address, workReport, rootPass)
     }

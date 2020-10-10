@@ -10,6 +10,7 @@ import AccountService from './service/AccountService';
 import { StorageOrder } from 'crust-sdk/api/Market';
 import { RetryHandler } from './util/RetryHandler';
 import { convertToObj } from "crust-sdk/util/ConvertUtil";
+import { WorkReport } from 'crust-sdk/api/Swork';
 
 const _ = require('express-async-errors');
 const moment = require('moment');
@@ -104,7 +105,7 @@ class App {
     }
 
     @RetryHandler
-    async reportWorks(backup: string, workReport: any, rootPass: string) {
+    async reportWorks(backup: string, workReport: WorkReport, rootPass: string) {
         return await this.sworkService.reportWorks(backup, workReport, rootPass);
     }
 
@@ -334,15 +335,23 @@ class App {
         router.post('/api/v1/swork/workreport', async (req, res, next) => {
             logger.info('request path: ' + '/api/v1/swork/workreport' +', request time: ' + moment().format())
             console.log('req.body', req.body)
-            const workReport = {
-                pub_key: "0x" + req.body["pub_key"],
-                block_number: req.body["block_height"],
-                block_hash: "0x" + req.body["block_hash"],
-                reserved: req.body["reserved"],
-                files: req.body["files"].map((file: any) => {
+            const workReport: WorkReport = {
+                curr_pk: "0x" + req.body["pub_key"],
+                ab_upgrade_pk: req.body["pre_pub_ke"],
+                slot: req.body["block_height"],
+                slot_hash: "0x" + req.body["block_hash"],
+                reported_srd_size: req.body["reserved"],
+                reported_files_size: req.body["files_size"],
+                added_files: req.body["added_files"].map((file: any) => {
                     const rst: [any, any] = ["0x" + file.hash, file.size]
                     return rst;
                 }),
+                deleted_files: req.body["deleted_files"].map((file: any) => {
+                    const rst: [any, any] = ["0x" + file.hash, file.size]
+                    return rst;
+                }),
+                reported_srd_root: "0x" + req.body["reserved_root"],
+                reported_files_root: "0x" + req.body["files_root"],
                 sig: "0x" + req.body["sig"]
             }
             logger.info(`request param ${JSON.stringify(workReport)}, time: ${moment().format()}`)
