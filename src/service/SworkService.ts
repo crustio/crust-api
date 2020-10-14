@@ -1,6 +1,8 @@
 import { Swork } from 'crust-sdk';
 import Endpoint from 'crust-sdk/api/common/Endpoint';
 import { WorkReport } from 'crust-sdk/api/Swork';
+import { convertToObj } from 'crust-sdk/util/ConvertUtil';
+import { isArray } from 'util';
 import BaseService from './BaseService';
 export default class sworkService extends BaseService {
 
@@ -12,7 +14,14 @@ export default class sworkService extends BaseService {
     }
 
     identity = async (address: string) => {
-        return await this.swork.identity(address);
+        const pubKeys = convertToObj(await this.swork.idBonds(address));
+        const result = [];
+        if (pubKeys && isArray(pubKeys)) {
+            for (const pubKey of pubKeys) {
+                result.push([pubKey, convertToObj(await this.swork.identity(pubKey))]);
+            }
+        }
+        return result;
     }
 
     code = async () => {
@@ -30,7 +39,14 @@ export default class sworkService extends BaseService {
     }
 
     workReports = async (accountId: string) => {
-        return await this.swork.workReports(accountId);
+        const pubKeys = convertToObj(await this.swork.idBonds(accountId));
+        const result = [];
+        if (pubKeys && isArray(pubKeys)) {
+            for (const pubKey of pubKeys) {
+                result.push([pubKey, convertToObj(await this.swork.workReports(pubKey))]);
+            }
+        }
+        return result;
     }
 
 }
