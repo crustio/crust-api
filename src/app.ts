@@ -52,8 +52,12 @@ class App {
     }
 
     reconnectWS() {
-        logger.info('ws reconnect')
-        this.initService();
+        logger.info('ws reconnect');
+        App.endpoint.api.then((api) => {
+            console.log('disconnect');
+            api.disconnect();
+            this.initService();
+        })
         logger.info('ws reconnected at' + moment().format())
     }
 
@@ -116,7 +120,7 @@ class App {
 
     @RetryHandler
     async placeSorder(backup: string, storageOrder: StorageOrder, rootPass: string) {
-        return await await this.marketService.sorder(backup, storageOrder , rootPass);
+        return await this.marketService.sorder(backup, storageOrder , rootPass);
     }
     
     // Configure Express middleware.
