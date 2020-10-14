@@ -16,6 +16,10 @@ server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
 
+process.on('uncaughtException', function(err) {
+    console.log('Caught exception: ' + err);
+});
+  
 function normalizePort(val: number | string): number | string | boolean {
     let port: number = (typeof val === 'string') ? parseInt(val, 10) : val;
     if (isNaN(port)) return val;

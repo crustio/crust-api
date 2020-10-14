@@ -18,7 +18,7 @@ export default class sworkService extends BaseService {
         const result = [];
         if (pubKeys && isArray(pubKeys)) {
             for (const pubKey of pubKeys) {
-                result.push({ pubKey, identity: convertToObj(await this.swork.identity(pubKey))});
+                result.push({ 'pub_key': pubKey, code: convertToObj(await this.swork.identity(pubKey))});
             }
         }
         return result;
@@ -43,7 +43,9 @@ export default class sworkService extends BaseService {
         const result = [];
         if (pubKeys && isArray(pubKeys)) {
             for (const pubKey of pubKeys) {
-                result.push({...convertToObj(await this.swork.workReports(pubKey)), pubKey});
+                if (convertToObj(await this.swork.workReports(pubKey))) {
+                    result.push({...convertToObj(await this.swork.workReports(pubKey)), 'pub_key': pubKey});
+                }
             }
         }
         return result;
