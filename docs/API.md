@@ -86,10 +86,10 @@ Response:
 ```json
 
 [
-    [
-        "0x8214706cf1551bb760a9d916a91828f593ad447d8119572e947ba1edc05ad3680054f89d53bf589e8632469c5e332e61dde90d79d50b9dfe6c7be76253738a99",
-        "0xc9bcd0e8022d2edff4f750cb7dc73b935de5938ccabedca31bb9c2e2c34bc2a2"
-    ]
+    {
+        "pubKey": "0x8214706cf1551bb760a9d916a91828f593ad447d8119572e947ba1edc05ad3680054f89d53bf589e8632469c5e332e61dde90d79d50b9dfe6c7be76253738a99",
+        "identity": "0xc9bcd0e8022d2edff4f750cb7dc73b935de5938ccabedca31bb9c2e2c34bc2a2"
+    }
 ]
 
 ```
@@ -129,18 +129,16 @@ Response:
 ```json 
 
 [
-    [
-        "0x8214706cf1551bb760a9d916a91828f593ad447d8119572e947ba1edc05ad3680054f89d53bf589e8632469c5e332e61dde90d79d50b9dfe6c7be76253738a99",
-        {
-            "report_slot": 17100,
-            "used": 0,
-            "free": 2147483648,
-            "files": [],
-            "reported_files_size": 0,
-            "reported_srd_root": "0xff515a4b8ef57e1d9e696abb5d18ab68192b2e2ec31edeaf5edce6cd6c11f64d",
-            "reported_files_root": "0x0000000000000000000000000000000000000000000000000000000000000000"
-        }
-    ]
+    {
+        "report_slot": 17700,
+        "used": 0,
+        "free": 4294967296,
+        "files": [],
+        "reported_files_size": 0,
+        "reported_srd_root": "0xd8ab55655b24e2822b7b410b87c1dd8f70c752f2d3e887a703d59c591c4a33db",
+        "reported_files_root": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "pubKey": "0x8214706cf1551bb760a9d916a91828f593ad447d8119572e947ba1edc05ad3680054f89d53bf589e8632469c5e332e61dde90d79d50b9dfe6c7be76253738a99"
+    }
 ]
 
 ```
