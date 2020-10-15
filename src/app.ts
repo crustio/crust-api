@@ -346,7 +346,7 @@ class App {
             console.log('req.body', req.body)
             const workReport: WorkReport = {
                 curr_pk: "0x" + req.body["pub_key"],
-                ab_upgrade_pk: req.body["pre_pub_key"],
+                ab_upgrade_pk: "0x" + req.body["pre_pub_key"],
                 slot: req.body["block_height"],
                 slot_hash: "0x" + req.body["block_hash"],
                 reported_srd_size: req.body["reserved"],
