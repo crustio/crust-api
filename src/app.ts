@@ -54,7 +54,7 @@ class App {
     reconnectWS() {
         logger.info('ws reconnect');
         App.endpoint.api.then((api) => {
-            console.log('disconnect');
+            logger.info('disconnect');
             api.disconnect();
             this.initService();
         })
