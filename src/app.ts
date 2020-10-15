@@ -381,7 +381,16 @@ class App {
             
             const reportWorksRes = convertToObj(await this.reportWorks(backup, workReport, password));
             if ('success' == reportWorksRes.status) {
-                res.send(reportWorksRes);
+                const reportedInSlot = convertToObj(await this.reportedInSlot(workReport.curr_pk, workReport.slot));
+                if (reportedInSlot) {
+                    res.send(reportWorksRes);
+                } else {
+                    res.status(400).send({
+                        action: 'reportWorks',
+                        status: 'failed',
+                        message: 'Not reported to the chain'
+                    })
+                }
             } else {
                 res.status(400).send(reportWorksRes)
             }
