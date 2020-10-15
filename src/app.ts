@@ -98,6 +98,11 @@ class App {
     }
 
     @RetryHandler
+    async reportedInSlot(pubKey: string, reportSlot: number) {
+        return await this.sworkService.reportedInSlot(pubKey, reportSlot);
+    }
+
+    @RetryHandler
     async storageOrders(address: string) {
         return await this.marketService.storageOrders(address);
     }

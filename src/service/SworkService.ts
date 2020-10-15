@@ -51,4 +51,8 @@ export default class sworkService extends BaseService {
         return result;
     }
 
+    reportedInSlot = async (pubKey: string, reportSlot: number) => {
+        return await this.swork.reportedInSlot(pubKey, reportSlot);
+    }
+
 }
