@@ -1,5 +1,5 @@
 import express from 'express';
-import { Request, Response } from 'express';
+import {Request, Response} from 'express';
 import * as services from './services';
 import * as bodyParser from 'body-parser';
 

@@ -1,10 +1,10 @@
-import { Request } from 'express';
-import { Keyring } from '@polkadot/keyring';
-import { KeyringPair } from '@polkadot/keyring/types';
-import { SubmittableExtrinsic } from '@polkadot/api/promise/types';
-import { ApiPromise } from '@polkadot/api';
-import { DispatchError } from '@polkadot/types/interfaces';
-import { ITuple } from '@polkadot/types/types';
+import {Request} from 'express';
+import {Keyring} from '@polkadot/keyring';
+import {KeyringPair} from '@polkadot/keyring/types';
+import {SubmittableExtrinsic} from '@polkadot/api/promise/types';
+import {ApiPromise} from '@polkadot/api';
+import {DispatchError} from '@polkadot/types/interfaces';
+import {ITuple} from '@polkadot/types/types';
 
 export function loadKeyringPair(req: Request): KeyringPair {
   const [backup, password] = getAccountInfo(req);
@@ -43,7 +43,7 @@ export async function extrinsicResult(param: AnalysisParam) {
       action: param.action,
     };
     try {
-      await param.tx.signAndSend(param.krp, ({ events = [], status }) => {
+      await param.tx.signAndSend(param.krp, ({events = [], status}) => {
         console.log('Transaction status:', status.type);
         if ('Invalid' === status.type) {
           result.status = 'error';
@@ -51,7 +51,7 @@ export async function extrinsicResult(param: AnalysisParam) {
           reject(result);
         }
         if (status.isInBlock) {
-          events.forEach(({ event: { data, method } }) => {
+          events.forEach(({event: {data, method}}) => {
             if (method === 'ExtrinsicFailed') {
               const [dispatchError] = (data as unknown) as ITuple<
                 [DispatchError]

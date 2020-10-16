@@ -1,7 +1,7 @@
-import { ApiPromise } from '@polkadot/api';
-import { Request, Response } from 'express';
-import { KeyringPair } from '@polkadot/keyring/types';
-import { extrinsicResult, convertToObj } from './util';
+import {ApiPromise} from '@polkadot/api';
+import {Request, Response} from 'express';
+import {KeyringPair} from '@polkadot/keyring/types';
+import {extrinsicResult, convertToObj} from './util';
 
 export async function register(
   api: ApiPromise,
@@ -18,7 +18,7 @@ export async function register(
     '0x' + req.body['sig']
   );
 
-  res.send(await extrinsicResult({ tx, api, krp, action }));
+  res.send(await extrinsicResult({tx, api, krp, action}));
 }
 
 export async function reportWorks(
@@ -48,7 +48,7 @@ export async function reportWorks(
     '0x' + req.body['sig']
   );
 
-  res.send(await extrinsicResult({ tx, api, krp, action }));
+  res.send(await extrinsicResult({tx, api, krp, action}));
 }
 
 export async function workReport(api: ApiPromise, req: Request, res: Response) {
@@ -67,7 +67,7 @@ export async function workReport(api: ApiPromise, req: Request, res: Response) {
         await api.query.swork.workReports(pubKey)
       );
       if (workReport) {
-        result.push({ ...workReport, pub_key: pubKey });
+        result.push({...workReport, pub_key: pubKey});
       }
     }
   }
@@ -89,9 +89,12 @@ export async function identity(api: ApiPromise, req: Request, res: Response) {
   const pubKeys = convertToObj(await api.query.swork.idBonds(address));
   const result = [];
   if (pubKeys && Array.isArray(pubKeys)) {
-      for (const pubKey of pubKeys) {
-          result.push({ 'pub_key': pubKey, code: convertToObj(await api.query.swork.identities(pubKey))});
-      }
+    for (const pubKey of pubKeys) {
+      result.push({
+        pub_key: pubKey,
+        code: convertToObj(await api.query.swork.identities(pubKey)),
+      });
+    }
   }
   res.send(result);
 }
