@@ -4,19 +4,21 @@ import { header } from './block';
 import { register } from './swork';
 import { loadKeyringPair } from './util';
 
-const api = new ApiPromise({ 
-    provider: new WsProvider(process.argv[3] || 'ws://192.168.50.140:9931/'),
-    types: {
-        Address: 'AccountId',
-        AddressInfo: 'Vec<u8>',
-        SworkerPubKey: 'Vec<u8>',
-        IASSig: 'Vec<u8>',
-        ISVBody: 'Vec<u8>',
-        SworkerCert: 'Vec<u8>',
-        SworkerSignature: 'Vec<u8>',
-        SworkerCode: 'Vec<u8>',
-        MerkleRoot: 'Vec<u8>',
-    }
+export const types = {
+    Address: 'AccountId',
+    AddressInfo: 'Vec<u8>',
+    SworkerPubKey: 'Vec<u8>',
+    IASSig: 'Vec<u8>',
+    ISVBody: 'Vec<u8>',
+    SworkerCert: 'Vec<u8>',
+    SworkerSignature: 'Vec<u8>',
+    SworkerCode: 'Vec<u8>',
+    MerkleRoot: 'Vec<u8>',
+};
+
+export const api = new ApiPromise({ 
+    provider: new WsProvider(process.argv[3] || 'ws://localhost:9944'),
+    types
 });
 
 export const block = {

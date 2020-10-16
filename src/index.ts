@@ -10,6 +10,8 @@ const error = (err: any, _req: Request, res: Response, _next: any) => {
     console.error("hahaha", err.stack);
   
     res.status(500).send('Internal Server Error');
+
+    services.api.registerTypes(services.types);
 }
 
 app.use(bodyParser.json());
