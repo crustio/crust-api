@@ -1,12 +1,4 @@
-FROM ubuntu:20.04
-
-# Install any needed packages
-RUN apt-get update && apt-get install -y curl git gnupg
-
-# Install nodejs
-RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
-RUN apt-get install -y nodejs
-RUN npm install yarn -g
+FROM node:current-alpine3.10
 
 # Create crust-api directory
 WORKDIR /usr/src/crust-api
