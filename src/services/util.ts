@@ -2,7 +2,6 @@ import { Request } from 'express';
 import { ApiPromise } from '@polkadot/api';
 import { Keyring } from '@polkadot/keyring';
 import { KeyringPair } from '@polkadot/keyring/types';
-import { SubmittableExtrinsicFunction } from '@polkadot/api/types';
 
 export function loadKeyringPair(api: ApiPromise, req: Request): KeyringPair {
     const [backup, password] = getAccountInfo(req);

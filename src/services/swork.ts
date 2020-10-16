@@ -8,7 +8,6 @@ export async function register(
     req: Request,
     res: Response 
 ) {
-    // TODO: util this send tx function
     return await api.tx.swork.register(
         req.body["ias_sig"],
         req.body["ias_cert"],
@@ -17,10 +16,10 @@ export async function register(
         "0x" + req.body["sig"]
     ).signAndSend(krp, ({events = [], status}) => {
         console.log(`Current status is ${status.type}`);
-
+        
+        // TODO: Extract to util function
         if (status.isFinalized) {
             console.log(`Transaction included at blockHash ${status.asFinalized}`);
-
             // Loop through Vec<EventRecord> to display all events
             events.forEach(({ phase, event: { data, method, section } }) => {
                 console.log(`\t' ${phase}: ${section}.${method}:: ${data}`);
