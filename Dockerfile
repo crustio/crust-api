@@ -1,9 +1,9 @@
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
 # Install any needed packages
-RUN apt-get update && apt-get install -y curl git gnupg libusb-1.0-0-dev
+RUN apt-get update && apt-get install -y curl git gnupg
 
-# install nodejs
+# Install nodejs
 RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
 RUN apt-get install -y nodejs
 RUN npm install yarn -g
