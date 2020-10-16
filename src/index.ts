@@ -1,18 +1,19 @@
 import express from 'express';
-import { Request, Response,  } from 'express';
+import {Request, Response} from 'express';
 import * as services from './services';
 import * as bodyParser from 'body-parser';
 
 const app = express();
 const PORT = 56666;
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const error = (err: any, _req: Request, res: Response, _next: any) => {
-    console.error("hahaha", err.stack);
-  
-    res.status(500).send('Internal Server Error');
+  console.error('hahaha', err.stack);
 
-    services.api.registerTypes(services.types);
-}
+  res.status(500).send('Internal Server Error');
+
+  services.api.registerTypes(services.types);
+};
 
 app.use(bodyParser.json());
 
@@ -26,5 +27,7 @@ app.post('/api/v1/swork/identity', services.swork.register);
 app.use(error);
 
 app.listen(PORT, () => {
-    console.log(`⚡️ [server]: crust api is running at https://localhost:${PORT}`);
+  console.log(
+    `⚡️ [server]: crust api is running at https://localhost:${PORT}`
+  );
 });
