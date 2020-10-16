@@ -34,14 +34,14 @@ export const block = {
 };
 
 export const swork = {
-  register: (req: Request, res: Response, next: any) => {
-    api.isReady.then(async api => {
-      try {
-        const krp = loadKeyringPair(api, req);
-        await register(api, krp, req, res);
-      } catch (e) {
-        next(e);
-      }
-    });
-  },
-};
+    register: (req: Request, res: Response, next: any) => {
+        api.isReady.then(async (api) => {
+            try {
+                const krp = loadKeyringPair(req);
+                await register(api, krp, req, res);
+            } catch (e) {
+                next(e);
+            }
+        });
+    }
+}
