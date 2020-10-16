@@ -1,49 +1,18 @@
-import * as http from 'http';
-import debug from 'debug';
+import express from 'express';
+import * as services from './services';
+import * as bodyParser from 'body-parser';
 
-import app from './app';
-const winston = require('winston');
-const logConfiguration = require('./logconfig');
-const logger = winston.createLogger(logConfiguration);
+const app = express();
+const PORT = 56666;
 
-debug('ts-express:server');
+app.use(bodyParser.json());
 
-const port = normalizePort(process.argv[2] || 56666);
-app.set('port', port);
+// Get routes
+app.get('/api/v1/block/header', services.block.header);
 
-const server = http.createServer(app);
-server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
+// Post routes
+app.post('/api/v1/swork/identity', services.swork.register);
 
-process.on('uncaughtException', function(err) {
-    console.log('Caught exception: ' + err);
+app.listen(PORT, () => {
+    console.log(`⚡️ [server]: crust api is running at https://localhost:${PORT}`);
 });
-  
-function normalizePort(val: number | string): number | string | boolean {
-    let port: number = (typeof val === 'string') ? parseInt(val, 10) : val;
-    if (isNaN(port)) return val;
-    else if (port >= 0) return port;
-    else return false;
-}
-
-function onError(error: NodeJS.ErrnoException): void {
-    if (error.syscall !== 'listen') throw error;
-    let bind = (typeof port === 'string') ? 'Pipe ' + port : 'Port ' + port;
-    switch (error.code) {
-        case 'EACCES':
-            logger.error(`${bind} requires elevated privileges`);
-            process.exit(1);
-        case 'EADDRINUSE':
-            logger.error(`${bind} is already in use`);
-            process.exit(1);
-        default:
-            throw error;
-    }
-}
-
-function onListening(): void {
-    let addr = server.address();
-    let bind = (typeof addr === 'string') ? `pipe ${addr}` : `port ${addr.port}`;
-    debug(`Listening on ${bind}`);
-}
