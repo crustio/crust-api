@@ -115,7 +115,12 @@ class App {
 
     @RetryHandler
     async placeSorder(backup: string, storageOrder: StorageOrder, rootPass: string) {
-        return await await this.marketService.sorder(backup, storageOrder , rootPass);
+        return await this.marketService.sorder(backup, storageOrder , rootPass);
+    }
+
+    @RetryHandler
+    async transferCandy(backup: string, dest: string, amount: number, rootPass: string) {
+        return await this.accountService.transferCandy(backup, dest, amount, rootPass);
     }
     
     // Configure Express middleware.
@@ -449,6 +454,38 @@ class App {
                 res.status(400).send(sorderRes)
             }
 
+        });
+
+        router.post('/api/v1/candy/transfer', async (req, res, next) => {
+            logger.info('request path: ' + '/api/v1/candy/transfer' +', request time: ' + moment().format())
+            console.log('req.body', req.body)
+            const transfer = {
+                dest: req.body["dest"],
+                amount: req.body["amount"],
+            }
+            logger.info(`request param ${JSON.stringify(transfer)}, time: ${moment().format()}`)
+
+            //Get backup
+            const backup = req.body["backup"];
+            if (typeof backup !== "string") {
+                res.status(400).send('Please add backup (type is string) to the request body.');
+                return;
+            }
+            
+            //Get password
+            const password = req.headers["password"];
+            if (typeof password !== "string") {
+                res.status(400).send('Please add password (type is string) to the request header.');
+                return;
+            }
+            
+            const transferRes = convertToObj(await this.transferCandy(backup, transfer.dest, transfer.amount, password));
+            if ('success' == transferRes.status) {
+                res.send(transferRes);
+            } else {
+                res.status(400).send(transferRes)
+            }
+            
         });
 
         this.express.use('/', router); 
