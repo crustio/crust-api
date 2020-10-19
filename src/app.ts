@@ -93,8 +93,8 @@ class App {
     }
 
     @RetryHandler
-    async storageOrders(address: string) {
-        return await this.marketService.storageOrders(address);
+    async sorderInfos(address: string) {
+        return await this.marketService.sorderInfos(address);
     }
 
     // post function 
@@ -292,7 +292,7 @@ class App {
             }
 
             // 2. Use api to get storage order
-            const storageOrders = convertToObj(await this.storageOrders(orderId));
+            const storageOrders = convertToObj(await this.sorderInfos(orderId));
             if (storageOrders) {
                 res.send(storageOrders);
             } else {
