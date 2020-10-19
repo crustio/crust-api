@@ -2,6 +2,7 @@ import {ApiPromise} from '@polkadot/api';
 import {Request} from 'express';
 import {KeyringPair} from '@polkadot/keyring/types';
 import {sendTx, queryToObj} from './util';
+import {logger} from './index';
 
 /**
  * Send extrinsics
@@ -11,6 +12,7 @@ export async function register(
   krp: KeyringPair,
   req: Request
 ) {
+  logger.info(`⚙️ [swork]: Call register with ${JSON.stringify(req.body)}`);
   const tx = api.tx.swork.register(
     req.body['ias_sig'],
     req.body['ias_cert'],
@@ -27,6 +29,7 @@ export async function reportWorks(
   krp: KeyringPair,
   req: Request
 ) {
+  logger.info(`⚙️ [swork]: Call report works with ${JSON.stringify(req.body)}`);
   const tx = api.tx.swork.reportWorks(
     '0x' + req.body['pub_key'],
     '0x' + req.body['pre_pub_key'],
@@ -54,6 +57,7 @@ export async function reportWorks(
  * Queries
  */
 export async function identity(api: ApiPromise, req: Request) {
+  logger.info(`⚙️ [swork]: Query identity with ${JSON.stringify(req.query)}`);
   const address = req.query['address'];
   const pks: string[] = queryToObj(await api.query.swork.idBonds(address));
 
@@ -67,6 +71,9 @@ export async function identity(api: ApiPromise, req: Request) {
 }
 
 export async function workReport(api: ApiPromise, req: Request) {
+  logger.info(
+    `⚙️ [swork]: Query work report with ${JSON.stringify(req.query)}`
+  );
   const address = req.query['address'];
   const pks: string[] = queryToObj(await api.query.swork.idBonds(address));
 
@@ -82,5 +89,6 @@ export async function workReport(api: ApiPromise, req: Request) {
 }
 
 export async function code(api: ApiPromise) {
+  logger.info('⚙️ [swork]: Query sworker code');
   return await api.query.swork.code();
 }

@@ -1,5 +1,6 @@
 import express from 'express';
 import {Request, Response} from 'express';
+import {logger} from './services';
 import * as services from './services';
 import * as bodyParser from 'body-parser';
 
@@ -8,13 +9,13 @@ const PORT = 56666;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const error = (err: any, _req: Request, res: Response, _next: any) => {
-  console.error(`☄️ Error catched ${err.message}`);
+  logger.error(`☄️ [global]: error catched ${err.message}`);
   res.status(500).send({
     status: 'error',
     message: err.message,
   });
   services.api.registerTypes(services.types);
-  console.log('📡 Connection reinitialized.');
+  logger.warn('📡 [global]: connection reinitialized.');
 };
 
 app.use(bodyParser.json());
@@ -37,7 +38,7 @@ app.post('/api/v1/swork/workreport', services.swork.reportWorks);
 app.use(error);
 
 app.listen(PORT, () => {
-  console.log(
-    `⚡️ [server]: crust api is running at https://localhost:${PORT}`
+  logger.info(
+    `⚡️ [global]: crust api is running at https://localhost:${PORT}`
   );
 });

@@ -4,7 +4,7 @@ import {KeyringPair} from '@polkadot/keyring/types';
 import {DispatchError} from '@polkadot/types/interfaces';
 import {ITuple} from '@polkadot/types/types';
 import {SubmittableExtrinsic} from '@polkadot/api/promise/types';
-import {TxRes, api} from './index';
+import {TxRes, api, logger} from './index';
 
 /**
  * Public functions
@@ -24,7 +24,7 @@ export async function sendTx(tx: SubmittableExtrinsic, krp: KeyringPair) {
   return new Promise((resolve, reject) => {
     try {
       tx.signAndSend(krp, ({events = [], status}) => {
-        console.log('💸 Transaction status:', status.type);
+        logger.info(`💸 [tx]: Transaction status: ${status.type}`);
 
         if ('Invalid' === status.type) {
           reject(new Error('Invalid transaction.'));
@@ -52,8 +52,8 @@ export async function sendTx(tx: SubmittableExtrinsic, krp: KeyringPair) {
                 result.details = error.documentation.join('');
               }
 
-              console.log(
-                `❌ Send transaction(${tx.type}) failed with ${result.message}.`
+              logger.info(
+                `💸 ❌ [tx]: Send transaction(${tx.type}) failed with ${result.message}.`
               );
               resolve(result);
             } else if (method === 'ExtrinsicSuccess') {
@@ -61,7 +61,7 @@ export async function sendTx(tx: SubmittableExtrinsic, krp: KeyringPair) {
                 status: 'success',
               };
 
-              console.log(`✅ Send transaction(${tx.type}) success.`);
+              logger.info(`💸 ✅ [tx]: Send transaction(${tx.type}) success.`);
               resolve(result);
             }
           });
