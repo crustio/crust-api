@@ -1,4 +1,4 @@
-import {Request, Response} from 'express';
+import {Request, Response, NextFunction} from 'express';
 import {ApiPromise, WsProvider} from '@polkadot/api';
 import {header} from './block';
 import {register, reportWorks, workReport, code, identity} from './swork';
@@ -70,15 +70,22 @@ export const types = {
     report_slot: 'u64',
     used: 'u64',
     free: 'u64',
-    files: 'Vec<Vec<u8>, u64>',
+    files: 'BTreeMap<MerkleRoot, u64>',
     reported_files_size: 'u64',
-    reported_srd_root: 'Vec<u8>',
-    reported_files_root: 'Vec<u8>',
+    reported_srd_root: 'MerkleRoot',
+    reported_files_root: 'MerkleRoot',
   },
 };
 
+// TODO: Better result
+export interface TxRes {
+  status?: string;
+  message?: string;
+  details?: string;
+}
+
 export const api = new ApiPromise({
-  provider: new WsProvider(process.argv[3] || 'ws://localhost:9944'),
+  provider: new WsProvider(process.argv[3] || 'ws://192.168.50.140:9931'),
   types,
 });
 
@@ -95,48 +102,48 @@ export const block = {
 };
 
 export const swork = {
-  register: (req: Request, res: Response, next: any) => {
+  register: (req: Request, res: Response, next: NextFunction) => {
     api.isReady.then(async api => {
       try {
         const krp = loadKeyringPair(req);
-        await register(api, krp, req, res);
+        res.json(await register(api, krp, req));
       } catch (error) {
         next(error);
       }
     });
   },
-  reportWorks: (req: Request, res: Response, next: any) => {
+  reportWorks: (req: Request, res: Response, next: NextFunction) => {
     api.isReady.then(async api => {
       try {
         const krp = loadKeyringPair(req);
-        await reportWorks(api, krp, req, res);
+        res.json(await reportWorks(api, krp, req));
       } catch (error) {
         next(error);
       }
     });
   },
-  workReport: (req: Request, res: Response, next: any) => {
+  identity: (req: Request, res: Response, next: NextFunction) => {
     api.isReady.then(async api => {
       try {
-        await workReport(api, req, res);
+        res.json(await identity(api, req));
       } catch (error) {
         next(error);
       }
     });
   },
-  code: (req: Request, res: Response, next: any) => {
+  workReport: (req: Request, res: Response, next: NextFunction) => {
     api.isReady.then(async api => {
       try {
-        await code(api, req, res);
+        res.json(await workReport(api, req));
       } catch (error) {
         next(error);
       }
     });
   },
-  identity: (req: Request, res: Response, next: any) => {
+  code: (_: Request, res: Response, next: NextFunction) => {
     api.isReady.then(async api => {
       try {
-        await identity(api, req, res);
+        res.json(await code(api));
       } catch (error) {
         next(error);
       }

@@ -1,15 +1,16 @@
 import {ApiPromise} from '@polkadot/api';
-import {Request, Response} from 'express';
+import {Request} from 'express';
 import {KeyringPair} from '@polkadot/keyring/types';
-import {extrinsicResult, convertToObj} from './util';
+import {sendTx, queryToObj} from './util';
 
+/**
+ * Send extrinsics
+ */
 export async function register(
   api: ApiPromise,
   krp: KeyringPair,
-  req: Request,
-  res: Response
+  req: Request
 ) {
-  const action = 'register';
   const tx = api.tx.swork.register(
     req.body['ias_sig'],
     req.body['ias_cert'],
@@ -18,16 +19,14 @@ export async function register(
     '0x' + req.body['sig']
   );
 
-  res.send(await extrinsicResult({tx, api, krp, action}));
+  return await sendTx(tx, krp);
 }
 
 export async function reportWorks(
   api: ApiPromise,
   krp: KeyringPair,
-  req: Request,
-  res: Response
+  req: Request
 ) {
-  const action = 'reportWorks';
   const tx = api.tx.swork.reportWorks(
     '0x' + req.body['pub_key'],
     '0x' + req.body['pre_pub_key'],
@@ -36,11 +35,11 @@ export async function reportWorks(
     req.body['reserved'],
     req.body['files_size'],
     req.body['added_files'].map((file: any) => {
-      const rst: [any, any] = ['0x' + file.hash, file.size];
+      const rst: [string, number] = ['0x' + file.hash, file.size];
       return rst;
     }),
     req.body['deleted_files'].map((file: any) => {
-      const rst: [any, any] = ['0x' + file.hash, file.size];
+      const rst: [string, number] = ['0x' + file.hash, file.size];
       return rst;
     }),
     '0x' + req.body['reserved_root'],
@@ -48,53 +47,36 @@ export async function reportWorks(
     '0x' + req.body['sig']
   );
 
-  res.send(await extrinsicResult({tx, api, krp, action}));
+  return await sendTx(tx, krp);
 }
 
-export async function workReport(api: ApiPromise, req: Request, res: Response) {
+/**
+ * Queries
+ */
+export async function identity(api: ApiPromise, req: Request) {
   const address = req.query['address'];
-  if (typeof address !== 'string') {
-    res
-      .status(400)
-      .send('Please add address (type is string) to the url query.');
-    return;
-  }
-  const pubKeys = convertToObj(await api.query.swork.idBonds(address));
-  const result = [];
-  if (pubKeys && Array.isArray(pubKeys)) {
-    for (const pubKey of pubKeys) {
-      const workReport = convertToObj(
-        await api.query.swork.workReports(pubKey)
-      );
-      if (workReport) {
-        result.push({...workReport, pub_key: pubKey});
-      }
-    }
-  }
-  res.send(result);
+  const pks: string[] = queryToObj(await api.query.swork.idBonds(address));
+  return await Promise.all(
+    pks.map(async pk => ({
+      pub_key: pk,
+      code: (await api.query.swork.identities(pk)).toString(),
+    }))
+  );
 }
 
-export async function code(api: ApiPromise, req: Request, res: Response) {
-  res.send(await api.query.swork.code());
-}
-
-export async function identity(api: ApiPromise, req: Request, res: Response) {
+export async function workReport(api: ApiPromise, req: Request) {
   const address = req.query['address'];
-  if (typeof address !== 'string') {
-    res
-      .status(400)
-      .send('Please add address (type is string) to the url query.');
-    return;
-  }
-  const pubKeys = convertToObj(await api.query.swork.idBonds(address));
-  const result = [];
-  if (pubKeys && Array.isArray(pubKeys)) {
-    for (const pubKey of pubKeys) {
-      result.push({
-        pub_key: pubKey,
-        code: convertToObj(await api.query.swork.identities(pubKey)),
-      });
-    }
-  }
-  res.send(result);
+  const pks: string[] = queryToObj(await api.query.swork.idBonds(address));
+  const wrs = await Promise.all(
+    pks.map(async pk => {
+      const wr = queryToObj(await api.query.swork.workReports(pk));
+      if (wr) wr.pub_key = pk;
+      return wr;
+    })
+  );
+  return wrs.filter(wr => wr);
+}
+
+export async function code(api: ApiPromise) {
+  return await api.query.swork.code();
 }
