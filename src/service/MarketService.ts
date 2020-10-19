@@ -22,8 +22,8 @@ export default class MarketService extends BaseService {
         return await this.market.sorder(storageOrder, JSON.parse(backup)?.address, rootPass)
     }
 
-    storageOrders = async (orderId: string) => {
-        return await this.market.storageOrders(orderId);
+    sorderInfos = async (orderId: string) => {
+        return await this.market.sorderInfos(orderId);
     }
 
     merchants = async (accountId: string) => {

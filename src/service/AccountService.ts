@@ -11,5 +11,10 @@ export default class AccountService extends BaseService {
         await this.keyringLoad(backup, rootPass);
         return await this.account.transfer(JSON.parse(backup)?.address, dest, amount, rootPass);
     }
+
+    async transferCandy(backup: string, dest: string, amount: number, rootPass: string) {
+        await this.keyringLoad(backup, rootPass);
+        return await this.account.transferCandy(JSON.parse(backup)?.address, dest, amount, rootPass);
+    }
     
 }

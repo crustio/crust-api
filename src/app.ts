@@ -100,7 +100,7 @@ class App {
 
     @RetryHandler
     async storageOrders(address: string) {
-        return await this.marketService.storageOrders(address);
+        return await this.marketService.sorderInfos(address);
     }
 
     // post function 
