@@ -56,6 +56,8 @@ export async function reportWorks(
 export async function identity(api: ApiPromise, req: Request) {
   const address = req.query['address'];
   const pks: string[] = queryToObj(await api.query.swork.idBonds(address));
+
+  // TODO: use `bluebird` to limit the promise concurrencies
   return await Promise.all(
     pks.map(async pk => ({
       pub_key: pk,
@@ -67,6 +69,8 @@ export async function identity(api: ApiPromise, req: Request) {
 export async function workReport(api: ApiPromise, req: Request) {
   const address = req.query['address'];
   const pks: string[] = queryToObj(await api.query.swork.idBonds(address));
+
+  // TODO: use `bluebird` to limit the promise concurrencies
   const wrs = await Promise.all(
     pks.map(async pk => {
       const wr = queryToObj(await api.query.swork.workReports(pk));
