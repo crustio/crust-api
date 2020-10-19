@@ -11,7 +11,7 @@ export function RetryHandler(target: any, propertyKey: string, descriptor: Prope
         let res = await origin.apply(this, args);
         if ('error' === res.status) {
             logger.error(`reconnected  error: ${JSON.stringify(res.message)}`)
-            target['reconnectWS']();
+            await target['reconnectWS']();
             res = origin.apply(this, args)
         } 
         return res;

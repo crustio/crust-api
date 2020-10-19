@@ -51,13 +51,9 @@ class App {
         this.accountService = new AccountService(App.endpoint);
     }
 
-    reconnectWS() {
+    async reconnectWS() {
         logger.info('ws reconnect');
-        App.endpoint.api.then((api) => {
-            logger.info('disconnect');
-            api.disconnect();
-            this.initService();
-        })
+        (await App.endpoint.api).registerTypes(App.endpoint.types);
         logger.info('ws reconnected at' + moment().format())
     }
 
@@ -481,10 +477,10 @@ class App {
         this.express.use('/', router); 
 
         // global error handler
-        this.express.use((err: any, req: any, res: any, next: any) => {
+        this.express.use(async (err: any, req: any, res: any, next: any) => {
             if (err) {
                 if (!err.isTrusted) {
-                    this.reconnectWS();
+                    await this.reconnectWS();
                     res.status(500).send({
                         status: 'error',
                         message: 'wait for chain start'
