@@ -2,7 +2,7 @@ import {Request, Response, NextFunction} from 'express';
 import {ApiPromise, WsProvider} from '@polkadot/api';
 import {header} from './block';
 import {register, reportWorks, workReport, code, identity} from './swork';
-import {loadKeyringPair} from './util';
+import {loadKeyringPair, withApiReady} from './util';
 
 export const types = {
   Address: 'AccountId',
@@ -90,63 +90,43 @@ export const api = new ApiPromise({
 });
 
 export const block = {
-  header: (_: Request, res: Response) => {
-    api.isReady.then(async api => {
+  header: (_: Request, res: Response, next: NextFunction) => {
+    withApiReady(async (api: ApiPromise) => {
       const h = await header(api);
       res.json({
         number: h.number,
         hash: h.hash,
       });
-    });
+    }, next);
   },
 };
 
 export const swork = {
   register: (req: Request, res: Response, next: NextFunction) => {
-    api.isReady.then(async api => {
-      try {
-        const krp = loadKeyringPair(req);
-        res.json(await register(api, krp, req));
-      } catch (error) {
-        next(error);
-      }
-    });
+    withApiReady(async (api: ApiPromise) => {
+      const krp = loadKeyringPair(req);
+      res.json(await register(api, krp, req));
+    }, next);
   },
   reportWorks: (req: Request, res: Response, next: NextFunction) => {
-    api.isReady.then(async api => {
-      try {
-        const krp = loadKeyringPair(req);
-        res.json(await reportWorks(api, krp, req));
-      } catch (error) {
-        next(error);
-      }
-    });
+    withApiReady(async (api: ApiPromise) => {
+      const krp = loadKeyringPair(req);
+      res.json(await reportWorks(api, krp, req));
+    }, next);
   },
   identity: (req: Request, res: Response, next: NextFunction) => {
-    api.isReady.then(async api => {
-      try {
-        res.json(await identity(api, req));
-      } catch (error) {
-        next(error);
-      }
-    });
+    withApiReady(async (api: ApiPromise) => {
+      res.json(await identity(api, req));
+    }, next);
   },
   workReport: (req: Request, res: Response, next: NextFunction) => {
-    api.isReady.then(async api => {
-      try {
-        res.json(await workReport(api, req));
-      } catch (error) {
-        next(error);
-      }
-    });
+    withApiReady(async (api: ApiPromise) => {
+      res.json(await workReport(api, req));
+    }, next);
   },
   code: (_: Request, res: Response, next: NextFunction) => {
-    api.isReady.then(async api => {
-      try {
-        res.json(await code(api));
-      } catch (error) {
-        next(error);
-      }
-    });
+    withApiReady(async (api: ApiPromise) => {
+      res.json(await code(api));
+    }, next);
   },
 };

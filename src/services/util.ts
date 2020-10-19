@@ -1,4 +1,4 @@
-import {Request} from 'express';
+import {NextFunction, Request} from 'express';
 import {Keyring} from '@polkadot/keyring';
 import {KeyringPair} from '@polkadot/keyring/types';
 import {DispatchError} from '@polkadot/types/interfaces';
@@ -28,7 +28,10 @@ export async function sendTx(tx: SubmittableExtrinsic, krp: KeyringPair) {
 
         if ('Invalid' === status.type) {
           reject(new Error('Invalid transaction.'));
+        } else {
+          // Pass it
         }
+
         if (status.isInBlock) {
           events.forEach(({event: {data, method, section}}) => {
             if (section === 'system' && method === 'ExtrinsicFailed') {
@@ -62,17 +65,27 @@ export async function sendTx(tx: SubmittableExtrinsic, krp: KeyringPair) {
               resolve(result);
             }
           });
+        } else {
+          // Pass it
         }
       });
     } catch (error) {
       reject(error);
-      throw error;
     }
   });
 }
 
 export function queryToObj(queryRes: any) {
   return JSON.parse(JSON.stringify(queryRes));
+}
+
+export async function withApiReady(fn: Function, next: NextFunction) {
+  const matureApi = await api.isReady;
+  try {
+    await fn(matureApi);
+  } catch (err) {
+    next(err);
+  }
 }
 
 /**
