@@ -56,10 +56,9 @@ export async function reportWorks(
 /**
  * Queries
  */
-export async function identity(api: ApiPromise, req: Request) {
-  logger.info(`⚙️ [swork]: Query identity with ${JSON.stringify(req.query)}`);
-  const address = req.query['address'];
-  const pks: string[] = queryToObj(await api.query.swork.idBonds(address));
+export async function identity(api: ApiPromise, addr: string) {
+  logger.info(`⚙️ [swork]: Query identity with ${addr}`);
+  const pks: string[] = queryToObj(await api.query.swork.idBonds(addr));
 
   // TODO: use `bluebird` to limit the promise concurrencies
   return await Promise.all(
@@ -70,12 +69,9 @@ export async function identity(api: ApiPromise, req: Request) {
   );
 }
 
-export async function workReport(api: ApiPromise, req: Request) {
-  logger.info(
-    `⚙️ [swork]: Query work report with ${JSON.stringify(req.query)}`
-  );
-  const address = req.query['address'];
-  const pks: string[] = queryToObj(await api.query.swork.idBonds(address));
+export async function workReport(api: ApiPromise, addr: string) {
+  logger.info(`⚙️ [swork]: Query work report with ${addr}`);
+  const pks: string[] = queryToObj(await api.query.swork.idBonds(addr));
 
   // TODO: use `bluebird` to limit the promise concurrencies
   const wrs = await Promise.all(

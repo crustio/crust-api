@@ -2,6 +2,12 @@ import {Request, Response, NextFunction} from 'express';
 import {ApiPromise, WsProvider} from '@polkadot/api';
 import {blockHash, header, health} from './chain';
 import {register, reportWorks, workReport, code, identity} from './swork';
+import {
+  merchant,
+  sorder,
+  placeSorder,
+  register as registerMerchant,
+} from './market';
 import {loadKeyringPair, withApiReady} from './util';
 import {createLogger, format, transports} from 'winston';
 
@@ -69,6 +75,26 @@ export const types = {
   ReportSlot: 'u64',
   Releases: {
     _enum: ['V1_0_0', 'V2_0_0'],
+  },
+  SorderInfo: {
+    file_identifier: 'MerkleRoot',
+    file_size: 'u64',
+    created_on: 'BlockNumber',
+    merchant: 'AccountId',
+    client: 'AccountId',
+    amount: 'Balance',
+    duration: 'BlockNumber',
+  },
+  SorderStatus: {
+    completed_on: 'BlockNumber',
+    expired_on: 'BlockNumber',
+    status: 'OrderStatus',
+    claimed_at: 'BlockNumber',
+  },
+  SorderPunishment: {
+    success: 'BlockNumber',
+    failed: 'BlockNumber',
+    updated_at: 'BlockNumber',
   },
   Status: {
     _enum: ['Free', 'Reserved'],
@@ -148,17 +174,42 @@ export const swork = {
   },
   identity: (req: Request, res: Response, next: NextFunction) => {
     withApiReady(async (api: ApiPromise) => {
-      res.json(await identity(api, req));
+      res.json(await identity(api, String(req.query['address'])));
     }, next);
   },
   workReport: (req: Request, res: Response, next: NextFunction) => {
     withApiReady(async (api: ApiPromise) => {
-      res.json(await workReport(api, req));
+      res.json(await workReport(api, String(req.query['address'])));
     }, next);
   },
   code: (_: Request, res: Response, next: NextFunction) => {
     withApiReady(async (api: ApiPromise) => {
       res.json(await code(api));
+    }, next);
+  },
+};
+
+export const market = {
+  merchant: (req: Request, res: Response, next: NextFunction) => {
+    withApiReady(async (api: ApiPromise) => {
+      res.json(await merchant(api, String(req.query['address'])));
+    }, next);
+  },
+  sorder: (req: Request, res: Response, next: NextFunction) => {
+    withApiReady(async (api: ApiPromise) => {
+      res.json(await sorder(api, String(req.query['orderId'])));
+    }, next);
+  },
+  register: (req: Request, res: Response, next: NextFunction) => {
+    withApiReady(async (api: ApiPromise) => {
+      const krp = loadKeyringPair(req);
+      res.json(await registerMerchant(api, krp, req));
+    }, next);
+  },
+  placeSorder: (req: Request, res: Response, next: NextFunction) => {
+    withApiReady(async (api: ApiPromise) => {
+      const krp = loadKeyringPair(req);
+      res.json(await placeSorder(api, krp, req));
     }, next);
   },
 };
