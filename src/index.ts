@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { NextFunction } from 'express';
 import {Request, Response} from 'express';
 import {logger} from './services';
 import * as services from './services';
@@ -9,16 +9,28 @@ const PORT = process.argv[2] || 56666;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const error = (err: any, _req: Request, res: Response, _next: any) => {
-  logger.error(`☄️ [global]: error catched ${err.message}`);
-  res.status(500).send({
+  logger.error(`☄️ [global]: Error catched ${err.message}`);
+  res.status(400).send({
     status: 'error',
     message: err.message,
   });
   services.api.registerTypes(services.types);
-  logger.warn('📡 [global]: connection reinitialized.');
+  logger.warn('📡 [global]: Connection reinitialized.');
+};
+
+const loggingResponse = (_: Request, res: Response, next: NextFunction) => {
+  const send = res.send;
+  res.send = function (...args: any) {
+    if (args.length > 0) {
+      logger.info(`  ↪ [${res.statusCode}]: ${args[0]}`);
+    }
+    send.call(res, ...args);
+  } as any;
+  next();
 };
 
 app.use(bodyParser.json());
+app.use(loggingResponse);
 
 // Get routes
 app.get('/api/v1/block/header', services.chain.header);
@@ -41,6 +53,6 @@ app.use(error);
 
 app.listen(PORT, () => {
   logger.info(
-    `⚡️ [global]: crust api is running at https://localhost:${PORT}`
+    `⚡️ [global]: Crust api is running at https://localhost:${PORT}`
   );
 });

@@ -24,7 +24,7 @@ export async function sendTx(tx: SubmittableExtrinsic, krp: KeyringPair) {
   return new Promise((resolve, reject) => {
     try {
       tx.signAndSend(krp, ({events = [], status}) => {
-        logger.info(`💸 [tx]: Transaction status: ${status.type}`);
+        logger.info(`  ↪ 💸 [tx]: Transaction status: ${status.type}`);
 
         if ('Invalid' === status.type) {
           reject(new Error('Invalid transaction.'));
@@ -53,7 +53,7 @@ export async function sendTx(tx: SubmittableExtrinsic, krp: KeyringPair) {
               }
 
               logger.info(
-                `💸 ❌ [tx]: Send transaction(${tx.type}) failed with ${result.message}.`
+                `  ↪ 💸 ❌ [tx]: Send transaction(${tx.type}) failed with ${result.message}.`
               );
               resolve(result);
             } else if (method === 'ExtrinsicSuccess') {
@@ -61,7 +61,9 @@ export async function sendTx(tx: SubmittableExtrinsic, krp: KeyringPair) {
                 status: 'success',
               };
 
-              logger.info(`💸 ✅ [tx]: Send transaction(${tx.type}) success.`);
+              logger.info(
+                `  ↪ 💸 ✅ [tx]: Send transaction(${tx.type}) success.`
+              );
               resolve(result);
             }
           });
@@ -80,9 +82,13 @@ export function queryToObj(queryRes: any) {
 }
 
 export async function withApiReady(fn: Function, next: NextFunction) {
+  if (!api.isConnected) {
+    next(new Error('Chain is offline, please connect a running chain.'));
+  }
   const matureApi = await api.isReady;
   try {
     await fn(matureApi);
+    next();
   } catch (err) {
     next(err);
   }
