@@ -21,17 +21,15 @@ const error = (err: any, _req: Request, res: Response, _next: any) => {
 app.use(bodyParser.json());
 
 // Get routes
-app.get('/api/v1/block/header', services.block.header);
-
+app.get('/api/v1/block/header', services.chain.header);
+app.get('/api/v1/block/hash', services.chain.blockHash);
+app.get('/api/v1/system/health', services.chain.health);
 app.get('/api/v1/swork/workreport', services.swork.workReport);
-
 app.get('/api/v1/swork/code', services.swork.code);
-
 app.get('/api/v1/swork/identity', services.swork.identity);
 
 // Post routes
 app.post('/api/v1/swork/identity', services.swork.register);
-
 app.post('/api/v1/swork/workreport', services.swork.reportWorks);
 
 // Error handler

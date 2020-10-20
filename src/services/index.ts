@@ -1,6 +1,6 @@
 import {Request, Response, NextFunction} from 'express';
 import {ApiPromise, WsProvider} from '@polkadot/api';
-import {header} from './block';
+import {blockHash, header, health} from './chain';
 import {register, reportWorks, workReport, code, identity} from './swork';
 import {loadKeyringPair, withApiReady} from './util';
 import {createLogger, format, transports} from 'winston';
@@ -111,7 +111,7 @@ export const api = new ApiPromise({
   types,
 });
 
-export const block = {
+export const chain = {
   header: (_: Request, res: Response, next: NextFunction) => {
     withApiReady(async (api: ApiPromise) => {
       const h = await header(api);
@@ -119,6 +119,16 @@ export const block = {
         number: h.number,
         hash: h.hash,
       });
+    }, next);
+  },
+  blockHash: (req: Request, res: Response, next: NextFunction) => {
+    withApiReady(async (api: ApiPromise) => {
+      res.send(await blockHash(api, Number(req.query['blockNumber'])));
+    }, next);
+  },
+  health: (_: Request, res: Response, next: NextFunction) => {
+    withApiReady(async (api: ApiPromise) => {
+      res.json(await health(api));
     }, next);
   },
 };

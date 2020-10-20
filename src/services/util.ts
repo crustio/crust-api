@@ -88,6 +88,10 @@ export async function withApiReady(fn: Function, next: NextFunction) {
   }
 }
 
+export function sleep(time: number) {
+  return new Promise(resolve => setTimeout(resolve, time));
+}
+
 /**
  * Private functions
  */
