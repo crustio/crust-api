@@ -22,58 +22,56 @@ export function loadKeyringPair(req: Request): KeyringPair {
 
 export async function sendTx(tx: SubmittableExtrinsic, krp: KeyringPair) {
   return new Promise((resolve, reject) => {
-    try {
-      tx.signAndSend(krp, ({events = [], status}) => {
-        logger.info(`  ↪ 💸 [tx]: Transaction status: ${status.type}`);
+    tx.signAndSend(krp, ({events = [], status}) => {
+      logger.info(`  ↪ 💸 [tx]: Transaction status: ${status.type}`);
 
-        if ('Invalid' === status.type) {
-          reject(new Error('Invalid transaction.'));
-        } else {
-          // Pass it
-        }
+      if ('Invalid' === status.type) {
+        reject(new Error('Invalid transaction.'));
+      } else {
+        // Pass it
+      }
 
-        if (status.isInBlock) {
-          events.forEach(({event: {data, method, section}}) => {
-            if (section === 'system' && method === 'ExtrinsicFailed') {
-              const [dispatchError] = (data as unknown) as ITuple<
-                [DispatchError]
-              >;
-              const result: TxRes = {
-                status: 'failed',
-                message: dispatchError.type,
-              };
-              // Can get detail error info
-              if (dispatchError.isModule) {
-                const mod = dispatchError.asModule;
-                const error = api.registry.findMetaError(
-                  new Uint8Array([mod.index.toNumber(), mod.error.toNumber()])
-                );
-                result.message = `${error.section}.${error.name}`;
-                result.details = error.documentation.join('');
-              }
-
-              logger.info(
-                `  ↪ 💸 ❌ [tx]: Send transaction(${tx.type}) failed with ${result.message}.`
+      if (status.isInBlock) {
+        events.forEach(({event: {data, method, section}}) => {
+          if (section === 'system' && method === 'ExtrinsicFailed') {
+            const [dispatchError] = (data as unknown) as ITuple<
+              [DispatchError]
+            >;
+            const result: TxRes = {
+              status: 'failed',
+              message: dispatchError.type,
+            };
+            // Can get detail error info
+            if (dispatchError.isModule) {
+              const mod = dispatchError.asModule;
+              const error = api.registry.findMetaError(
+                new Uint8Array([mod.index.toNumber(), mod.error.toNumber()])
               );
-              resolve(result);
-            } else if (method === 'ExtrinsicSuccess') {
-              const result: TxRes = {
-                status: 'success',
-              };
-
-              logger.info(
-                `  ↪ 💸 ✅ [tx]: Send transaction(${tx.type}) success.`
-              );
-              resolve(result);
+              result.message = `${error.section}.${error.name}`;
+              result.details = error.documentation.join('');
             }
-          });
-        } else {
-          // Pass it
-        }
-      });
-    } catch (error) {
-      reject(error);
-    }
+
+            logger.info(
+              `  ↪ 💸 ❌ [tx]: Send transaction(${tx.type}) failed with ${result.message}.`
+            );
+            resolve(result);
+          } else if (method === 'ExtrinsicSuccess') {
+            const result: TxRes = {
+              status: 'success',
+            };
+
+            logger.info(
+              `  ↪ 💸 ✅ [tx]: Send transaction(${tx.type}) success.`
+            );
+            resolve(result);
+          }
+        });
+      } else {
+        // Pass it
+      }
+    }).catch(e => {
+      reject(e);
+    });
   });
 }
 

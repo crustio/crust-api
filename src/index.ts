@@ -1,4 +1,4 @@
-import express, { NextFunction } from 'express';
+import express, {NextFunction} from 'express';
 import {Request, Response} from 'express';
 import {logger} from './services';
 import * as services from './services';
