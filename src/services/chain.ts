@@ -19,7 +19,7 @@ export async function blockHash(api: ApiPromise, bn: number) {
 }
 
 export async function health(api: ApiPromise) {
-  logger.info('⛓ [chain]: Query systen health');
+  logger.info('⛓ [chain]: Query system health');
   const h = await api.rpc.system.health();
   const ch: CrustHealth = {
     isSyncing: h.isSyncing.isTrue,
