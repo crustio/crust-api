@@ -133,7 +133,7 @@ export interface TxRes {
 }
 
 export const api = new ApiPromise({
-  provider: new WsProvider(process.argv[3] || 'ws://localhost:9933'),
+  provider: new WsProvider(process.argv[3] || 'ws://localhost:9944'),
   types,
 });
 
