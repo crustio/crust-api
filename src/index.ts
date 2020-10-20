@@ -5,7 +5,7 @@ import * as services from './services';
 import * as bodyParser from 'body-parser';
 
 const app = express();
-const PORT = 56666;
+const PORT = process.argv[2] || 56666;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const error = (err: any, _req: Request, res: Response, _next: any) => {
