@@ -10,12 +10,12 @@ interface CrustHealth {
 
 export async function header(api: ApiPromise) {
   logger.info('⛓ [chain]: Query chain header');
-  return await api.rpc.chain.getHeader();
+  return api.rpc.chain.getHeader();
 }
 
 export async function blockHash(api: ApiPromise, bn: number) {
   logger.info(`⛓ [chain]: Query block hash with ${bn}`);
-  return await api.query.system.blockHash(bn);
+  return api.query.system.blockHash(bn);
 }
 
 export async function health(api: ApiPromise) {

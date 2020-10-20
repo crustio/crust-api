@@ -19,7 +19,7 @@ export async function merchant(api: ApiPromise, addr: string) {
 
 export async function sorder(api: ApiPromise, id: string) {
   logger.info(`📦 [market]: Query storage order with order id: ${id}`);
-  return await api.query.market.sorderInfos(id);
+  return api.query.market.sorderInfos(id);
 }
 
 export async function register(
@@ -34,7 +34,7 @@ export async function register(
     req.body['addressInfo'],
     req.body['storagePrice']
   );
-  return await sendTx(tx, krp);
+  return sendTx(tx, krp);
 }
 
 export async function placeSorder(

@@ -21,7 +21,7 @@ export async function register(
     '0x' + req.body['sig']
   );
 
-  return await sendTx(tx, krp);
+  return sendTx(tx, krp);
 }
 
 export async function reportWorks(
@@ -50,7 +50,7 @@ export async function reportWorks(
     '0x' + req.body['sig']
   );
 
-  return await sendTx(tx, krp);
+  return sendTx(tx, krp);
 }
 
 /**
@@ -61,7 +61,7 @@ export async function identity(api: ApiPromise, addr: string) {
   const pks: string[] = queryToObj(await api.query.swork.idBonds(addr));
 
   // TODO: use `bluebird` to limit the promise concurrencies
-  return await Promise.all(
+  return Promise.all(
     pks.map(async pk => ({
       pub_key: pk,
       code: (await api.query.swork.identities(pk)).toString(),
@@ -86,5 +86,5 @@ export async function workReport(api: ApiPromise, addr: string) {
 
 export async function code(api: ApiPromise) {
   logger.info('⚙️ [swork]: Query sworker code');
-  return await api.query.swork.code();
+  return api.query.swork.code();
 }

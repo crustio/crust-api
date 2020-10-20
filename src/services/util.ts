@@ -131,7 +131,7 @@ function getAccountInfo(req: Request): [string, string] {
 function hexStrToBytes(str: string) {
   let pos = 0;
   let len = str.length;
-  if (len % 2 != 0) {
+  if (len % 2 !== 0) {
     return null;
   }
 
