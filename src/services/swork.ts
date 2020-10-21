@@ -30,10 +30,12 @@ export async function reportWorks(
   req: Request
 ) {
   logger.info(`⚙️ [swork]: Call report works with ${JSON.stringify(req.body)}`);
+  const bn = req.body['block_height'];
+  const pk = '0x' + req.body['pub_key'];
   const tx = api.tx.swork.reportWorks(
-    '0x' + req.body['pub_key'],
+    pk,
     '0x' + req.body['pre_pub_key'],
-    req.body['block_height'],
+    bn,
     '0x' + req.body['block_hash'],
     req.body['reserved'],
     req.body['files_size'],
@@ -50,7 +52,20 @@ export async function reportWorks(
     '0x' + req.body['sig']
   );
 
-  return sendTx(tx, krp);
+  const txRes = queryToObj(await sendTx(tx, krp));
+  if (txRes && 'success' === txRes.status) {
+    // Query work report
+    const wr = queryToObj(await api.query.swork.workReports(pk));
+    // ⚠️ WARNING: inblocked but not recorded
+    if (wr['report_slot'] !== bn) {
+      logger.warn(
+        `  ↪ ⚙️ [swork]: report works invalid in slot=${bn} with pk=${pk}`
+      );
+      txRes.status = 'failed';
+    }
+  }
+
+  return txRes;
 }
 
 /**
