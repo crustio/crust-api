@@ -7,13 +7,19 @@ import * as bodyParser from 'body-parser';
 const app = express();
 const PORT = process.argv[2] || 56666;
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const error = (err: any, _req: Request, res: Response, _next: any) => {
+const errorHandler = (
+  err: any,
+  _req: Request | null,
+  res: Response | null,
+  _next: any
+) => {
   logger.error(`☄️ [global]: Error catched ${err.message}`);
-  res.status(400).send({
-    status: 'error',
-    message: err.message,
-  });
+  if (res) {
+    res.status(400).send({
+      status: 'error',
+      message: err.message,
+    });
+  }
   services.api.registerTypes(services.types);
   logger.warn('📡 [global]: Connection reinitialized.');
 };
@@ -49,7 +55,11 @@ app.post('/api/v1/market/register', services.market.register);
 app.post('/api/v1/market/sorder', services.market.placeSorder);
 
 // Error handler
-app.use(error);
+app.use(errorHandler);
+process.on('uncaughtException', (err: Error) => {
+  logger.error(`☄️ [global] Uncaught exception ${err.message}`);
+  errorHandler(err, null, null, null);
+});
 
 app.listen(PORT, () => {
   logger.info(

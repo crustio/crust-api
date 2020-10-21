@@ -11,6 +11,7 @@ import {
 import {loadKeyringPair, withApiReady} from './util';
 import {createLogger, format, transports} from 'winston';
 
+// TODO: move this logger into `logger.ts`
 export const logger = createLogger({
   level: 'info',
   format: format.combine(

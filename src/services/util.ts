@@ -83,8 +83,8 @@ export async function withApiReady(fn: Function, next: NextFunction) {
   if (!api.isConnected) {
     next(new Error('Chain is offline, please connect a running chain.'));
   }
-  const matureApi = await api.isReady;
   try {
+    const matureApi = await api.isReady;
     await fn(matureApi);
     next();
   } catch (err) {
