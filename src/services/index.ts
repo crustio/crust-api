@@ -8,7 +8,7 @@ import {
   placeSorder,
   register as registerMerchant,
 } from './market';
-import {loadKeyringPair, withApiReady} from './util';
+import {loadKeyringPair, withApiReady, resHandler} from './util';
 import {createLogger, format, transports} from 'winston';
 
 // TODO: move this logger into `logger.ts`
@@ -164,13 +164,13 @@ export const swork = {
   register: (req: Request, res: Response, next: NextFunction) => {
     withApiReady(async (api: ApiPromise) => {
       const krp = loadKeyringPair(req);
-      res.json(await register(api, krp, req));
+      await resHandler(register(api, krp, req), res);
     }, next);
   },
   reportWorks: (req: Request, res: Response, next: NextFunction) => {
     withApiReady(async (api: ApiPromise) => {
       const krp = loadKeyringPair(req);
-      res.json(await reportWorks(api, krp, req));
+      await resHandler(reportWorks(api, krp, req), res);
     }, next);
   },
   identity: (req: Request, res: Response, next: NextFunction) => {
@@ -204,13 +204,13 @@ export const market = {
   register: (req: Request, res: Response, next: NextFunction) => {
     withApiReady(async (api: ApiPromise) => {
       const krp = loadKeyringPair(req);
-      res.json(await registerMerchant(api, krp, req));
+      await resHandler(registerMerchant(api, krp, req), res);
     }, next);
   },
   placeSorder: (req: Request, res: Response, next: NextFunction) => {
     withApiReady(async (api: ApiPromise) => {
       const krp = loadKeyringPair(req);
-      res.json(await placeSorder(api, krp, req));
+      await resHandler(placeSorder(api, krp, req), res);
     }, next);
   },
 };

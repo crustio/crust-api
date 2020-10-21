@@ -1,4 +1,4 @@
-import {NextFunction, Request} from 'express';
+import {NextFunction, Request, Response} from 'express';
 import {Keyring} from '@polkadot/keyring';
 import {KeyringPair} from '@polkadot/keyring/types';
 import {DispatchError} from '@polkadot/types/interfaces';
@@ -89,6 +89,15 @@ export async function withApiReady(fn: Function, next: NextFunction) {
     next();
   } catch (err) {
     next(err);
+  }
+}
+
+export async function resHandler(req: Promise<any>, res: Response) {
+  const txRes: any = await req;
+  if (txRes && 'success' === txRes.status) {
+    res.json(txRes);
+  } else {
+    res.status(400).json(txRes);
   }
 }
 
