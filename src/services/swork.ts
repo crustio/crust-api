@@ -30,7 +30,7 @@ export async function reportWorks(
   req: Request
 ) {
   logger.info(`⚙️ [swork]: Call report works with ${JSON.stringify(req.body)}`);
-  const bn = req.body['block_height'];
+  const bn = Number(req.body['block_height']);
   const pk = '0x' + req.body['pub_key'];
   const tx = api.tx.swork.reportWorks(
     pk,
