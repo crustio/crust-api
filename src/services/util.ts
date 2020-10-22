@@ -25,7 +25,12 @@ export async function sendTx(tx: SubmittableExtrinsic, krp: KeyringPair) {
     tx.signAndSend(krp, ({events = [], status}) => {
       logger.info(`  ↪ 💸 [tx]: Transaction status: ${status.type}`);
 
-      if ('Invalid' === status.type) {
+      if (
+        status.isInvalid ||
+        status.isDropped ||
+        status.isUsurped ||
+        status.isRetracted
+      ) {
         reject(new Error('Invalid transaction.'));
       } else {
         // Pass it
@@ -82,6 +87,7 @@ export function queryToObj(queryRes: any) {
 export async function withApiReady(fn: Function, next: NextFunction) {
   if (!api.isConnected) {
     next(new Error('Chain is offline, please connect a running chain.'));
+    return;
   }
   try {
     const matureApi = await api.isReady;
