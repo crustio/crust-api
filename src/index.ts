@@ -13,13 +13,24 @@ const errorHandler = (
   res: Response | null,
   _next: any
 ) => {
-  logger.error(`☄️ [global]: Error catched ${err.message}`);
+  const errMsg: string = err ? err.message : 'Unknown error';
+  logger.error(`☄️ [global]: Error catched: ${errMsg}.`);
   if (res) {
     res.status(400).send({
       status: 'error',
-      message: err.message,
+      message: errMsg,
     });
   }
+
+  // Catched with bad signature, just throw fatal error.
+  if (errMsg.includes('bad signature')) {
+    logger.error(`💥 [global]: Fatal error: ${errMsg}.`);
+
+    // [DANGER]: SHIT code, but no workaround, god bless this 💩 can work
+    // eslint-disable-next-line no-process-exit
+    process.exit(1);
+  }
+
   services.api.registerTypes(services.types);
   logger.warn('📡 [global]: Connection reinitialized.');
 };
