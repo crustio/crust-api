@@ -7,7 +7,7 @@ WORKDIR /usr/src/crust-api
 COPY . .
 
 # Install dependencies
-RUN yarn
+RUN yarn && yarn build
 
 # Run
 ENTRYPOINT yarn start $ARGS

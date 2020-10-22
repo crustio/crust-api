@@ -4,9 +4,9 @@
   "main": "index.js",
   "license": "GPL-3.0",
   "scripts": {
-    "start": "nodemon src/index.ts",
+    "debug": "nodemon src/index.ts",
+    "start": "node build/src/index.js",
     "build": "tsc -p ./",
-    "package": "yarn && yarn build && mkdir crust-api && cp -r node_modules crust-api && cp -r build crust-api && cp -r VERSION crust-api && tar -cvf crust-api.tar crust-api && rm -rf crust-api",
     "lint": "gts lint",
     "clean": "gts clean",
     "compile": "tsc",
