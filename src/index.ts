@@ -13,7 +13,7 @@ const errorHandler = (
   res: Response | null,
   _next: any
 ) => {
-  const errMsg: string = err ? err.message : 'Unknown error';
+  const errMsg: string = '' + err ? err.message : 'Unknown error';
   logger.error(`☄️ [global]: Error catched: ${errMsg}.`);
   if (res) {
     res.status(400).send({
