@@ -133,7 +133,7 @@ const types = {
   },
 };
 
-export let api: ApiPromise = newApiPromise();
+let api: ApiPromise = newApiPromise();
 
 export const initApi = () => {
   if (api && api.disconnect) {
