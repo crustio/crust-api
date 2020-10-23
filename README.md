@@ -1,26 +1,48 @@
-# Crust Restful API
+# Crust API
 
-### Build
+> Crust API is a bridge connector bewteen chain and other offchain services, you'd better not run it seperately.
+
+Based on [express](https://github.com/expressjs/express/) and [polkadot-js/api](https://github.com/polkadot-js/api), connecting a running Crust Node and hosting a RESTful api service.
+
+## Join to play
+
+Go to [Crust Node](https://github.com/crustio/crust-node), follow the README.
+
+## Building
+
+### Build from source
+
+> Make sure you have *latest* nodejs and yarn installed.
+
+#### 1. Install with yarn
+
 ```shell
 yarn
 ```
 
-### Start
-The default startup will start with 56666 API port and connect to the local Crust chain:
+#### 2. Debug with nodemon
+
+- API_PORT: port number, default is: `56666`
+- CRUST_WS_ADDRESS: crust's websocket address, default is: `ws://localhost:9944`
+
 ```shell
-yarn start
+yarn debug {API_PORT} {CRUST_WS_ADDRESS}
 ```
-Change the setting like this, if you want to connect to other chain:
+
+#### 3. Build and start with original node
+
 ```shell
-yarn start 56666 ws://192.168.50.6:9944/
+yarn build && yarn start {API_PORT} {CRUST_WS_ADDRESS}
 ```
 
-## Docker
-Please refer to [crust api docker](docs/docker.md)
+### Build from docker
 
+Refer [this](docs/docker.md) to see how to build and run crust api with docker.
 
-## API
-Please refer to [API](docs/API.md)
+## Usage
+
+Refer to [this](docs/api.md) for more api details.
 
 ## License
+
 [GPL v3](LICENSE)
