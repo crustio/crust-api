@@ -1,5 +1,11 @@
 #!/bin/bash
 
-VER=$(cat VERSION | head -n 1)
-IMAGEID="crustio/crust-api:$VER"
+PACKAGE_VERSION=$(cat package.json \
+  | grep version \
+  | head -1 \
+  | awk -F: '{ print $2 }' \
+  | sed 's/[",]//g' \
+  | tr -d '[[:space:]]')
+IMAGEID="crustio/crust-api:$PACKAGE_VERSION"
+echo "Building crustio/crust-api:$PACKAGE_VERSION ..."
 docker build -t $IMAGEID .

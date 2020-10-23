@@ -1,17 +1,11 @@
 {
-    "version": "1.8.0",
     "compilerOptions": {
-        "outDir": "build",
         "target": "es6",
         "module": "commonjs",
-        "moduleResolution": "node",
-        "emitDecoratorMetadata": true,
-        "experimentalDecorators": true,
-        "sourceMap": true,
-        "noImplicitAny": true,
-        "declaration": true,
+        "rootDir": "./",
+        "outDir": "build",
         "esModuleInterop": true,
-        "skipLibCheck": true 
-    },
-    "exclude": [ "build", "node_modules" ]
+        "skipLibCheck": true,
+        "strict": true
+    }
 }

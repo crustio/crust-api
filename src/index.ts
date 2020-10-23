@@ -1,45 +1,70 @@
-import * as http from 'http';
-import debug from 'debug';
+import express, {NextFunction} from 'express';
+import {Request, Response} from 'express';
+import {logger} from './services';
+import * as services from './services';
+import * as bodyParser from 'body-parser';
 
-import app from './app';
-const winston = require('winston');
-const logConfiguration = require('./logconfig');
-const logger = winston.createLogger(logConfiguration);
+const app = express();
+const PORT = process.argv[2] || 56666;
 
-debug('ts-express:server');
+const errorHandler = (
+  err: any,
+  _req: Request | null,
+  res: Response | null,
+  _next: any
+) => {
+  const errMsg: string = '' + err ? err.message : 'Unknown error';
+  logger.error(`☄️ [global]: Error catched: ${errMsg}.`);
+  if (res) {
+    res.status(400).send({
+      status: 'error',
+      message: errMsg,
+    });
+  }
 
-const port = normalizePort(process.argv[2] || 56666);
-app.set('port', port);
+  services.initApi();
+  logger.warn('📡 [global]: Connection reinitialized.');
+};
 
-const server = http.createServer(app);
-server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
-
-function normalizePort(val: number | string): number | string | boolean {
-    let port: number = (typeof val === 'string') ? parseInt(val, 10) : val;
-    if (isNaN(port)) return val;
-    else if (port >= 0) return port;
-    else return false;
-}
-
-function onError(error: NodeJS.ErrnoException): void {
-    if (error.syscall !== 'listen') throw error;
-    let bind = (typeof port === 'string') ? 'Pipe ' + port : 'Port ' + port;
-    switch (error.code) {
-        case 'EACCES':
-            logger.error(`${bind} requires elevated privileges`);
-            process.exit(1);
-        case 'EADDRINUSE':
-            logger.error(`${bind} is already in use`);
-            process.exit(1);
-        default:
-            throw error;
+const loggingResponse = (_: Request, res: Response, next: NextFunction) => {
+  const send = res.send;
+  res.send = function (...args: any) {
+    if (args.length > 0) {
+      logger.info(`  ↪ [${res.statusCode}]: ${args[0]}`);
     }
-}
+    send.call(res, ...args);
+  } as any;
+  next();
+};
 
-function onListening(): void {
-    let addr = server.address();
-    let bind = (typeof addr === 'string') ? `pipe ${addr}` : `port ${addr.port}`;
-    debug(`Listening on ${bind}`);
-}
+app.use(bodyParser.json());
+app.use(loggingResponse);
+
+// Get routes
+app.get('/api/v1/block/header', services.chain.header);
+app.get('/api/v1/block/hash', services.chain.blockHash);
+app.get('/api/v1/system/health', services.chain.health);
+app.get('/api/v1/swork/workreport', services.swork.workReport);
+app.get('/api/v1/swork/code', services.swork.code);
+app.get('/api/v1/swork/identity', services.swork.identity);
+app.get('/api/v1/market/merchant', services.market.merchant);
+app.get('/api/v1/market/sorder', services.market.sorder);
+
+// Post routes
+app.post('/api/v1/swork/identity', services.swork.register);
+app.post('/api/v1/swork/workreport', services.swork.reportWorks);
+app.post('/api/v1/market/register', services.market.register);
+app.post('/api/v1/market/sorder', services.market.placeSorder);
+
+// Error handler
+app.use(errorHandler);
+process.on('uncaughtException', (err: Error) => {
+  logger.error(`☄️ [global] Uncaught exception ${err.message}`);
+  errorHandler(err, null, null, null);
+});
+
+app.listen(PORT, () => {
+  logger.info(
+    `⚡️ [global]: Crust api is running at https://localhost:${PORT}`
+  );
+});
