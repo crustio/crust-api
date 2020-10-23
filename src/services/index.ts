@@ -11,6 +11,13 @@ import {
 import {loadKeyringPair, withApiReady, resHandler} from './util';
 import {createLogger, format, transports} from 'winston';
 
+// TODO: Better result
+export interface TxRes {
+  status?: string;
+  message?: string;
+  details?: string;
+}
+
 // TODO: move this logger into `logger.ts`
 export const logger = createLogger({
   level: 'info',
@@ -33,7 +40,7 @@ export const logger = createLogger({
   ],
 });
 
-export const types = {
+const types = {
   Address: 'AccountId',
   AddressInfo: 'Vec<u8>',
   FileAlias: 'Vec<u8>',
@@ -126,17 +133,16 @@ export const types = {
   },
 };
 
-// TODO: Better result
-export interface TxRes {
-  status?: string;
-  message?: string;
-  details?: string;
-}
+export let api: ApiPromise = newApiPromise();
 
-export const api = new ApiPromise({
-  provider: new WsProvider(process.argv[3] || 'ws://localhost:9944'),
-  types,
-});
+export const initApi = () => {
+  api = newApiPromise();
+  api.isReady.then(api => {
+    logger.info(
+      `⚡️ [global] Current chain info: ${api.runtimeChain}, ${api.runtimeVersion}`
+    );
+  });
+};
 
 export const chain = {
   header: (_: Request, res: Response, next: NextFunction) => {
@@ -214,3 +220,10 @@ export const market = {
     }, next);
   },
 };
+
+function newApiPromise(): ApiPromise {
+  return new ApiPromise({
+    provider: new WsProvider(process.argv[3] || 'ws://localhost:9944'),
+    types,
+  });
+}

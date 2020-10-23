@@ -22,16 +22,7 @@ const errorHandler = (
     });
   }
 
-  // Catched with bad signature, just throw fatal error.
-  if (errMsg.includes('bad signature')) {
-    logger.error(`💥 [global]: Fatal error: ${errMsg}.`);
-
-    // [DANGER]: SHIT code, but no workaround, god bless this 💩 can work
-    // eslint-disable-next-line no-process-exit
-    process.exit(1);
-  }
-
-  services.api.registerTypes(services.types);
+  services.initApi();
   logger.warn('📡 [global]: Connection reinitialized.');
 };
 
