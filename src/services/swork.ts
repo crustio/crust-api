@@ -18,6 +18,7 @@ export async function register(
     req.body['ias_cert'],
     req.body['account_id'],
     req.body['isv_body'],
+    req.body['ab_upgrade_pk'],
     '0x' + req.body['sig']
   );
 
