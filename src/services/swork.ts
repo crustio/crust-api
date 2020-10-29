@@ -21,6 +21,7 @@ export async function register(
     req.body['ab_upgrade_pk'],
     '0x' + req.body['sig']
   );
+
   return sendTx(tx, krp);
 }
 
