@@ -4,7 +4,7 @@ import {KeyringPair} from '@polkadot/keyring/types';
 import {DispatchError} from '@polkadot/types/interfaces';
 import {ITuple} from '@polkadot/types/types';
 import {SubmittableExtrinsic} from '@polkadot/api/promise/types';
-import {TxRes, api, logger} from './index';
+import {TxRes, logger, getApi, } from './index';
 
 /**
  * Public functions
@@ -49,7 +49,7 @@ export async function sendTx(tx: SubmittableExtrinsic, krp: KeyringPair) {
             // Can get detail error info
             if (dispatchError.isModule) {
               const mod = dispatchError.asModule;
-              const error = api.registry.findMetaError(
+              const error = getApi().registry.findMetaError(
                 new Uint8Array([mod.index.toNumber(), mod.error.toNumber()])
               );
               result.message = `${error.section}.${error.name}`;
@@ -85,7 +85,8 @@ export function queryToObj(queryRes: any) {
 }
 
 export async function withApiReady(fn: Function, next: NextFunction) {
-  if (!api.isConnected) {
+  const api = getApi();
+  if (!api || !api.isConnected) {
     next(new Error('Chain is offline, please connect a running chain.'));
     return;
   }

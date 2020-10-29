@@ -8,7 +8,7 @@ import {
   placeSorder,
   register as registerMerchant,
 } from './market';
-import {loadKeyringPair, withApiReady, resHandler} from './util';
+import {loadKeyringPair, resHandler, withApiReady} from './util';
 import {createLogger, format, transports} from 'winston';
 
 // TODO: Better result
@@ -133,9 +133,16 @@ const types = {
   },
 };
 
-export let api: ApiPromise = newApiPromise();
+let api: ApiPromise = newApiPromise();
 
 export const initApi = () => {
+  if (api && api.disconnect) {
+    logger.info('disconnecting old api');
+    api
+      .disconnect()
+      .then(() => {})
+      .catch(() => {});
+  }
   api = newApiPromise();
   api.isReady.then(api => {
     logger.info(
@@ -226,4 +233,8 @@ function newApiPromise(): ApiPromise {
     provider: new WsProvider(process.argv[3] || 'ws://localhost:9944'),
     types,
   });
+}
+
+export function getApi(): ApiPromise {
+  return api;
 }
