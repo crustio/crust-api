@@ -300,6 +300,11 @@ class App {
             }
         });
 
+        router.post('/api/transfer', async (req, res, next) => {
+            console.log('req.body', req.body)
+            res.send(req.body);
+        });
+
         router.post('/api/v1/swork/identity', async (req, res, next) => {
             logger.info('request path: ' + '/api/v1/swork/identity' +', request time: ' + moment().format())
             console.log('req.body', req.body)
