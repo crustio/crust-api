@@ -4,12 +4,12 @@
 
 ### Chain info
 
-#### Get header infohttps://github.com/crustio/crust-api/blob/master/docs/API.md
+#### Get header info
 
 Request:
 
 ```shell
-curl GET 'http://localhost:56666/api/v1/block/header'
+curl 'http://localhost:56666/api/v1/block/header'
 ```
 
 Response:
@@ -26,7 +26,7 @@ Response:
 Request:
 
 ```shell
-curl GET 'http://localhost:56666/api/v1/system/health
+curl 'http://localhost:56666/api/v1/system/health'
 ```
 
 Response:
@@ -44,7 +44,7 @@ Response:
 Request:
 
 ```shell
-curl GET 'http://localhost:56666/api/v1/block/hash?blockNumber=148589
+curl 'http://localhost:56666/api/v1/block/hash?blockNumber=148589'
 ```
 
 Response:
@@ -60,7 +60,7 @@ Response:
 Request:
 
 ```shell
-curl GET 'http://localhost:56666/api/v1/swork/code
+curl 'http://localhost:56666/api/v1/swork/code'
 ```
 
 Response:
@@ -74,7 +74,7 @@ Response:
 Request:
 
 ```shell
-curl GET 'http://localhost:56666/api/v1/swork/identity?address=5HBPJZkoLeUBdPombuYe3tcUkXcTAKyRhRgXJvHpCs9mzxfL'
+curl 'http://localhost:56666/api/v1/swork/identity?address=5HBPJZkoLeUBdPombuYe3tcUkXcTAKyRhRgXJvHpCs9mzxfL'
 ```
 
 Response:
@@ -94,7 +94,7 @@ Response:
 Request:
 
 ```shell
-curl GET 'http://localhost:56666/api/v1/swork/workreport?address=5HBPJZkoLeUBdPombuYe3tcUkXcTAKyRhRgXJvHpCs9mzxfL'
+curl 'http://localhost:56666/api/v1/swork/workreport?address=5HBPJZkoLeUBdPombuYe3tcUkXcTAKyRhRgXJvHpCs9mzxfL'
 ```
 
 Response:
@@ -122,7 +122,7 @@ Response:
 Request:
 
 ```shell
-curl GET 'http://127.0.0.1:56666/api/v1/market/merchant?address=5HpyALyFUJTDMc6iRziEKwh1BkvMHFJGHss3mJjXefuzCap3'
+curl 'http://127.0.0.1:56666/api/v1/market/merchant?address=5HpyALyFUJTDMc6iRziEKwh1BkvMHFJGHss3mJjXefuzCap3'
 ```
 
 Response:
@@ -154,7 +154,7 @@ Response:
 Request:
 
 ```shell
-curl GET 'http://localhost:56666/api/v1/market/sorder?orderId=0x1f1e8eeac7b871ac3c603087120eb0b8a7286ee69ff01c785e52af083edaf2f5'
+curl 'http://localhost:56666/api/v1/market/sorder?orderId=0x1f1e8eeac7b871ac3c603087120eb0b8a7286ee69ff01c785e52af083edaf2f5'
 ```
 
 Response:
@@ -183,7 +183,7 @@ Response:
 Request:
 
 ```shell
-curl POST 'http://localhost:56666/api/v1/swork/identity' \
+curl --request POST 'http://localhost:56666/api/v1/swork/identity' \
 --header 'Content-Type: application/json' \
 --header 'password: 123456' \
 --data-raw '{
@@ -209,7 +209,7 @@ Response:
 Request:
 
 ```shell
-curl POST 'http://localhost:56666/api/v1/swork/workreport' \
+curl --request POST 'http://localhost:56666/api/v1/swork/workreport' \
 --header 'Content-Type: application/json' \
 --header 'password: 123456' \
 --data-raw '{
@@ -238,7 +238,7 @@ Response:
 Request:
 
 ```shell
-curl POST 'http://localhost:56666/api/v1/market/register' \
+curl --request POST 'http://localhost:56666/api/v1/market/register' \
 --header 'Content-Type: application/json' \
 --header 'password: 123456' \
 --data-raw '{
@@ -261,7 +261,7 @@ Response:
 Request:
 
 ```shell
-curl POST 'http://localhost:56666/api/v1/market/sorder' \
+curl --request POST 'http://localhost:56666/api/v1/market/sorder' \
     --header 'Content-Type: application/json' \
     --header 'password: 123456' \
     --data-raw '{
