@@ -10,6 +10,7 @@ import {
 } from './market';
 import {loadKeyringPair, resHandler, withApiReady} from './util';
 import {createLogger, format, transports} from 'winston';
+import {transferCandy, transferCru} from './transfer';
 
 // TODO: Better result
 export interface TxRes {
@@ -224,6 +225,21 @@ export const market = {
     withApiReady(async (api: ApiPromise) => {
       const krp = loadKeyringPair(req);
       await resHandler(placeSorder(api, krp, req), res);
+    }, next);
+  },
+};
+
+export const transfer = {
+  transferCru: (req: Request, res: Response, next: NextFunction) => {
+    withApiReady(async (api: ApiPromise) => {
+      const krp = loadKeyringPair(req);
+      await resHandler(transferCru(api, krp, req), res);
+    }, next);
+  },
+  transferCandy: (req: Request, res: Response, next: NextFunction) => {
+    withApiReady(async (api: ApiPromise) => {
+      const krp = loadKeyringPair(req);
+      await resHandler(transferCandy(api, krp, req), res);
     }, next);
   },
 };

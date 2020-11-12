@@ -4,7 +4,7 @@ import {KeyringPair} from '@polkadot/keyring/types';
 import {DispatchError} from '@polkadot/types/interfaces';
 import {ITuple} from '@polkadot/types/types';
 import {SubmittableExtrinsic} from '@polkadot/api/promise/types';
-import {TxRes, logger, getApi, } from './index';
+import {TxRes, logger, getApi} from './index';
 
 /**
  * Public functions
