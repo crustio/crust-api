@@ -1,5 +1,5 @@
 import {ApiPromise} from '@polkadot/api';
-import {logger} from './index';
+import {logger} from '../log';
 import {sleep} from './util';
 
 interface CrustHealth {

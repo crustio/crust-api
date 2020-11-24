@@ -1,8 +1,9 @@
+/* eslint-disable node/no-extraneous-import */
 import {ApiPromise} from '@polkadot/api';
 import {Request} from 'express';
 import {KeyringPair} from '@polkadot/keyring/types';
 import {sendTx, queryToObj} from './util';
-import {logger} from './index';
+import {logger} from '../log';
 
 /**
  * Send extrinsics

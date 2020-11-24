@@ -1,8 +1,9 @@
 import express, {NextFunction} from 'express';
 import {Request, Response} from 'express';
-import {logger} from './services';
+import {logger} from './log';
 import * as services from './services';
 import * as bodyParser from 'body-parser';
+import timeout from 'connect-timeout';
 
 const app = express();
 const PORT = process.argv[2] || 56666;
@@ -39,6 +40,9 @@ const loggingResponse = (_: Request, res: Response, next: NextFunction) => {
 
 app.use(bodyParser.json());
 app.use(loggingResponse);
+
+// Timeout handler
+app.use(timeout('120s'));
 
 // Get routes
 app.get('/api/v1/block/header', services.chain.header);
