@@ -9,7 +9,7 @@ import {
   register as registerMerchant,
 } from './market';
 import {loadKeyringPair, resHandler, withApiReady} from './util';
-import {createLogger, format, transports} from 'winston';
+import {logger} from '../log';
 
 // TODO: Better result
 export interface TxRes {
@@ -18,31 +18,10 @@ export interface TxRes {
   details?: string;
 }
 
-// TODO: move this logger into `logger.ts`
-export const logger = createLogger({
-  level: 'info',
-  format: format.combine(
-    format.timestamp({
-      format: 'YYYY-MM-DD HH:mm:ss',
-    }),
-    format.colorize(),
-    format.errors({stack: true}),
-    format.printf(info => `[${info.timestamp}] ${info.level}: ${info.message}`)
-  ),
-  transports: [
-    //
-    // - Write to all logs with level `info` and below to `crust-api-combined.log`.
-    // - Write all logs error (and below) to `crust-api-error.log`.
-    //
-    new transports.Console(),
-    new transports.File({filename: 'crust-api-error.log', level: 'error'}),
-    new transports.File({filename: 'crust-api-combined.log'}),
-  ],
-});
-
 const types = {
   Address: 'AccountId',
   AddressInfo: 'Vec<u8>',
+  ETHAddress: 'Vec<u8>',
   FileAlias: 'Vec<u8>',
   Guarantee: {
     targets: 'Vec<IndividualExposure<AccountId, Balance>>',
@@ -137,7 +116,7 @@ let api: ApiPromise = newApiPromise();
 
 export const initApi = () => {
   if (api && api.disconnect) {
-    logger.info('disconnecting old api');
+    logger.info('⚠️  Disconnecting from old api...');
     api
       .disconnect()
       .then(() => {})
@@ -149,6 +128,10 @@ export const initApi = () => {
       `⚡️ [global] Current chain info: ${api.runtimeChain}, ${api.runtimeVersion}`
     );
   });
+};
+
+export const getApi = (): ApiPromise => {
+  return api;
 };
 
 export const chain = {
@@ -233,8 +216,4 @@ function newApiPromise(): ApiPromise {
     provider: new WsProvider(process.argv[3] || 'ws://localhost:9944'),
     types,
   });
-}
-
-export function getApi(): ApiPromise {
-  return api;
 }

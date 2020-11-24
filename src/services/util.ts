@@ -1,10 +1,12 @@
+/* eslint-disable node/no-extraneous-import */
 import {NextFunction, Request, Response} from 'express';
 import {Keyring} from '@polkadot/keyring';
 import {KeyringPair} from '@polkadot/keyring/types';
 import {DispatchError} from '@polkadot/types/interfaces';
 import {ITuple} from '@polkadot/types/types';
 import {SubmittableExtrinsic} from '@polkadot/api/promise/types';
-import {TxRes, logger, getApi, } from './index';
+import {TxRes, getApi} from './index';
+import {logger} from '../log';
 
 /**
  * Public functions
@@ -87,7 +89,7 @@ export function queryToObj(queryRes: any) {
 export async function withApiReady(fn: Function, next: NextFunction) {
   const api = getApi();
   if (!api || !api.isConnected) {
-    next(new Error('Chain is offline, please connect a running chain.'));
+    next(new Error('⚠️  Chain is offline, please connect a running chain.'));
     return;
   }
   try {

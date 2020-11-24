@@ -1,8 +1,9 @@
+/* eslint-disable node/no-extraneous-import */
 import {ApiPromise} from '@polkadot/api';
 import {Request} from 'express';
 import {KeyringPair} from '@polkadot/keyring/types';
 import {sendTx, getHexValue, queryToObj} from './util';
-import {logger} from './index';
+import {logger} from '../log';
 
 export async function merchant(api: ApiPromise, addr: string) {
   logger.info(`📦 [market]: Query merchant with address: ${addr}`);
