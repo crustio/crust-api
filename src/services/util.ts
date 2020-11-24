@@ -158,13 +158,13 @@ function hexStrToBytes(str: string) {
   }
 
   len /= 2;
-  const hexA = [];
+  const hex = [];
   for (let i = 0; i < len; i++) {
     const s = str.substr(pos, 2);
     const v = parseInt(s, 16);
-    hexA.push(v);
+    hex.push(v);
     pos += 2;
   }
 
-  return hexA;
+  return hex;
 }
