@@ -33,6 +33,14 @@ export async function reportWorks(
   logger.info(`⚙️ [swork]: Call report works with ${JSON.stringify(req.body)}`);
   const slot = Number(req.body['block_height']);
   const pk = '0x' + req.body['pub_key'];
+  const fileParser = (file: any) => {
+    const rst: [string, number, number] = [
+      '0x' + file.hash,
+      file.size,
+      file.c_block_num,
+    ];
+    return rst;
+  }
   const tx = api.tx.swork.reportWorks(
     pk,
     '0x' + req.body['pre_pub_key'],
@@ -40,22 +48,8 @@ export async function reportWorks(
     '0x' + req.body['block_hash'],
     req.body['reserved'],
     req.body['files_size'],
-    req.body['added_files'].map((file: any) => {
-      const rst: [string, number, number] = [
-        '0x' + file.hash,
-        file.size,
-        file.c_block_num,
-      ];
-      return rst;
-    }),
-    req.body['deleted_files'].map((file: any) => {
-      const rst: [string, number, number] = [
-        '0x' + file.hash,
-        file.size,
-        file.c_block_num,
-      ];
-      return rst;
-    }),
+    req.body['added_files'].map(fileParser),
+    req.body['deleted_files'].map(fileParser),
     '0x' + req.body['reserved_root'],
     '0x' + req.body['files_root'],
     '0x' + req.body['sig']
