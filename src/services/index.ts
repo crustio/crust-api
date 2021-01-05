@@ -2,12 +2,7 @@ import {Request, Response, NextFunction} from 'express';
 import {ApiPromise, WsProvider} from '@polkadot/api';
 import {blockHash, header, health} from './chain';
 import {register, reportWorks, workReport, code, identity} from './swork';
-import {
-  merchant,
-  sorder,
-  placeSorder,
-  register as registerMerchant,
-} from './market';
+import {file} from './market';
 import {loadKeyringPair, resHandler, withApiReady} from './util';
 import {logger} from '../log';
 
@@ -160,26 +155,9 @@ export const swork = {
 };
 
 export const market = {
-  merchant: (req: Request, res: Response, next: NextFunction) => {
+  file: (req: Request, res: Response, next: NextFunction) => {
     withApiReady(async (api: ApiPromise) => {
-      res.json(await merchant(api, String(req.query['address'])));
-    }, next);
-  },
-  sorder: (req: Request, res: Response, next: NextFunction) => {
-    withApiReady(async (api: ApiPromise) => {
-      res.json(await sorder(api, String(req.query['orderId'])));
-    }, next);
-  },
-  register: (req: Request, res: Response, next: NextFunction) => {
-    withApiReady(async (api: ApiPromise) => {
-      const krp = loadKeyringPair(req);
-      await resHandler(registerMerchant(api, krp, req), res);
-    }, next);
-  },
-  placeSorder: (req: Request, res: Response, next: NextFunction) => {
-    withApiReady(async (api: ApiPromise) => {
-      const krp = loadKeyringPair(req);
-      await resHandler(placeSorder(api, krp, req), res);
+      res.json(await file(api, String(req.query['cid'])));
     }, next);
   },
 };

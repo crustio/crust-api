@@ -51,14 +51,11 @@ app.get('/api/v1/system/health', services.chain.health);
 app.get('/api/v1/swork/workreport', services.swork.workReport);
 app.get('/api/v1/swork/code', services.swork.code);
 app.get('/api/v1/swork/identity', services.swork.identity);
-app.get('/api/v1/market/merchant', services.market.merchant);
-app.get('/api/v1/market/sorder', services.market.sorder);
+app.get('/api/v1/market/file', services.market.file);
 
 // Post routes
 app.post('/api/v1/swork/identity', services.swork.register);
 app.post('/api/v1/swork/workreport', services.swork.reportWorks);
-app.post('/api/v1/market/register', services.market.register);
-app.post('/api/v1/market/sorder', services.market.placeSorder);
 
 // Error handler
 app.use(errorHandler);
