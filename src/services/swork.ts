@@ -40,7 +40,7 @@ export async function reportWorks(
       file.c_block_num,
     ];
     return rst;
-  }
+  };
   const tx = api.tx.swork.reportWorks(
     pk,
     '0x' + req.body['pre_pub_key'],
