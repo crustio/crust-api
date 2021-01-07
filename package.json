@@ -10,10 +10,7 @@
     "lint": "gts lint",
     "clean": "gts clean",
     "compile": "tsc",
-    "fix": "gts fix",
-    "prepare": "yarn run compile",
-    "pretest": "yarn run compile",
-    "posttest": "yarn run lint"
+    "fix": "gts fix"
   },
   "dependencies": {
     "@polkadot/api": "^3.3.1",
