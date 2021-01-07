@@ -114,22 +114,6 @@ export function sleep(time: number) {
   return new Promise(resolve => setTimeout(resolve, time));
 }
 
-export function getHexValue(hexStr: string) {
-  if (hexStr.substring(0, 2) !== '0x') {
-    return null;
-  }
-  const realHexStr = hexStr.substring(2);
-  const bytes = hexStrToBytes(realHexStr);
-
-  let result = '';
-  if (bytes) {
-    for (let i = 0; i < bytes.length; i++) {
-      result += String.fromCharCode(bytes[i]);
-    }
-  }
-  return result;
-}
-
 /**
  * Private functions
  */
@@ -149,22 +133,6 @@ function getAccountInfo(req: Request): [string, string] {
   return [backup, password];
 }
 
-// Hex string to bytes
-function hexStrToBytes(str: string) {
-  let pos = 0;
-  let len = str.length;
-  if (len % 2 !== 0) {
-    return null;
-  }
-
-  len /= 2;
-  const hex = [];
-  for (let i = 0; i < len; i++) {
-    const s = str.substr(pos, 2);
-    const v = parseInt(s, 16);
-    hex.push(v);
-    pos += 2;
-  }
-
-  return hex;
+export function strToHex(str: string): string {
+  return '0x' + Buffer.from(str).toString('hex');
 }

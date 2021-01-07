@@ -2,7 +2,7 @@
 import {ApiPromise} from '@polkadot/api';
 import {Request} from 'express';
 import {KeyringPair} from '@polkadot/keyring/types';
-import {sendTx, queryToObj} from './util';
+import {sendTx, queryToObj, strToHex} from './util';
 import {logger} from '../log';
 
 /**
@@ -35,7 +35,7 @@ export async function reportWorks(
   const pk = '0x' + req.body['pub_key'];
   const fileParser = (file: any) => {
     const rst: [string, number, number] = [
-      '0x' + file.hash,
+      strToHex(file.cid),
       file.size,
       file.c_block_num,
     ];
