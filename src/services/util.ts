@@ -127,7 +127,9 @@ export async function handleSworkTxWithLock(handler: Function) {
     invalidTimestamp = 0;
   }
   if (txLocker.swork) {
-    invalidTimestamp = Date.now();
+    if (invalidTimestamp === 0) {
+      invalidTimestamp = Date.now();
+    }
     return {
       status: 'failed',
     };
