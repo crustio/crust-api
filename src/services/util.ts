@@ -5,12 +5,11 @@ import {KeyringPair} from '@polkadot/keyring/types';
 import {DispatchError} from '@polkadot/types/interfaces';
 import {ITuple} from '@polkadot/types/types';
 import {SubmittableExtrinsic} from '@polkadot/api/promise/types';
+import {timeout} from 'promise-timeout';
 import {TxRes, getApi} from './index';
 import {logger} from '../log';
 
 const txLocker = {swork: false};
-const timeout = 60 * 1000; // 15min
-let invalidTimestamp = 0;
 /**
  * Public functions
  */
@@ -120,16 +119,7 @@ export function sleep(time: number) {
 }
 
 export async function handleSworkTxWithLock(handler: Function) {
-  const currTimestamp = Date.now();
-  if (invalidTimestamp !== 0 && currTimestamp - invalidTimestamp >= timeout) {
-    logger.warn('  ↪ 💸 ⚠️  sWork tx handling timeout.');
-    txLocker.swork = false;
-    invalidTimestamp = 0;
-  }
   if (txLocker.swork) {
-    if (invalidTimestamp === 0) {
-      invalidTimestamp = Date.now();
-    }
     return {
       status: 'failed',
     };
@@ -137,9 +127,13 @@ export async function handleSworkTxWithLock(handler: Function) {
 
   try {
     txLocker.swork = true;
-    return await handler();
+    return await timeout(
+      new Promise((resolve, reject) => {
+        handler().then(resolve).catch(reject);
+      }),
+      1 * 60 * 1000 // 1 min
+    );
   } finally {
-    invalidTimestamp = 0;
     txLocker.swork = false;
   }
 }
