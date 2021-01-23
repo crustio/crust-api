@@ -8,6 +8,9 @@ import {SubmittableExtrinsic} from '@polkadot/api/promise/types';
 import {TxRes, getApi} from './index';
 import {logger} from '../log';
 
+const txLocker = {swork: false};
+const timeout = 60 * 1000; // 15min
+let invalidTimestamp = 0;
 /**
  * Public functions
  */
@@ -25,7 +28,9 @@ export function loadKeyringPair(req: Request): KeyringPair {
 export async function sendTx(tx: SubmittableExtrinsic, krp: KeyringPair) {
   return new Promise((resolve, reject) => {
     tx.signAndSend(krp, ({events = [], status}) => {
-      logger.info(`  ↪ 💸 [tx]: Transaction status: ${status.type}`);
+      logger.info(
+        `  ↪ 💸 [tx]: Transaction status: ${status.type}, nonce: ${tx.nonce}`
+      );
 
       if (
         status.isInvalid ||
@@ -112,6 +117,29 @@ export async function resHandler(req: Promise<any>, res: Response) {
 
 export function sleep(time: number) {
   return new Promise(resolve => setTimeout(resolve, time));
+}
+
+export async function handleSworkTxWithLock(handler: Function) {
+  const currTimestamp = Date.now();
+  if (invalidTimestamp !== 0 && currTimestamp - invalidTimestamp >= timeout) {
+    logger.warn('  ↪ 💸 ⚠️  sWork tx handling timeout.');
+    txLocker.swork = false;
+    invalidTimestamp = 0;
+  }
+  if (txLocker.swork) {
+    invalidTimestamp = Date.now();
+    return {
+      status: 'failed',
+    };
+  }
+
+  try {
+    txLocker.swork = true;
+    return await handler();
+  } finally {
+    invalidTimestamp = 0;
+    txLocker.swork = false;
+  }
 }
 
 /**

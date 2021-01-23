@@ -2,7 +2,7 @@
 import {ApiPromise} from '@polkadot/api';
 import {Request} from 'express';
 import {KeyringPair} from '@polkadot/keyring/types';
-import {sendTx, queryToObj, strToHex} from './util';
+import {sendTx, queryToObj, strToHex, handleSworkTxWithLock} from './util';
 import {logger} from '../log';
 
 /**
@@ -22,7 +22,7 @@ export async function register(
     '0x' + req.body['sig']
   );
 
-  return sendTx(tx, krp);
+  return handleSworkTxWithLock(async () => sendTx(tx, krp));
 }
 
 export async function reportWorks(
@@ -55,18 +55,23 @@ export async function reportWorks(
     '0x' + req.body['sig']
   );
 
-  const txRes = queryToObj(await sendTx(tx, krp));
+  const txRes = queryToObj(
+    await handleSworkTxWithLock(async () => sendTx(tx, krp))
+  );
 
   // Double confirm of tx status
   if (txRes) {
     // 1. Query anchor
+    let isReported = false;
     const pkInfo = queryToObj(await api.query.swork.pubKeys(pk));
     const anchor = pkInfo.anchor;
 
     // 2. Query work report
-    const isReported = queryToObj(
-      await api.query.swork.reportedInSlot(anchor, slot)
-    );
+    if (anchor) {
+      isReported = queryToObj(
+        await api.query.swork.reportedInSlot(anchor, slot)
+      );
+    }
 
     // 3. ⚠️ WARNING: inblocked but not recorded
     if (!isReported) {
