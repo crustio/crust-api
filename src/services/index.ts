@@ -2,15 +2,9 @@ import {Request, Response, NextFunction} from 'express';
 import {ApiPromise, WsProvider} from '@polkadot/api';
 import {blockHash, header, health} from './chain';
 import {register, reportWorks, workReport, code, identity} from './swork';
-import {
-  merchant,
-  sorder,
-  placeSorder,
-  register as registerMerchant,
-} from './market';
+import {file} from './market';
 import {loadKeyringPair, resHandler, withApiReady} from './util';
-import {createLogger, format, transports} from 'winston';
-import {transferCandy, transferCru} from './transfer';
+import {logger} from '../log';
 
 // TODO: Better result
 export interface TxRes {
@@ -19,32 +13,21 @@ export interface TxRes {
   details?: string;
 }
 
-// TODO: move this logger into `logger.ts`
-export const logger = createLogger({
-  level: 'info',
-  format: format.combine(
-    format.timestamp({
-      format: 'YYYY-MM-DD HH:mm:ss',
-    }),
-    format.colorize(),
-    format.errors({stack: true}),
-    format.printf(info => `[${info.timestamp}] ${info.level}: ${info.message}`)
-  ),
-  transports: [
-    //
-    // - Write to all logs with level `info` and below to `crust-api-combined.log`.
-    // - Write all logs error (and below) to `crust-api-error.log`.
-    //
-    new transports.Console(),
-    new transports.File({filename: 'crust-api-error.log', level: 'error'}),
-    new transports.File({filename: 'crust-api-combined.log'}),
-  ],
-});
-
 const types = {
   Address: 'AccountId',
   AddressInfo: 'Vec<u8>',
+  ETHAddress: 'Vec<u8>',
+  EthereumTxHash: 'H256',
   FileAlias: 'Vec<u8>',
+  FileInfo: {
+    file_size: 'u64',
+    expired_on: 'BlockNumber',
+    claimed_at: 'BlockNumber',
+    amount: 'Balance',
+    expected_replica_count: 'u32',
+    reported_replica_count: 'u32',
+    replicas: 'Vec<Replica<AccountId>>',
+  },
   Guarantee: {
     targets: 'Vec<IndividualExposure<AccountId, Balance>>',
     total: 'Compact<Balance>',
@@ -53,81 +36,45 @@ const types = {
   },
   IASSig: 'Vec<u8>',
   Identity: {
-    pub_key: 'Vec<u8>',
-    code: 'Vec<u8>',
+    anchor: 'SworkerAnchor',
+    group: 'Option<AccountId>',
   },
   ISVBody: 'Vec<u8>',
   LookupSource: 'AccountId',
-  MerchantInfo: {
-    address: 'Vec<u8>',
-    storage_price: 'Balance',
-    file_map: 'Vec<(Vec<u8>, Vec<Hash>)>',
-  },
-  MerchantPunishment: {
-    success: 'EraIndex',
-    failed: 'EraIndex',
-    value: 'Balance',
+  MerchantLedger: {
+    reward: 'Balance',
+    pledge: 'Balance',
   },
   MerkleRoot: 'Vec<u8>',
-  OrderStatus: {
-    _enum: ['Success', 'Failed', 'Pending'],
-  },
-  PaymentLedger: {
-    total: 'Balance',
-    paid: 'Balance',
-    unreserved: 'Balance',
-  },
-  Pledge: {
-    total: 'Balance',
-    used: 'Balance',
-  },
   ReportSlot: 'u64',
+  Replica: {
+    who: 'AccountId',
+    valid_at: 'BlockNumber',
+    anchor: 'SworkerAnchor',
+  },
   Releases: {
     _enum: ['V1_0_0', 'V2_0_0'],
   },
-  SorderInfo: {
-    file_identifier: 'MerkleRoot',
-    file_size: 'u64',
-    created_on: 'BlockNumber',
-    merchant: 'AccountId',
-    client: 'AccountId',
-    amount: 'Balance',
-    duration: 'BlockNumber',
-  },
-  SorderStatus: {
-    completed_on: 'BlockNumber',
-    expired_on: 'BlockNumber',
-    status: 'OrderStatus',
-    claimed_at: 'BlockNumber',
-  },
-  SorderPunishment: {
-    success: 'BlockNumber',
-    failed: 'BlockNumber',
-    updated_at: 'BlockNumber',
+  PKInfo: {
+    code: 'SworkerCode',
+    anchor: 'Option<SworkerAnchor>',
   },
   Status: {
     _enum: ['Free', 'Reserved'],
   },
-  StorageOrder: {
-    file_identifier: 'Vec<u8>',
-    file_size: 'u64',
-    created_on: 'BlockNumber',
-    completed_on: 'BlockNumber',
-    expired_on: 'BlockNumber',
-    provider: 'AccountId',
-    client: 'AccountId',
-    amount: 'Balance',
-    order_status: 'OrderStatus',
-  },
+  SworkerAnchor: 'Vec<u8>',
   SworkerCert: 'Vec<u8>',
   SworkerCode: 'Vec<u8>',
   SworkerPubKey: 'Vec<u8>',
   SworkerSignature: 'Vec<u8>',
+  UsedInfo: {
+    used_size: 'u64',
+    groups: 'BTreeSet<SworkerAnchor>',
+  },
   WorkReport: {
     report_slot: 'u64',
     used: 'u64',
     free: 'u64',
-    files: 'BTreeMap<MerkleRoot, u64>',
     reported_files_size: 'u64',
     reported_srd_root: 'MerkleRoot',
     reported_files_root: 'MerkleRoot',
@@ -138,7 +85,7 @@ let api: ApiPromise = newApiPromise();
 
 export const initApi = () => {
   if (api && api.disconnect) {
-    logger.info('disconnecting old api');
+    logger.info('⚠️  Disconnecting from old api...');
     api
       .disconnect()
       .then(() => {})
@@ -150,6 +97,10 @@ export const initApi = () => {
       `⚡️ [global] Current chain info: ${api.runtimeChain}, ${api.runtimeVersion}`
     );
   });
+};
+
+export const getApi = (): ApiPromise => {
+  return api;
 };
 
 export const chain = {
@@ -205,26 +156,9 @@ export const swork = {
 };
 
 export const market = {
-  merchant: (req: Request, res: Response, next: NextFunction) => {
+  file: (req: Request, res: Response, next: NextFunction) => {
     withApiReady(async (api: ApiPromise) => {
-      res.json(await merchant(api, String(req.query['address'])));
-    }, next);
-  },
-  sorder: (req: Request, res: Response, next: NextFunction) => {
-    withApiReady(async (api: ApiPromise) => {
-      res.json(await sorder(api, String(req.query['orderId'])));
-    }, next);
-  },
-  register: (req: Request, res: Response, next: NextFunction) => {
-    withApiReady(async (api: ApiPromise) => {
-      const krp = loadKeyringPair(req);
-      await resHandler(registerMerchant(api, krp, req), res);
-    }, next);
-  },
-  placeSorder: (req: Request, res: Response, next: NextFunction) => {
-    withApiReady(async (api: ApiPromise) => {
-      const krp = loadKeyringPair(req);
-      await resHandler(placeSorder(api, krp, req), res);
+      res.json(await file(api, String(req.query['cid'])));
     }, next);
   },
 };
@@ -249,8 +183,4 @@ function newApiPromise(): ApiPromise {
     provider: new WsProvider(process.argv[3] || 'ws://localhost:9944'),
     types,
   });
-}
-
-export function getApi(): ApiPromise {
-  return api;
 }

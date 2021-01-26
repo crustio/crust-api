@@ -1,8 +1,9 @@
+/* eslint-disable node/no-extraneous-import */
 import {ApiPromise} from '@polkadot/api';
 import {Request} from 'express';
 import {KeyringPair} from '@polkadot/keyring/types';
-import {sendTx, queryToObj} from './util';
-import {logger} from './index';
+import {sendTx, queryToObj, strToHex, handleSworkTxWithLock} from './util';
+import {logger} from '../log';
 
 /**
  * Send extrinsics
@@ -21,7 +22,7 @@ export async function register(
     '0x' + req.body['sig']
   );
 
-  return sendTx(tx, krp);
+  return handleSworkTxWithLock(async () => sendTx(tx, krp));
 }
 
 export async function reportWorks(
@@ -30,39 +31,57 @@ export async function reportWorks(
   req: Request
 ) {
   logger.info(`⚙️ [swork]: Call report works with ${JSON.stringify(req.body)}`);
-  const bn = Number(req.body['block_height']);
+  const slot = Number(req.body['block_height']);
   const pk = '0x' + req.body['pub_key'];
+  const fileParser = (file: any) => {
+    const rst: [string, number, number] = [
+      strToHex(file.cid),
+      file.size,
+      file.c_block_num,
+    ];
+    return rst;
+  };
   const tx = api.tx.swork.reportWorks(
     pk,
     '0x' + req.body['pre_pub_key'],
-    bn,
+    slot,
     '0x' + req.body['block_hash'],
     req.body['reserved'],
     req.body['files_size'],
-    req.body['added_files'].map((file: any) => {
-      const rst: [string, number] = ['0x' + file.hash, file.size];
-      return rst;
-    }),
-    req.body['deleted_files'].map((file: any) => {
-      const rst: [string, number] = ['0x' + file.hash, file.size];
-      return rst;
-    }),
+    req.body['added_files'].map(fileParser),
+    req.body['deleted_files'].map(fileParser),
     '0x' + req.body['reserved_root'],
     '0x' + req.body['files_root'],
     '0x' + req.body['sig']
   );
 
-  const txRes = queryToObj(await sendTx(tx, krp));
-  if (txRes && 'success' === txRes.status) {
-    // Query work report
-    const wr = queryToObj(await api.query.swork.workReports(pk));
-    // ⚠️ WARNING: inblocked but not recorded
-    if (wr['report_slot'] !== bn) {
+  const txRes = queryToObj(
+    await handleSworkTxWithLock(async () => sendTx(tx, krp))
+  );
+
+  // Double confirm of tx status
+  if (txRes) {
+    // 1. Query anchor
+    let isReported = false;
+    const pkInfo = queryToObj(await api.query.swork.pubKeys(pk));
+    const anchor = pkInfo.anchor;
+
+    // 2. Query work report
+    if (anchor) {
+      isReported = queryToObj(
+        await api.query.swork.reportedInSlot(anchor, slot)
+      );
+    }
+
+    // 3. ⚠️ WARNING: inblocked but not recorded
+    if (!isReported) {
       logger.warn(
-        `  ↪ ⚙️ [swork]: report works invalid in slot=${bn} with pk=${pk}`
+        `  ↪ ⚙️ [swork]: report works invalid in slot=${slot} with pk=${pk}`
       );
       txRes.status = 'failed';
       txRes.message = 'Report works success but not in block.';
+    } else {
+      txRes.status = 'success';
     }
   }
 
@@ -74,30 +93,18 @@ export async function reportWorks(
  */
 export async function identity(api: ApiPromise, addr: string) {
   logger.info(`⚙️ [swork]: Query identity with ${addr}`);
-  const pks: string[] = queryToObj(await api.query.swork.idBonds(addr));
 
-  // TODO: use `bluebird` to limit the promise concurrencies
-  return Promise.all(
-    pks.map(async pk => ({
-      pub_key: pk,
-      code: (await api.query.swork.identities(pk)).toString(),
-    }))
-  );
+  return await api.query.swork.identities(addr);
 }
 
 export async function workReport(api: ApiPromise, addr: string) {
   logger.info(`⚙️ [swork]: Query work report with ${addr}`);
-  const pks: string[] = queryToObj(await api.query.swork.idBonds(addr));
 
-  // TODO: use `bluebird` to limit the promise concurrencies
-  const wrs = await Promise.all(
-    pks.map(async pk => {
-      const wr = queryToObj(await api.query.swork.workReports(pk));
-      if (wr) wr.pub_key = pk;
-      return wr;
-    })
-  );
-  return wrs.filter(wr => wr);
+  // Get anchor
+  const id = queryToObj(await identity(api, addr));
+  const anchor = id.anchor;
+
+  return await api.query.swork.workReports(anchor);
 }
 
 export async function code(api: ApiPromise) {

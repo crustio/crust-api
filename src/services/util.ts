@@ -4,8 +4,12 @@ import {KeyringPair} from '@polkadot/keyring/types';
 import {DispatchError} from '@polkadot/types/interfaces';
 import {ITuple} from '@polkadot/types/types';
 import {SubmittableExtrinsic} from '@polkadot/api/promise/types';
+import {timeout} from 'promise-timeout';
+import {TxRes, getApi} from './index';
+import {logger} from '../log';
 import {TxRes, logger, getApi} from './index';
 
+const txLocker = {swork: false};
 /**
  * Public functions
  */
@@ -23,7 +27,9 @@ export function loadKeyringPair(req: Request): KeyringPair {
 export async function sendTx(tx: SubmittableExtrinsic, krp: KeyringPair) {
   return new Promise((resolve, reject) => {
     tx.signAndSend(krp, ({events = [], status}) => {
-      logger.info(`  ↪ 💸 [tx]: Transaction status: ${status.type}`);
+      logger.info(
+        `  ↪ 💸 [tx]: Transaction status: ${status.type}, nonce: ${tx.nonce}`
+      );
 
       if (
         status.isInvalid ||
@@ -87,7 +93,7 @@ export function queryToObj(queryRes: any) {
 export async function withApiReady(fn: Function, next: NextFunction) {
   const api = getApi();
   if (!api || !api.isConnected) {
-    next(new Error('Chain is offline, please connect a running chain.'));
+    next(new Error('⚠️  Chain is offline, please connect a running chain.'));
     return;
   }
   try {
@@ -112,18 +118,23 @@ export function sleep(time: number) {
   return new Promise(resolve => setTimeout(resolve, time));
 }
 
-export function getHexValue(hexStr: string) {
-  if (hexStr.substring(0, 2) !== '0x') {
-    return null;
+export async function handleSworkTxWithLock(handler: Function) {
+  if (txLocker.swork) {
+    return {
+      status: 'failed',
+    };
   }
-  const realHexStr = hexStr.substring(2);
-  const bytes = hexStrToBytes(realHexStr);
 
-  let result = '';
-  if (bytes) {
-    for (let i = 0; i < bytes.length; i++) {
-      result += String.fromCharCode(bytes[i]);
-    }
+  try {
+    txLocker.swork = true;
+    return await timeout(
+      new Promise((resolve, reject) => {
+        handler().then(resolve).catch(reject);
+      }),
+      1 * 60 * 1000 // 1 min
+    );
+  } finally {
+    txLocker.swork = false;
   }
   return result;
 }
@@ -147,22 +158,6 @@ function getAccountInfo(req: Request): [string, string] {
   return [backup, password];
 }
 
-// Hex string to bytes
-function hexStrToBytes(str: string) {
-  let pos = 0;
-  let len = str.length;
-  if (len % 2 !== 0) {
-    return null;
-  }
-
-  len /= 2;
-  const hexA = [];
-  for (let i = 0; i < len; i++) {
-    const s = str.substr(pos, 2);
-    const v = parseInt(s, 16);
-    hexA.push(v);
-    pos += 2;
-  }
-
-  return hexA;
+export function strToHex(str: string): string {
+  return '0x' + Buffer.from(str).toString('hex');
 }
