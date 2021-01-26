@@ -6,8 +6,7 @@ import {ITuple} from '@polkadot/types/types';
 import {SubmittableExtrinsic} from '@polkadot/api/promise/types';
 import {timeout} from 'promise-timeout';
 import {TxRes, getApi} from './index';
-import {logger} from '../log';
-import {TxRes, logger, getApi} from './index';
+import { logger } from '../log';
 
 const txLocker = {swork: false};
 /**
@@ -136,7 +135,6 @@ export async function handleSworkTxWithLock(handler: Function) {
   } finally {
     txLocker.swork = false;
   }
-  return result;
 }
 
 /**

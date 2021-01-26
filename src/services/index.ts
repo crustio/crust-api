@@ -5,6 +5,7 @@ import {register, reportWorks, workReport, code, identity} from './swork';
 import {file} from './market';
 import {loadKeyringPair, resHandler, withApiReady} from './util';
 import {logger} from '../log';
+import {transferCandy, transferCru} from "./transfer";
 
 // TODO: Better result
 export interface TxRes {

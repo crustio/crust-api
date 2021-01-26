@@ -2,7 +2,7 @@ import {ApiPromise} from '@polkadot/api';
 import {Request} from 'express';
 import {KeyringPair} from '@polkadot/keyring/types';
 import {sendTx} from './util';
-import {logger} from './index';
+import { logger } from '../log';
 
 export async function transferCru(
   api: ApiPromise,

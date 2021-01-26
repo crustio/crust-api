@@ -56,8 +56,6 @@ app.get('/api/v1/market/file', services.market.file);
 // Post routes
 app.post('/api/v1/swork/identity', services.swork.register);
 app.post('/api/v1/swork/workreport', services.swork.reportWorks);
-app.post('/api/v1/market/register', services.market.register);
-app.post('/api/v1/market/sorder', services.market.placeSorder);
 app.post('/api/v1/transfer/transferCru', services.transfer.transferCru);
 app.post('/api/v1/transfer/transferCandy', services.transfer.transferCandy);
 
