@@ -77,7 +77,7 @@ export async function reportWorks(
         `  ↪ ⚙️ [swork]: report works invalid in slot=${slot} with pk=${pk}`
       );
       txRes.status = 'failed';
-      txRes.message = 'Report works success but not in block.';
+      txRes.message = `Report works success but not in block, and tx result: ${txRes.message}`;
     } else {
       txRes.status = 'success';
     }

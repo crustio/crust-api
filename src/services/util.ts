@@ -50,7 +50,10 @@ export async function sendTx(
 
       if (status.isInvalid || status.isDropped || status.isUsurped) {
         txNonce = -1;
-        reject(new Error(`${status.type} transaction.`));
+        resolve({
+          status: 'failed',
+          message: `${status.type} transaction.`,
+        });
       } else {
         // Pass it
       }
