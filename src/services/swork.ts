@@ -2,7 +2,7 @@
 import {ApiPromise} from '@polkadot/api';
 import {Request} from 'express';
 import {KeyringPair} from '@polkadot/keyring/types';
-import {sendTx, queryToObj, strToHex, handleSworkTxWithLock} from './util';
+import {sendTx, queryToObj, strToHex} from './util';
 import {logger} from '../log';
 
 /**
@@ -22,7 +22,7 @@ export async function register(
     '0x' + req.body['sig']
   );
 
-  return handleSworkTxWithLock(async () => sendTx(tx, krp));
+  return await sendTx(api, tx, krp);
 }
 
 export async function reportWorks(
@@ -55,9 +55,7 @@ export async function reportWorks(
     '0x' + req.body['sig']
   );
 
-  const txRes = queryToObj(
-    await handleSworkTxWithLock(async () => sendTx(tx, krp))
-  );
+  const txRes = queryToObj(await sendTx(api, tx, krp));
 
   // Double confirm of tx status
   if (txRes) {
@@ -79,7 +77,7 @@ export async function reportWorks(
         `  ↪ ⚙️ [swork]: report works invalid in slot=${slot} with pk=${pk}`
       );
       txRes.status = 'failed';
-      txRes.message = 'Report works success but not in block.';
+      txRes.message = `Report works success but not in block, and tx result: ${txRes.message}`;
     } else {
       txRes.status = 'success';
     }
