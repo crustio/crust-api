@@ -1,15 +1,15 @@
 /* eslint-disable node/no-extraneous-import */
 import {NextFunction, Request, Response} from 'express';
+import {ApiPromise} from '@polkadot/api';
 import {Keyring} from '@polkadot/keyring';
 import {KeyringPair} from '@polkadot/keyring/types';
 import {DispatchError} from '@polkadot/types/interfaces';
 import {ITuple} from '@polkadot/types/types';
 import {SubmittableExtrinsic} from '@polkadot/api/promise/types';
-import {timeout} from 'promise-timeout';
 import {TxRes, getApi} from './index';
 import {logger} from '../log';
 
-const txLocker = {swork: false};
+let txNonce = -1;
 /**
  * Public functions
  */
@@ -24,14 +24,32 @@ export function loadKeyringPair(req: Request): KeyringPair {
   return krp;
 }
 
-export async function sendTx(tx: SubmittableExtrinsic, krp: KeyringPair) {
+export async function sendTx(
+  api: ApiPromise,
+  tx: SubmittableExtrinsic,
+  krp: KeyringPair
+) {
+  const nextNonce = (
+    await api.rpc.system.accountNextIndex(krp.address)
+  ).toNumber();
+
+  if (txNonce !== -1 && txNonce + 1 !== nextNonce) {
+    return {
+      status: 'failed',
+      message: 'Tx occupied',
+    };
+  }
+
+  txNonce = nextNonce;
+
   return new Promise((resolve, reject) => {
-    tx.signAndSend(krp, ({events = [], status}) => {
+    tx.signAndSend(krp, {nonce: txNonce}, ({events = [], status}) => {
       logger.info(
         `  ↪ 💸 [tx]: Transaction status: ${status.type}, nonce: ${tx.nonce}`
       );
 
       if (status.isInvalid || status.isDropped || status.isUsurped) {
+        txNonce = -1;
         reject(new Error(`${status.type} transaction.`));
       } else {
         // Pass it
@@ -111,26 +129,6 @@ export async function resHandler(req: Promise<any>, res: Response) {
 
 export function sleep(time: number) {
   return new Promise(resolve => setTimeout(resolve, time));
-}
-
-export async function handleSworkTxWithLock(handler: Function) {
-  if (txLocker.swork) {
-    return {
-      status: 'failed',
-    };
-  }
-
-  try {
-    txLocker.swork = true;
-    return await timeout(
-      new Promise((resolve, reject) => {
-        handler().then(resolve).catch(reject);
-      }),
-      1 * 60 * 1000 // 1 min
-    );
-  } finally {
-    txLocker.swork = false;
-  }
 }
 
 /**
