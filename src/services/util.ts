@@ -34,6 +34,9 @@ export async function sendTx(
   ).toNumber();
 
   if (txNonce !== -1 && txNonce + 1 !== nextNonce) {
+    logger.warn(
+      `Tx is occupied, next nonce should be ${nextNonce}, currentNonce is ${txNonce}`
+    );
     return {
       status: 'failed',
       message: 'Tx occupied',
@@ -97,6 +100,7 @@ export async function sendTx(
         // Pass it
       }
     }).catch(e => {
+      txNonce = -1;
       reject(e);
     });
   });
