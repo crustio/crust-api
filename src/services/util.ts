@@ -126,7 +126,7 @@ export async function handleSworkTxWithLock(handler: Function) {
       new Promise((resolve, reject) => {
         handler().then(resolve).catch(reject);
       }),
-      1 * 60 * 1000 // 1 min
+      2 * 60 * 1000 // 2 min
     );
   } finally {
     txLocker.swork = false;
