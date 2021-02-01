@@ -38,6 +38,8 @@ const loggingResponse = (_: Request, res: Response, next: NextFunction) => {
   next();
 };
 
+app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 app.use(bodyParser.json());
 app.use(loggingResponse);
 
