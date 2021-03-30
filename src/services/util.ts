@@ -126,7 +126,7 @@ export async function handleSworkTxWithLock(handler: Function) {
       new Promise((resolve, reject) => {
         handler().then(resolve).catch(reject);
       }),
-      2 * 60 * 1000 // 2 min
+      30 * 60 * 1000 // 30 min, for 1 slot real timeout
     );
   } finally {
     txLocker.swork = false;
