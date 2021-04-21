@@ -117,6 +117,7 @@ export async function handleSworkTxWithLock(handler: Function) {
   if (txLocker.swork) {
     return {
       status: 'failed',
+      details: 'Tx Locked',
     };
   }
 

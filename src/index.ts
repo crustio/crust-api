@@ -43,8 +43,8 @@ app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 app.use(bodyParser.json());
 app.use(loggingResponse);
 
-// Timeout handler
-app.use(timeout('120s'));
+// API timeout handler
+app.use(timeout('600s'));
 
 // Get routes
 app.get('/api/v1/block/header', services.chain.header);
