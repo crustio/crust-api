@@ -112,13 +112,20 @@ export async function code(api: ApiPromise) {
   logger.info('⚙️ [swork]: Query sworker code');
   const codes = await api.query.swork.codes.entries();
   const tmp: any[] = [];
-  codes.forEach(([{ args: [code] }, value]) => {
+  codes.forEach(
+    ([
+      {
+        args: [code],
+      },
+      value,
+    ]) => {
       const expired_on = queryToObj(value);
       tmp.push({
-          code: code.toString(), 
-          expired_on, 
+        code: code.toString(),
+        expired_on,
       });
-  });
+    }
+  );
 
   // query latest expired code
   const wantedCode = _.maxBy(tmp, 'expired_on');
