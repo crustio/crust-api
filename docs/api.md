@@ -66,7 +66,12 @@ curl 'http://localhost:56666/api/v1/swork/code'
 Response:
 
 ```json
-"0x8801f22c6958a8096dbc959227a481e53e862f58b9dd3113e9cf3ff94413d265"
+[
+    {
+        "code": "0x2f93fa4804b48f40e3c1514f517d7ffb52bf30ce360479838f64f8551d79a5bc",
+        "expired_on": 2680000
+    }
+]
 ```
 
 #### Get sWorker identity
