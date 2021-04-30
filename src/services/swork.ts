@@ -4,6 +4,7 @@ import {Request} from 'express';
 import {KeyringPair} from '@polkadot/keyring/types';
 import {sendTx, queryToObj, strToHex, handleSworkTxWithLock} from './util';
 import {logger} from '../log';
+import lodash from 'lodash';
 
 /**
  * Send extrinsics
@@ -109,5 +110,20 @@ export async function workReport(api: ApiPromise, addr: string) {
 
 export async function code(api: ApiPromise) {
   logger.info('⚙️ [swork]: Query sworker code');
-  return api.query.swork.code();
+  const codes = await api.query.swork.codes.entries();
+  return lodash.map(
+    codes,
+    ([
+      {
+        args: [code],
+      },
+      value,
+    ]) => {
+      const expired_on = queryToObj(value);
+      return {
+        code: code.toString(),
+        expired_on,
+      };
+    }
+  );
 }
