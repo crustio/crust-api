@@ -4,7 +4,7 @@ import {Request} from 'express';
 import {KeyringPair} from '@polkadot/keyring/types';
 import {sendTx, queryToObj, strToHex, handleSworkTxWithLock} from './util';
 import {logger} from '../log';
-import _ from 'lodash';
+import lodash from 'lodash';
 
 /**
  * Send extrinsics
@@ -111,8 +111,8 @@ export async function workReport(api: ApiPromise, addr: string) {
 export async function code(api: ApiPromise) {
   logger.info('⚙️ [swork]: Query sworker code');
   const codes = await api.query.swork.codes.entries();
-  const result: {code: string; expired_on: number}[] = [];
-  codes.forEach(
+  return lodash.map(
+    codes,
     ([
       {
         args: [code],
@@ -120,12 +120,10 @@ export async function code(api: ApiPromise) {
       value,
     ]) => {
       const expired_on = queryToObj(value);
-      result.push({
+      return {
         code: code.toString(),
         expired_on,
-      });
+      };
     }
   );
-
-  return result;
 }
