@@ -5,6 +5,8 @@ import {KeyringPair} from '@polkadot/keyring/types';
 import {sendTx, queryToObj, strToHex, handleSworkTxWithLock} from './util';
 import {logger} from '../log';
 import lodash from 'lodash';
+// provide for archive sworker code
+const ARCHIVE_SCODE = '0x0128bc5c89883eda0a75474b5bb07f806671a8a9423185066ded7ffa30339e60';
 
 /**
  * Send extrinsics
@@ -110,20 +112,21 @@ export async function workReport(api: ApiPromise, addr: string) {
 
 export async function code(api: ApiPromise) {
   logger.info('⚙️ [swork]: Query sworker code');
-  const codes = await api.query.swork.codes.entries();
-  return lodash.map(
-    codes,
-    ([
-      {
-        args: [code],
-      },
-      value,
-    ]) => {
-      const expired_on = queryToObj(value);
-      return {
-        code: code.toString(),
-        expired_on,
-      };
-    }
-  );
+  // const codes = await api.query.swork.codes.entries();
+  // return lodash.map(
+  //   codes,
+  //   ([
+  //     {
+  //       args: [code],
+  //     },
+  //     value,
+  //   ]) => {
+  //     const expired_on = queryToObj(value);
+  //     return {
+  //       code: code.toString(),
+  //       expired_on,
+  //     };
+  //   }
+  // );
+  return ARCHIVE_SCODE;
 }
