@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@crustio/type-definitions": "0.0.5",
-    "@polkadot/api": "^3.3.1",
+    "@polkadot/api": "4.2.2-4",
     "body-parser": "^1.19.0",
     "connect-timeout": "^1.9.0",
     "express": "^4.17.1",
