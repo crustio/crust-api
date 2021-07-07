@@ -56,34 +56,31 @@ export async function reportWorks(
     '0x' + req.body['sig']
   );
 
-  const txRes = queryToObj(
+  let txRes = queryToObj(
     await handleSworkTxWithLock(async () => sendTx(tx, krp))
   );
 
   // Double confirm of tx status
-  if (txRes) {
-    // 1. Query anchor
-    let isReported = false;
-    const pkInfo = queryToObj(await api.query.swork.pubKeys(pk));
-    const anchor = pkInfo.anchor;
+  txRes = txRes ? txRes : {};
+  // 1. Query anchor
+  let isReported = false;
+  const pkInfo = queryToObj(await api.query.swork.pubKeys(pk));
+  const anchor = pkInfo.anchor;
 
-    // 2. Query work report
-    if (anchor) {
-      isReported = queryToObj(
-        await api.query.swork.reportedInSlot(anchor, slot)
-      );
-    }
+  // 2. Query work report
+  if (anchor) {
+    isReported = queryToObj(await api.query.swork.reportedInSlot(anchor, slot));
+  }
 
-    // 3. ⚠️ WARNING: inblocked but not recorded
-    if (!isReported) {
-      logger.warn(
-        `  ↪ ⚙️ [swork]: report works invalid in slot=${slot} with pk=${pk}`
-      );
-      txRes.status = 'failed';
-      txRes.details = `${txRes.details} and report work not in block.`;
-    } else {
-      txRes.status = 'success';
-    }
+  // 3. ⚠️ WARNING: inblocked but not recorded
+  if (!isReported) {
+    logger.warn(
+      `  ↪ ⚙️ [swork]: report works invalid in slot=${slot} with pk=${pk}`
+    );
+    txRes.status = 'failed';
+    txRes.details = `${txRes.details} and report work not in block.`;
+  } else {
+    txRes.status = 'success';
   }
 
   return txRes;
