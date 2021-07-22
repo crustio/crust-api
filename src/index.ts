@@ -68,6 +68,6 @@ process.on('uncaughtException', (err: Error) => {
 
 app.listen(PORT, () => {
   logger.info(
-    `⚡️ [global]: Crust api is running at https://localhost:${PORT}`
+    `⚡️ [global]: Crust API is running at https://localhost:${PORT}`
   );
 });
