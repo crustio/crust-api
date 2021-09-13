@@ -7,6 +7,8 @@ import timeout from 'connect-timeout';
 
 const app = express();
 const PORT = process.argv[2] || 56666;
+const maxErrorHandlingCount = 10;
+let errorHandlingCount = 0;
 
 const errorHandler = (
   err: any,
@@ -63,7 +65,15 @@ app.post('/api/v1/swork/workreport', services.swork.reportWorks);
 app.use(errorHandler);
 process.on('uncaughtException', (err: Error) => {
   logger.error(`☄️ [global] Uncaught exception ${err.message}`);
-  errorHandler(err, null, null, null);
+  if (++errorHandlingCount <= maxErrorHandlingCount) {
+    errorHandler(err, null, null, null);
+  } else {
+    logger.error(
+      'Reach max error handling count, just exit and waitinng for restart'
+    );
+    // eslint-disable-next-line no-process-exit
+    process.exit(1);
+  }
 });
 
 app.listen(PORT, () => {
