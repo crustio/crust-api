@@ -31,7 +31,12 @@ export async function sendTx(tx: SubmittableExtrinsic, krp: KeyringPair) {
         `  ↪ 💸 [tx]: Transaction status: ${status.type}, nonce: ${tx.nonce}`
       );
 
-      if (status.isInvalid || status.isDropped || status.isUsurped || status.isRetracted) {
+      if (
+        status.isInvalid || 
+        status.isDropped || 
+        status.isUsurped || 
+        status.isRetracted
+        ) {
         reject(new Error(`${status.type} transaction.`));
       } else {
         // Pass it
