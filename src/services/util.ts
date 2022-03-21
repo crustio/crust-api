@@ -31,13 +31,18 @@ export async function sendTx(tx: SubmittableExtrinsic, krp: KeyringPair) {
         `  ↪ 💸 [tx]: Transaction status: ${status.type}, nonce: ${tx.nonce}`
       );
 
-      if (status.isInvalid || status.isDropped || status.isUsurped) {
+      if (
+        status.isInvalid ||
+        status.isDropped ||
+        status.isUsurped ||
+        status.isRetracted
+      ) {
         reject(new Error(`${status.type} transaction.`));
       } else {
         // Pass it
       }
 
-      if (status.isInBlock) {
+      if (status.isFinalized) {
         events.forEach(({event: {data, method, section}}) => {
           if (section === 'system' && method === 'ExtrinsicFailed') {
             const [dispatchError] = data as unknown as ITuple<[DispatchError]>;
@@ -85,6 +90,7 @@ export function queryToObj(queryRes: any) {
 
 export async function withApiReady(fn: Function, next: NextFunction) {
   const api = getApi();
+  await sleep(1000);
   if (!api || !api.isConnected) {
     next(new Error('⚠️  Chain is offline, please connect a running chain.'));
     return;
