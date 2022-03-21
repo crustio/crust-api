@@ -45,7 +45,9 @@ export async function sendTx(tx: SubmittableExtrinsic, krp: KeyringPair) {
       if (status.isFinalized) {
         events.forEach(({event: {data, method, section}}) => {
           if (section === 'system' && method === 'ExtrinsicFailed') {
-            const [dispatchError] = data as unknown as ITuple<[DispatchError]>;
+            const [dispatchError] = (data as unknown) as ITuple<
+              [DispatchError]
+            >;
             const result: TxRes = {
               status: 'failed',
               message: dispatchError.type,
