@@ -7,8 +7,8 @@ import timeout from 'connect-timeout';
 
 const app = express();
 const PORT = process.argv[2] || 56666;
-const maxErrorHandlingCount = 10;
-let errorHandlingCount = 0;
+// const maxErrorHandlingCount = 10;
+// let errorHandlingCount = 0;
 
 const errorHandler = (
   err: any,
