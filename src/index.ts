@@ -28,6 +28,7 @@ const errorHandler = (
   // services.initApi();
   // logger.warn('📡 [global]: Connection reinitialized.');
   logger.warn('📡 [global]: Apps go to reload.');
+  // eslint-disable-next-line no-process-exit
   process.exit(1);
 };
 
