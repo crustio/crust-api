@@ -31,13 +31,13 @@ export async function sendTx(tx: SubmittableExtrinsic, krp: KeyringPair) {
         `  ↪ 💸 [tx]: Transaction status: ${status.type}, nonce: ${tx.nonce}`
       );
 
-      if (status.isInvalid || status.isDropped || status.isUsurped) {
+      if (status.isInvalid || status.isDropped || status.isUsurped || status.isRetracted) {
         reject(new Error(`${status.type} transaction.`));
       } else {
         // Pass it
       }
 
-      if (status.isInBlock) {
+      if (status.isFinalized) {
         events.forEach(({event: {data, method, section}}) => {
           if (section === 'system' && method === 'ExtrinsicFailed') {
             const [dispatchError] = data as unknown as ITuple<[DispatchError]>;
