@@ -90,6 +90,7 @@ export function queryToObj(queryRes: any) {
 
 export async function withApiReady(fn: Function, next: NextFunction) {
   const api = getApi();
+  await sleep(1000);
   if (!api || !api.isConnected) {
     next(new Error('⚠️  Chain is offline, please connect a running chain.'));
     return;
