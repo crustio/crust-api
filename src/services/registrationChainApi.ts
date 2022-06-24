@@ -1,3 +1,4 @@
+/* eslint-disable node/no-extraneous-import */
 import {typesBundleForPolkadot} from '@crustio/type-definitions';
 import {ApiPromise, WsProvider} from '@polkadot/api';
 import {logger} from '@polkadot/util';
@@ -16,5 +17,6 @@ registrationChainApi.on('connected', () => {
 
 registrationChainApi.on('disconnected', (): void => {
   l.error('Registration chain API has been disconnected from the endpoint');
-  process.exit(0);
+  // eslint-disable-next-line no-process-exit
+  process.exit(1);
 });

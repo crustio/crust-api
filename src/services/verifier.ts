@@ -1,3 +1,4 @@
+/* eslint-disable node/no-extraneous-import */
 import {ApiPromise} from '@polkadot/api';
 import {logger} from '../log';
 import {KeyringPair} from '@polkadot/keyring/types';
