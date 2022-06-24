@@ -8,8 +8,8 @@ import {SubmittableExtrinsic} from '@polkadot/api/promise/types';
 import {timeout} from 'promise-timeout';
 import {TxRes, getApi} from './index';
 import {logger} from '../log';
-import { registrationChainApi } from './registrationChainApi';
-import { ApiPromise } from '@polkadot/api';
+import {registrationChainApi} from './registrationChainApi';
+import {ApiPromise} from '@polkadot/api';
 
 const txLocker = {swork: false};
 /**
@@ -26,7 +26,11 @@ export function loadKeyringPair(req: Request): KeyringPair {
   return krp;
 }
 
-export async function sendTx(api: ApiPromise, tx: SubmittableExtrinsic, krp: KeyringPair) {
+export async function sendTx(
+  api: ApiPromise,
+  tx: SubmittableExtrinsic,
+  krp: KeyringPair
+) {
   return new Promise((resolve, reject) => {
     tx.signAndSend(krp, ({events = [], status}) => {
       logger.info(
@@ -100,10 +104,17 @@ export async function withApiReady(fn: Function, next: NextFunction) {
   }
 }
 
-export async function withRegistrationChainApiReady(fn: Function, next: NextFunction) {
+export async function withRegistrationChainApiReady(
+  fn: Function,
+  next: NextFunction
+) {
   const _api = await registrationChainApi.isReadyOrError;
   if (!_api || !_api.isConnected) {
-    next(new Error('⚠️ Registration Chain is offline, please connect a running chain.'));
+    next(
+      new Error(
+        '⚠️ Registration Chain is offline, please connect a running chain.'
+      )
+    );
     return;
   }
   try {
