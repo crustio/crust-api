@@ -4,8 +4,10 @@ import {typesBundleForPolkadot} from '@crustio/type-definitions';
 import {blockHash, header, health} from './chain';
 import {register, reportWorks, workReport, code, identity} from './swork';
 import {file} from './market';
-import {loadKeyringPair, resHandler, withApiReady} from './util';
+import {loadKeyringPair, resHandler, withApiReady, withRegistrationChainApiReady} from './util';
 import {logger} from '../log';
+import { registrationChainApi } from './registrationChainApi';
+import { requestVerification, verificationResults } from './verifier';
 
 // TODO: Better result
 export interface TxRes {
@@ -95,6 +97,20 @@ export const market = {
     }, next);
   },
 };
+
+export const verifier = {
+  verificationResults: (req: Request, res: Response, next: NextFunction) => {
+    withRegistrationChainApiReady(async (api: ApiPromise) => {
+      res.json(await verificationResults(api, String(req.query['address'])));
+    }, next)
+  },
+  requestVerification: (req: Request, res: Response, next: NextFunction) => {
+    withRegistrationChainApiReady(async (api: ApiPromise) => {
+      const krp = loadKeyringPair(req);
+      await resHandler(requestVerification(api, krp, req), res);
+    }, next);
+  }
+}
 
 function newApiPromise(): ApiPromise {
   return new ApiPromise({
