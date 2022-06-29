@@ -27,7 +27,7 @@ export async function requestVerification(
       req.body
     )}`
   );
-  const tx = api.tx.verifier.requestVerification('0x' + req.body['evidence']);
+  const tx = api.tx.verifier.requestVerification(req.body['evidence']);
 
   return handleSworkTxWithLock(async () => sendTx(api, tx, krp));
 }
