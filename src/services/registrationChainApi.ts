@@ -1,12 +1,21 @@
 /* eslint-disable node/no-extraneous-import */
-import {typesBundleForPolkadot} from '@crustio/type-definitions';
 import {ApiPromise, WsProvider} from '@polkadot/api';
 import {logger} from '@polkadot/util';
 const l = logger('registration-chain-api');
 
+const types = {
+  RegisterPayload: {
+    block_number: 'BlockNumber',
+    message: 'Vec<u8>',
+    who: 'AccountId',
+    public: 'MultiSigner',
+  },
+  Public: 'MultiSigner',
+};
+
 export const registrationChainApi: ApiPromise = new ApiPromise({
   provider: new WsProvider(process.argv[4] || 'ws://localhost:9944'),
-  typesBundle: typesBundleForPolkadot,
+  types,
 });
 
 registrationChainApi.on('connected', () => {

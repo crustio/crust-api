@@ -24,15 +24,16 @@ yarn
 
 - API_PORT: port number, default is: `56666`
 - CRUST_WS_ADDRESS: crust's websocket address, default is: `ws://localhost:9944`
+- CRUST_REGISTRY_WS_ADDRESS: crust's registry chain address, default is: `ws://localhost:9944`
 
 ```shell
-yarn debug {API_PORT} {CRUST_WS_ADDRESS}
+yarn debug {API_PORT} {CRUST_WS_ADDRESS} {CRUST_REGISTRY_WS_ADDRESS}
 ```
 
 #### 3. Build and start with original node
 
 ```shell
-yarn build && yarn start {API_PORT} {CRUST_WS_ADDRESS}
+yarn build && yarn start {API_PORT} {CRUST_WS_ADDRESS} {CRUST_REGISTRY_WS_ADDRESS}
 ```
 
 ### Build from docker

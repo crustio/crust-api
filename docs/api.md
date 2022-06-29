@@ -91,6 +91,38 @@ Response:
 }
 ```
 
+#### Get verifier verification results
+
+Request:
+
+```shell
+curl 'http://localhost:56666/api/v1/verifier/verificationResults?address=5HBPJZkoLeUBdPombuYe3tcUkXcTAKyRhRgXJvHpCs9mzxfL'
+```
+
+Response:
+
+```json
+[
+      {
+        "block_number": 98,
+        "message": "add5405867d77e03140e393fb1310e0d38be0730d9b4569742e570dea460070396a7e8049dafd009beddfce9f24d9ab3a8d72b6d3204e1910a0bb4ba0ce6a59229cef4ff5549a1779d456de3c4bcb13443d42948fb726c5db1b2411d999a1b4b61366566613337343730306638363430623737376263393263373764333434343763353538386437656237633465633938343332336337646230393833303039",
+        "who": "cTHPynnf3THq4KC8czA3oz3E7d6XCjQXaVjdqDtVGVATm4UKK",
+        "public": {
+          "Sr25519": "0x2ec91af63632573a5b051376cdeb79730261e696117e68c67aa298d519f0c77c"
+        }
+      },
+      {
+        "block_number": 98,
+        "message": "add5405867d77e03140e393fb1310e0d38be0730d9b4569742e570dea460070396a7e8049dafd009beddfce9f24d9ab3a8d72b6d3204e1910a0bb4ba0ce6a59229cef4ff5549a1779d456de3c4bcb13443d42948fb726c5db1b2411d999a1b4b61366566613337343730306638363430623737376263393263373764333434343763353538386437656237633465633938343332336337646230393833303039",
+        "who": "cTHPynnf3THq4KC8czA3oz3E7d6XCjQXaVjdqDtVGVATm4UKK",
+        "public": {
+          "Sr25519": "0x328846691dd2401b2a62b123daea0e6f626cb4919dc560797645d26e3273a57a"
+        }
+      }
+]
+
+```
+
 #### Get sWorker work report
 
 Request:
@@ -191,6 +223,28 @@ curl --request POST 'http://localhost:56666/api/v1/swork/workreport' \
     "deleted_files":[],
     "sig":"adcb292e5fa95de65457653f910c43dc80140583c63da430d1afe72f83768197ab3f73b9e52fe12aa1a75d5e02c6649253a3617e31f6e852cb40641b4a574cf2",
 
+    "backup":   "{\"address\":\"5FqazaU79hjpEMiWTWZx81VjsYFst15eBuSBKdQLgQibD7CX\",\"encoded\":\"0xc81537c9442bd1d3f4985531293d88f6d2a960969a88b1cf8413e7c9ec1d5f4955adf91d2d687d8493b70ef457532d505b9cee7a3d2b726a554242b75fb9bec7d4beab74da4bf65260e1d6f7a6b44af4505bf35aaae4cf95b1059ba0f03f1d63c5b7c3ccbacd6bd80577de71f35d0c4976b6e43fe0e1583530e773dfab3ab46c92ce3fa2168673ba52678407a3ef619b5e14155706d43bd329a5e72d36\",\"encoding\":{\"content\":[\"pkcs8\",\"sr25519\"],\"type\":\"xsalsa20-poly1305\",\"version\":\"2\"},\"meta\":{\"name\":\"Yang1\",\"tags\":[],\"whenCreated\":1580628430860}}"
+    }'
+```
+
+Response:
+
+```json
+{
+    "status": "success",
+}
+```
+
+#### Verifier request verification
+
+Request:
+
+```shell
+curl --request POST 'http://localhost:56666/api/v1/verifier/requestVerification' \
+--header 'Content-Type: application/json' \
+--header 'password: 123456' \
+--data-raw '{
+    "evidence":"6956c19f8914bbe14c7fb8dd4fc776cd3382e94be25679b2b6bf4fb075eb27ebc1cadc76dff0c76fe72acd4e83af80f18f1a893e7d179e8d7630085c0aa9223e",
     "backup":   "{\"address\":\"5FqazaU79hjpEMiWTWZx81VjsYFst15eBuSBKdQLgQibD7CX\",\"encoded\":\"0xc81537c9442bd1d3f4985531293d88f6d2a960969a88b1cf8413e7c9ec1d5f4955adf91d2d687d8493b70ef457532d505b9cee7a3d2b726a554242b75fb9bec7d4beab74da4bf65260e1d6f7a6b44af4505bf35aaae4cf95b1059ba0f03f1d63c5b7c3ccbacd6bd80577de71f35d0c4976b6e43fe0e1583530e773dfab3ab46c92ce3fa2168673ba52678407a3ef619b5e14155706d43bd329a5e72d36\",\"encoding\":{\"content\":[\"pkcs8\",\"sr25519\"],\"type\":\"xsalsa20-poly1305\",\"version\":\"2\"},\"meta\":{\"name\":\"Yang1\",\"tags\":[],\"whenCreated\":1580628430860}}"
     }'
 ```
