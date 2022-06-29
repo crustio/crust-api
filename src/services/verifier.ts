@@ -4,6 +4,7 @@ import {logger} from '../log';
 import {KeyringPair} from '@polkadot/keyring/types';
 import {handleSworkTxWithLock, sendTx} from './util';
 import {Request} from 'express';
+import {u8aToHex, stringToU8a} from '@polkadot/util';
 
 /**
  * Queries
@@ -27,7 +28,10 @@ export async function requestVerification(
       req.body
     )}`
   );
-  const tx = api.tx.verifier.requestVerification(req.body['evidence']);
+
+  const evidence = u8aToHex(stringToU8a(req.body['evidence']));
+
+  const tx = api.tx.verifier.requestVerification(evidence);
 
   return handleSworkTxWithLock(async () => sendTx(api, tx, krp));
 }
