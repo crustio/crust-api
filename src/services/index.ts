@@ -11,7 +11,6 @@ import {
   withRegistrationChainApiReady,
 } from './util';
 import {logger} from '../log';
-import {registrationChainApi} from './registrationChainApi';
 import {requestVerification, verificationResults} from './verifier';
 
 // TODO: Better result
@@ -46,7 +45,7 @@ export const getApi = (): ApiPromise => {
 export const chain = {
   header: (_: Request, res: Response, next: NextFunction) => {
     withApiReady(async (api: ApiPromise) => {
-      const h = await header(api);
+      const h = (await header(api)) as any;
       res.json({
         number: h.number,
         hash: h.hash,
@@ -106,7 +105,13 @@ export const market = {
 export const verifier = {
   verificationResults: (req: Request, res: Response, next: NextFunction) => {
     withRegistrationChainApiReady(async (api: ApiPromise) => {
-      res.json(await verificationResults(api, String(req.query['address'])));
+      res.json(
+        await verificationResults(
+          api,
+          String(req.query['address']),
+          String(req.query['pubKey'])
+        )
+      );
     }, next);
   },
   requestVerification: (req: Request, res: Response, next: NextFunction) => {

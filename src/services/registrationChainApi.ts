@@ -4,13 +4,20 @@ import {logger} from '@polkadot/util';
 const l = logger('registration-chain-api');
 
 const types = {
-  RegisterPayload: {
-    block_number: 'BlockNumber',
-    message: 'Vec<u8>',
-    who: 'AccountId',
-    public: 'MultiSigner',
-  },
   Public: 'MultiSigner',
+  RegisterPayload: {
+    code: 'Vec<u8>',
+    who: 'AccountId',
+    pubkey: 'Vec<u8>',
+    public: 'Public',
+  },
+  RegisterPayloadWithSignature: {
+    payload: 'RegisterPayload<Public, AccountId>',
+    signature: 'Signature',
+  },
+  WrapPublic: {
+    public: 'Public',
+  },
 };
 
 export const registrationChainApi: ApiPromise = new ApiPromise({

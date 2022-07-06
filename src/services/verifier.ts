@@ -9,10 +9,16 @@ import {u8aToHex, stringToU8a} from '@polkadot/util';
 /**
  * Queries
  */
-export async function verificationResults(api: ApiPromise, addr: string) {
-  logger.info(`⚙️ [swork]: Query verification results with ${addr}`);
+export async function verificationResults(
+  api: ApiPromise,
+  addr: string,
+  pubKey: string
+) {
+  logger.info(
+    `⚙️ [swork]: Query verification results with ${addr} pubKey ${pubKey}`
+  );
 
-  return await api.query.verifier.verificationResults(addr);
+  return await api.query.verifier.verificationResults(addr, pubKey);
 }
 
 /**
