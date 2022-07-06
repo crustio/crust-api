@@ -13,7 +13,10 @@ const types = {
   },
   RegisterPayloadWithSignature: {
     payload: 'RegisterPayload<Public, AccountId>',
-    signature: 'Signature',
+    signature: "MultiSignature",
+  },
+  WrapSignature: {
+    signature: "MultiSignature",
   },
   WrapPublic: {
     public: 'Public',
