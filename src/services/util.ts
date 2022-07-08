@@ -9,7 +9,7 @@ import {timeout} from 'promise-timeout';
 import {TxRes, getApi} from './index';
 import {logger} from '../log';
 import {ApiPromise, WsProvider} from '@polkadot/api';
-import { registrationChainApi } from './registrationChainApi';
+import {registrationChainApi} from './registrationChainApi';
 
 const txLocker = {swork: false};
 /**
@@ -46,9 +46,7 @@ export async function sendTx(
       if (status.isInBlock) {
         events.forEach(({event: {data, method, section}}) => {
           if (section === 'system' && method === 'ExtrinsicFailed') {
-            const [dispatchError] = (data as unknown) as ITuple<
-              [DispatchError]
-            >;
+            const [dispatchError] = data as unknown as ITuple<[DispatchError]>;
             const result: TxRes = {
               status: 'failed',
               message: dispatchError.type,

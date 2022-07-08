@@ -5,6 +5,7 @@ import {KeyringPair} from '@polkadot/keyring/types';
 import {handleSworkTxWithLock, sendTx} from './util';
 import {Request} from 'express';
 import {u8aToHex, stringToU8a} from '@polkadot/util';
+import _ from 'lodash';
 
 /**
  * Queries
@@ -18,7 +19,12 @@ export async function verificationResults(
     `⚙️ [swork]: Query verification results with ${addr} pubKey ${pubKey}`
   );
 
-  return await api.query.verifier.verificationResults(addr, pubKey);
+  const result = await api.query.verifier.verificationResults(addr, pubKey);
+  if (_.isEmpty(result)) {
+    throw Error('Unable to get verification results');
+  } else {
+    return result;
+  }
 }
 
 /**
