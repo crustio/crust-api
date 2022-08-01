@@ -46,7 +46,9 @@ export async function sendTx(
       if (status.isInBlock) {
         events.forEach(({event: {data, method, section}}) => {
           if (section === 'system' && method === 'ExtrinsicFailed') {
-            const [dispatchError] = data as unknown as ITuple<[DispatchError]>;
+            const [dispatchError] = (data as unknown) as ITuple<
+              [DispatchError]
+            >;
             const result: TxRes = {
               status: 'failed',
               message: dispatchError.type,

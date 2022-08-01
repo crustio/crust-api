@@ -1,8 +1,8 @@
 /* eslint-disable node/no-extraneous-import */
-import {ApiPromise} from '@polkadot/api';
+import {ApiPromise, Keyring} from '@polkadot/api';
 import {logger} from '../log';
 import {KeyringPair} from '@polkadot/keyring/types';
-import {handleSworkTxWithLock, sendTx} from './util';
+import {handleSworkTxWithLock, queryToObj, sendTx} from './util';
 import {Request} from 'express';
 import {u8aToHex, stringToU8a} from '@polkadot/util';
 import _ from 'lodash';
@@ -19,10 +19,26 @@ export async function verificationResults(
     `⚙️ [swork]: Query verification results with ${addr} pubKey ${pubKey}`
   );
 
-  const result = await api.query.verifier.verificationResults(addr, pubKey);
-  if (_.isEmpty(result)) {
+  const chainResult = queryToObj(
+    await api.query.verifier.verificationResults(addr, pubKey)
+  );
+
+  if (_.isEmpty(chainResult)) {
     throw Error('Unable to get verification results');
   } else {
+    const kr = new Keyring({
+      type: 'sr25519',
+    });
+
+    const result = chainResult.map((e: any) => {
+      return {
+        payload: {
+          ...e.payload,
+          who: u8aToHex(kr.decodeAddress(e.payload.who)),
+        },
+        signature: e.signature,
+      };
+    });
     return result;
   }
 }
