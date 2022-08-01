@@ -26,6 +26,24 @@ export async function register(
   return handleSworkTxWithLock(async () => sendTx(api, tx, krp));
 }
 
+export async function registerV2(
+  api: ApiPromise,
+  krp: KeyringPair,
+  req: Request
+) {
+  logger.info(`⚙️ [swork]: Call registerV2 with ${JSON.stringify(req.body)}`);
+  const tx = api.tx.swork.registerV2(
+    req.body['who'],
+    req.body['code'],
+    req.body['pubkeys'],
+    req.body['sigs'],
+    req.body['pubkey'],
+    '0x' + req.body['sig']
+  );
+
+  return handleSworkTxWithLock(async () => sendTx(api, tx, krp));
+}
+
 export async function reportWorks(
   api: ApiPromise,
   krp: KeyringPair,
