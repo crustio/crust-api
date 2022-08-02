@@ -63,6 +63,7 @@ app.get(
 
 // Post routes
 app.post('/api/v1/swork/identity', services.swork.register);
+app.post('/api/v1/swork/registerV2', services.swork.registerV2);
 app.post('/api/v1/swork/workreport', services.swork.reportWorks);
 app.post(
   '/api/v1/verifier/requestVerification',
