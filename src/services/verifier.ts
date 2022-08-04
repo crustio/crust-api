@@ -20,7 +20,7 @@ export async function verificationResults(
   );
 
   const chainResult = queryToObj(
-    await api.query.verifier.verificationResults(addr, pubKey)
+    await api.query.verifier.verificationResults(addr, '0x' + pubKey)
   );
 
   if (_.isEmpty(chainResult)) {
