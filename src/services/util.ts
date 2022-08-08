@@ -8,6 +8,8 @@ import {SubmittableExtrinsic} from '@polkadot/api/promise/types';
 import {timeout} from 'promise-timeout';
 import {TxRes, getApi} from './index';
 import {logger} from '../log';
+import {ApiPromise, WsProvider} from '@polkadot/api';
+import {registrationChainApi} from './registrationChainApi';
 
 const txLocker = {swork: false};
 /**
@@ -24,7 +26,11 @@ export function loadKeyringPair(req: Request): KeyringPair {
   return krp;
 }
 
-export async function sendTx(tx: SubmittableExtrinsic, krp: KeyringPair) {
+export async function sendTx(
+  api: ApiPromise,
+  tx: SubmittableExtrinsic,
+  krp: KeyringPair
+) {
   return new Promise((resolve, reject) => {
     tx.signAndSend(krp, ({events = [], status}) => {
       logger.info(
@@ -40,7 +46,9 @@ export async function sendTx(tx: SubmittableExtrinsic, krp: KeyringPair) {
       if (status.isInBlock) {
         events.forEach(({event: {data, method, section}}) => {
           if (section === 'system' && method === 'ExtrinsicFailed') {
-            const [dispatchError] = data as unknown as ITuple<[DispatchError]>;
+            const [dispatchError] = (data as unknown) as ITuple<
+              [DispatchError]
+            >;
             const result: TxRes = {
               status: 'failed',
               message: dispatchError.type,
@@ -48,11 +56,11 @@ export async function sendTx(tx: SubmittableExtrinsic, krp: KeyringPair) {
             // Can get detail error info
             if (dispatchError.isModule) {
               const mod = dispatchError.asModule;
-              const error = getApi().registry.findMetaError(
+              const error = api.registry.findMetaError(
                 new Uint8Array([mod.index.toNumber(), mod.error.toNumber()])
               );
               result.message = `${error.section}.${error.name}`;
-              result.details = error.documentation.join('');
+              result.details = error.docs.join('');
             }
 
             logger.info(
@@ -91,6 +99,28 @@ export async function withApiReady(fn: Function, next: NextFunction) {
   }
   try {
     const matureApi = await api.isReady;
+    await fn(matureApi);
+    next();
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function withRegistrationChainApiReady(
+  fn: Function,
+  next: NextFunction
+) {
+  const _api = await registrationChainApi.isReadyOrError;
+  if (!_api || !_api.isConnected) {
+    next(
+      new Error(
+        '⚠️ Registration Chain is offline, please connect a running chain.'
+      )
+    );
+    return;
+  }
+  try {
+    const matureApi = await _api.isReady;
     await fn(matureApi);
     next();
   } catch (err) {

@@ -20,7 +20,7 @@ export async function blockHash(api: ApiPromise, bn: number) {
 
 export async function health(api: ApiPromise) {
   logger.info('⛓ [chain]: Query system health');
-  const h = await api.rpc.system.health();
+  const h = (await api.rpc.system.health()) as any;
   const ch: CrustHealth = {
     isSyncing: h.isSyncing.isTrue,
     peers: h.peers.toNumber(),
@@ -29,9 +29,9 @@ export async function health(api: ApiPromise) {
 
   // HEALTH PATCH: This is for the poor syncing process
   if (!ch.isSyncing) {
-    const h_before = await header(api);
+    const h_before = (await header(api)) as any;
     await sleep(3000);
-    const h_after = await header(api);
+    const h_after = (await header(api)) as any;
     if (h_before.number.toNumber() + 1 < h_after.number.toNumber()) {
       ch.isSyncing = true;
     }

@@ -56,10 +56,19 @@ app.get('/api/v1/swork/workreport', services.swork.workReport);
 app.get('/api/v1/swork/code', services.swork.code);
 app.get('/api/v1/swork/identity', services.swork.identity);
 app.get('/api/v1/market/file', services.market.file);
+app.get(
+  '/api/v1/verifier/verificationResults',
+  services.verifier.verificationResults
+);
 
 // Post routes
 app.post('/api/v1/swork/identity', services.swork.register);
+app.post('/api/v1/swork/registerWithDeauthChain', services.swork.registerWithDeauthChain);
 app.post('/api/v1/swork/workreport', services.swork.reportWorks);
+app.post(
+  '/api/v1/verifier/requestVerification',
+  services.verifier.requestVerification
+);
 
 // Error handler
 app.use(errorHandler);

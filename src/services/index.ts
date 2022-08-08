@@ -2,10 +2,16 @@ import {Request, Response, NextFunction} from 'express';
 import {ApiPromise, WsProvider} from '@polkadot/api';
 import {typesBundleForPolkadot} from '@crustio/type-definitions';
 import {blockHash, header, health} from './chain';
-import {register, reportWorks, workReport, code, identity} from './swork';
+import {register, reportWorks, workReport, code, identity, registerWithDeauthChain, } from './swork';
 import {file} from './market';
-import {loadKeyringPair, resHandler, withApiReady} from './util';
+import {
+  loadKeyringPair,
+  resHandler,
+  withApiReady,
+  withRegistrationChainApiReady,
+} from './util';
 import {logger} from '../log';
+import {requestVerification, verificationResults} from './verifier';
 
 // TODO: Better result
 export interface TxRes {
@@ -39,7 +45,7 @@ export const getApi = (): ApiPromise => {
 export const chain = {
   header: (_: Request, res: Response, next: NextFunction) => {
     withApiReady(async (api: ApiPromise) => {
-      const h = await header(api);
+      const h = (await header(api)) as any;
       res.json({
         number: h.number,
         hash: h.hash,
@@ -63,6 +69,12 @@ export const swork = {
     withApiReady(async (api: ApiPromise) => {
       const krp = loadKeyringPair(req);
       await resHandler(register(api, krp, req), res);
+    }, next);
+  },
+  registerWithDeauthChain: (req: Request, res: Response, next: NextFunction) => {
+    withApiReady(async (api: ApiPromise) => {
+      const krp = loadKeyringPair(req);
+      await resHandler(registerWithDeauthChain(api, krp, req), res);
     }, next);
   },
   reportWorks: (req: Request, res: Response, next: NextFunction) => {
@@ -92,6 +104,26 @@ export const market = {
   file: (req: Request, res: Response, next: NextFunction) => {
     withApiReady(async (api: ApiPromise) => {
       res.json(await file(api, String(req.query['cid'])));
+    }, next);
+  },
+};
+
+export const verifier = {
+  verificationResults: (req: Request, res: Response, next: NextFunction) => {
+    withRegistrationChainApiReady(async (api: ApiPromise) => {
+      res.json(
+        await verificationResults(
+          api,
+          String(req.query['address']),
+          String(req.query['pubKey'])
+        )
+      );
+    }, next);
+  },
+  requestVerification: (req: Request, res: Response, next: NextFunction) => {
+    withRegistrationChainApiReady(async (api: ApiPromise) => {
+      const krp = loadKeyringPair(req);
+      await resHandler(requestVerification(api, krp, req), res);
     }, next);
   },
 };
