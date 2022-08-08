@@ -234,12 +234,12 @@ Response:
 }
 ```
 
-#### RegisterV2 as sWorker
+#### Register with decentralized auth chain as sWorker
 
 Request:
 
 ```shell
-curl --request POST 'http://localhost:56666/api/v1/swork/registerV2' \
+curl --request POST 'http://localhost:56666/api/v1/swork/registerWithDeauthChain' \
 --header 'Content-Type: application/json' \
 --header 'password: 123456' \
 --data-raw '{

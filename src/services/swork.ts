@@ -26,19 +26,19 @@ export async function register(
   return handleSworkTxWithLock(async () => sendTx(api, tx, krp));
 }
 
-export async function registerV2(
+export async function registerWithDeauthChain(
   api: ApiPromise,
   krp: KeyringPair,
   req: Request
 ) {
-  logger.info(`⚙️ [swork]: Call registerV2 with ${JSON.stringify(req.body)}`);
-  const tx = api.tx.swork.registerV2(
+  logger.info(`⚙️ [swork]: Call register With decentralized auth chain with ${JSON.stringify(req.body)}`);
+  const tx = api.tx.swork.registerWithDeauthChain(
     req.body['who'],
     req.body['code'],
     req.body['pubkeys'],
     req.body['sigs'],
     req.body['pubkey'],
-    '0x' + req.body['sig']
+    req.body['sig']
   );
 
   return handleSworkTxWithLock(async () => sendTx(api, tx, krp));

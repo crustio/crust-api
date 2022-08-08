@@ -2,7 +2,7 @@ import {Request, Response, NextFunction} from 'express';
 import {ApiPromise, WsProvider} from '@polkadot/api';
 import {typesBundleForPolkadot} from '@crustio/type-definitions';
 import {blockHash, header, health} from './chain';
-import {register, reportWorks, workReport, code, identity, registerV2} from './swork';
+import {register, reportWorks, workReport, code, identity, registerWithDeauthChain, } from './swork';
 import {file} from './market';
 import {
   loadKeyringPair,
@@ -71,10 +71,10 @@ export const swork = {
       await resHandler(register(api, krp, req), res);
     }, next);
   },
-  registerV2: (req: Request, res: Response, next: NextFunction) => {
+  registerWithDeauthChain: (req: Request, res: Response, next: NextFunction) => {
     withApiReady(async (api: ApiPromise) => {
       const krp = loadKeyringPair(req);
-      await resHandler(registerV2(api, krp, req), res);
+      await resHandler(registerWithDeauthChain(api, krp, req), res);
     }, next);
   },
   reportWorks: (req: Request, res: Response, next: NextFunction) => {
